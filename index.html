@@ -1123,6 +1123,22 @@
     <script>
         function cs2App() {
             return {
+                overlayMode: false,
+                overlaySettingsOpen: false,
+                clickThrough: false,
+                overlayOpacity: 0.72,
+
+                toggleOverlay() {
+                    this.overlayMode = !this.overlayMode;
+                    this.overlaySettingsOpen = this.overlayMode;
+                    if (!this.overlayMode) this.clickThrough = false;
+                },
+
+                saveOverlaySettings() {
+                    localStorage.setItem('cs2toolkit_overlay_opacity', String(this.overlayOpacity));
+                    localStorage.setItem('cs2toolkit_overlay_clickthrough', JSON.stringify(this.clickThrough));
+                },
+
                 activeTab: 'maps-nades',
                 crosshairPanel: 'builder',
                 playerMoney: 4500,
