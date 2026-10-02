@@ -120,6 +120,9 @@
                 <button @click="activeTab = 'commands'" :class="activeTab === 'commands' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-terminal"></i> Console
                 </button>
+                <button @click="activeTab = 'aim-trainer'" :class="activeTab === 'aim-trainer' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-crosshairs"></i> Aim Trainer
+                </button>
             </nav>
         </div>
     </header>
@@ -787,96 +790,125 @@
             </div>
         </div>
 
-        <!-- TAB 4: CROSSHAIR GENERATOR -->
+        <!-- TAB 4: CROSSHAIR -->
         <div x-show="activeTab === 'crosshair'" x-cloak class="space-y-6">
-            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6">
-                    <div>
-                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
-                            <i class="fa-solid fa-crosshairs"></i> Crosshair
-                        </h2>
-                        <p class="text-sm text-gray-400 mt-1">Stabile Live-Vorschau und direkter CS2-Konsolenbefehl.</p>
-                    </div>
-                    <button type="button" @click="resetCrosshair()"
-                        class="bg-csdark-700 hover:bg-csdark-600 text-gray-300 px-3 py-2 rounded border border-gray-700 text-xs transition">
-                        Zurücksetzen
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-4 shadow-lg">
+                <div class="flex flex-wrap gap-2">
+                    <button type="button"
+                        @click="crosshairPanel = 'builder'"
+                        :class="crosshairPanel === 'builder' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
+                        class="px-4 py-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-sliders mr-1"></i> Generator
+                    </button>
+                    <button type="button"
+                        @click="crosshairPanel = 'presets'"
+                        :class="crosshairPanel === 'presets' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
+                        class="px-4 py-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-layer-group mr-1"></i> Crosshair-Presets
                     </button>
                 </div>
+            </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-black/50 rounded-xl border border-gray-800 min-h-[360px] flex items-center justify-center relative overflow-hidden">
-                        <div class="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,85,0,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,85,0,.35)_1px,transparent_1px)] [background-size:24px_24px]"></div>
-
-                        <div class="relative w-64 h-64" aria-label="Crosshair Vorschau">
-                            <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm"
-                                :style="crosshairPreviewStyle('left')"></div>
-                            <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm"
-                                :style="crosshairPreviewStyle('right')"></div>
-                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm"
-                                :style="crosshairPreviewStyle('top')"></div>
-                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm"
-                                :style="crosshairPreviewStyle('bottom')"></div>
-                            <div x-show="chDot" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                                :style="`width:${Math.max(2,chThickness * 1.6)}px;height:${Math.max(2,chThickness * 1.6)}px;background:${chColor};box-shadow:${chOutline ? '0 0 0 1px #000' : 'none'};`"></div>
+            <template x-if="crosshairPanel === 'builder'">
+                <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
+                                <i class="fa-solid fa-crosshairs"></i> Crosshair Generator
+                            </h2>
+                            <p class="text-sm text-gray-400 mt-1">Stabile Live-Vorschau und direkter CS2-Konsolenbefehl.</p>
                         </div>
-
-                        <div class="absolute bottom-3 left-3 text-[10px] text-gray-500">Live Vorschau</div>
+                        <button type="button" @click="resetCrosshair()"
+                            class="bg-csdark-700 hover:bg-csdark-600 text-gray-300 px-3 py-2 rounded border border-gray-700 text-xs transition">
+                            Zurücksetzen
+                        </button>
                     </div>
 
-                    <div class="bg-csdark-900 rounded-xl border border-gray-800 p-5 space-y-5">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Größe <span class="text-csorange" x-text="chSize"></span></label>
-                            <input type="range" min="1" max="10" step="1" x-model.number="chSize" class="w-full accent-csorange">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Lücke <span class="text-csorange" x-text="chGap"></span></label>
-                            <input type="range" min="-5" max="10" step="1" x-model.number="chGap" class="w-full accent-csorange">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Dicke <span class="text-csorange" x-text="chThickness"></span></label>
-                            <input type="range" min="1" max="4" step="1" x-model.number="chThickness" class="w-full accent-csorange">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Farbe</label>
-                            <select x-model="chColor" class="w-full bg-csdark-800 border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200">
-                                <option value="#ffffff">Weiß</option>
-                                <option value="#00ff00">Grün</option>
-                                <option value="#ffff00">Gelb</option>
-                                <option value="#00ffff">Cyan</option>
-                                <option value="#ff00ff">Pink</option>
-                                <option value="#ff5500">CS2 Orange</option>
-                            </select>
-                        </div>
-
-                        <div class="flex flex-wrap gap-4 text-sm text-gray-300">
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" x-model="chDot" class="rounded text-csorange">
-                                Dot
-                            </label>
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" x-model="chOutline" class="rounded text-csorange">
-                                Outline
-                            </label>
-                        </div>
-
-                        <div class="pt-4 border-t border-gray-800">
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">CS2 Konsolenbefehl</label>
-                            <div class="flex gap-2">
-                                <input type="text" readonly :value="generateCrosshairCode()"
-                                    class="flex-1 bg-csdark-800 border border-gray-700 rounded-lg p-2.5 text-xs font-mono text-csorange select-all">
-                                <button type="button" @click="copyCrosshair()"
-                                    class="bg-csorange hover:bg-csorange-hover text-black font-bold px-3 rounded-lg text-xs transition">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-black/50 rounded-xl border border-gray-800 min-h-[360px] flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,85,0,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,85,0,.35)_1px,transparent_1px)] [background-size:24px_24px]"></div>
+                            <div class="relative w-64 h-64" aria-label="Crosshair Vorschau">
+                                <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm" :style="crosshairPreviewStyle('left')"></div>
+                                <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm" :style="crosshairPreviewStyle('right')"></div>
+                                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm" :style="crosshairPreviewStyle('top')"></div>
+                                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm" :style="crosshairPreviewStyle('bottom')"></div>
+                                <div x-show="chDot" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                                    :style="`width:${Math.max(2,chThickness * 1.6)}px;height:${Math.max(2,chThickness * 1.6)}px;background:${chColor};box-shadow:${chOutline ? '0 0 0 1px #000' : 'none'};`"></div>
                             </div>
-                            <p class="text-[10px] text-gray-500 mt-2">Der Befehl wird automatisch aktualisiert.</p>
+                            <div class="absolute bottom-3 left-3 text-[10px] text-gray-500">Live Vorschau</div>
+                        </div>
+
+                        <div class="bg-csdark-900 rounded-xl border border-gray-800 p-5 space-y-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Größe <span class="text-csorange" x-text="chSize"></span></label>
+                                <input type="range" min="1" max="10" step="1" x-model.number="chSize" class="w-full accent-csorange">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Lücke <span class="text-csorange" x-text="chGap"></span></label>
+                                <input type="range" min="-5" max="10" step="1" x-model.number="chGap" class="w-full accent-csorange">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Dicke <span class="text-csorange" x-text="chThickness"></span></label>
+                                <input type="range" min="1" max="4" step="1" x-model.number="chThickness" class="w-full accent-csorange">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Farbe</label>
+                                <select x-model="chColor" class="w-full bg-csdark-800 border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200">
+                                    <option value="#ffffff">Weiß</option>
+                                    <option value="#00ff00">Grün</option>
+                                    <option value="#ffff00">Gelb</option>
+                                    <option value="#00ffff">Cyan</option>
+                                    <option value="#ff00ff">Pink</option>
+                                    <option value="#ff5500">CS2 Orange</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-wrap gap-4 text-sm text-gray-300">
+                                <label class="flex items-center gap-2"><input type="checkbox" x-model="chDot" class="rounded text-csorange"> Dot</label>
+                                <label class="flex items-center gap-2"><input type="checkbox" x-model="chOutline" class="rounded text-csorange"> Outline</label>
+                            </div>
+                            <div class="pt-4 border-t border-gray-800">
+                                <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">CS2 Konsolenbefehl</label>
+                                <div class="flex gap-2">
+                                    <input type="text" readonly :value="generateCrosshairCode()" class="flex-1 bg-csdark-800 border border-gray-700 rounded-lg p-2.5 text-xs font-mono text-csorange select-all">
+                                    <button type="button" @click="copyCrosshair()" class="bg-csorange hover:bg-csorange-hover text-black font-bold px-3 rounded-lg text-xs transition">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-gray-500 mt-2">Der Befehl wird automatisch aktualisiert.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </template>
+
+            <template x-if="crosshairPanel === 'presets'">
+                <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                    <div class="mb-5">
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2"><i class="fa-solid fa-layer-group"></i> Crosshair-Presets</h2>
+                        <p class="text-sm text-gray-400 mt-1">Fertige Ausgangspunkte. Mit einem Klick werden die Werte in den Generator übernommen.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <template x-for="preset in crosshairPresets" :key="preset.id">
+                            <div class="bg-csdark-900 border border-gray-800 rounded-xl p-4 hover:border-csorange/50 transition">
+                                <div class="h-24 rounded-lg bg-black border border-gray-800 flex items-center justify-center mb-4">
+                                    <div class="relative w-20 h-20">
+                                        <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm" :style="crosshairPresetPreviewStyle(preset, 'left')"></div>
+                                        <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm" :style="crosshairPresetPreviewStyle(preset, 'right')"></div>
+                                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm" :style="crosshairPresetPreviewStyle(preset, 'top')"></div>
+                                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm" :style="crosshairPresetPreviewStyle(preset, 'bottom')"></div>
+                                        <div x-show="preset.dot" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full" :style="`width:${Math.max(2,preset.thickness * 1.6)}px;height:${Math.max(2,preset.thickness * 1.6)}px;background:${preset.color};`"></div>
+                                    </div>
+                                </div>
+                                <div class="font-bold text-white" x-text="preset.name"></div>
+                                <div class="text-[11px] text-gray-500 mt-1" x-text="preset.description"></div>
+                                <button type="button" @click="applyCrosshairPreset(preset)" class="mt-4 w-full bg-csorange hover:bg-csorange-hover text-black font-bold px-3 py-2 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-check mr-1"></i> Übernehmen
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
         </div>
 
         <!-- TAB 5: CONSOLE COMMANDS -->
@@ -902,6 +934,41 @@
             </div>
         </div>
 
+        <!-- TAB 6: AIM TRAINER -->
+        <div x-show="activeTab === 'aim-trainer'" x-cloak class="space-y-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
+                    <div>
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2"><i class="fa-solid fa-crosshairs"></i> CS2 Aim Trainer</h2>
+                        <p class="text-sm text-gray-400 mt-1">Externe Browser-Integration – direkt im Toolkit nutzbar.</p>
+                    </div>
+                    <a href="https://aimtraining.gitlab.io/" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 bg-csorange hover:bg-csorange-hover text-black font-bold px-4 py-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-up-right-from-square"></i> Extern öffnen
+                    </a>
+                </div>
+                <div class="bg-csdark-900 border border-gray-800 rounded-xl overflow-hidden">
+                    <iframe src="https://aimtraining.gitlab.io/" title="Externer CS2 Aim Trainer" loading="lazy"
+                        allow="fullscreen; pointer-lock" referrerpolicy="strict-origin-when-cross-origin"
+                        class="w-full h-[760px] border-0 bg-black"></iframe>
+                </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
+                        <div class="text-csorange font-bold mb-1">Browser-basiert</div>
+                        <div class="text-gray-400">Kein zusätzlicher Download im Toolkit.</div>
+                    </div>
+                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
+                        <div class="text-csorange font-bold mb-1">CS2-Sensitivität</div>
+                        <div class="text-gray-400">Die externe Seite bietet eine CS2-Sensitivitätsabstimmung.</div>
+                    </div>
+                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
+                        <div class="text-csorange font-bold mb-1">Fallback</div>
+                        <div class="text-gray-400">Falls die Einbettung blockiert wird, oben einfach „Extern öffnen“ nutzen.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Footer -->
@@ -914,6 +981,7 @@
         function cs2App() {
             return {
                 activeTab: 'maps-nades',
+                crosshairPanel: 'builder',
                 playerMoney: 4500,
                 lossStreak: 1,
                 teamCash: [4500, 4500, 4500, 4500, 4500],
@@ -1609,6 +1677,17 @@ bombSites: [
                 chDot: false,
                 chOutline: true,
 
+                crosshairPresets: [
+                    { id: 'classic-orange', name: 'Classic Orange', description: 'Ausgewogen für Rifle / Allround', size: 3, gap: -2, thickness: 1, color: '#ff5500', dot: false, outline: true },
+                    { id: 'clean-white', name: 'Clean White', description: 'Klein und klar', size: 2, gap: -3, thickness: 1, color: '#ffffff', dot: false, outline: true },
+                    { id: 'small-green', name: 'Small Green', description: 'Kompakt mit starkem Kontrast', size: 2, gap: -4, thickness: 1, color: '#00ff00', dot: false, outline: true },
+                    { id: 'dot-cyan', name: 'Dot Cyan', description: 'Präziser Mittelpunkt', size: 1, gap: -3, thickness: 1, color: '#00ffff', dot: true, outline: false },
+                    { id: 'rifle-yellow', name: 'Rifle Yellow', description: 'Gut sichtbar auf dunklen Flächen', size: 3, gap: -3, thickness: 1, color: '#ffff00', dot: false, outline: true },
+                    { id: 'awp-white', name: 'AWP White', description: 'Mehr Sichtbarkeit für AWP-Peeks', size: 4, gap: -1, thickness: 1, color: '#ffffff', dot: false, outline: true },
+                    { id: 'entry-pink', name: 'Entry Pink', description: 'Deutliches Fadenkreuz für schnelle Duelle', size: 3, gap: -2, thickness: 2, color: '#ff00ff', dot: false, outline: true },
+                    { id: 'minimal-cyan', name: 'Minimal Cyan', description: 'Sehr klein und minimalistisch', size: 2, gap: -5, thickness: 1, color: '#00ffff', dot: false, outline: false }
+                ],
+
                 crosshairPreviewStyle(side) {
                     const size = Math.max(1, Number(this.chSize) || 1);
                     const gap = Number(this.chGap) || 0;
@@ -1636,6 +1715,31 @@ bombSites: [
                     this.chColor = '#ff5500';
                     this.chDot = false;
                     this.chOutline = true;
+                    this.crosshairPanel = 'builder';
+                },
+
+                applyCrosshairPreset(preset) {
+                    if (!preset) return;
+                    this.chSize = preset.size;
+                    this.chGap = preset.gap;
+                    this.chThickness = preset.thickness;
+                    this.chColor = preset.color;
+                    this.chDot = !!preset.dot;
+                    this.chOutline = !!preset.outline;
+                    this.crosshairPanel = 'builder';
+                },
+
+                crosshairPresetPreviewStyle(preset, side) {
+                    const size = Math.max(1, Number(preset.size) || 1);
+                    const gap = Number(preset.gap) || 0;
+                    const thickness = Math.max(1, Number(preset.thickness) || 1);
+                    const length = size * 5;
+                    const color = preset.color || '#ffffff';
+                    const shadow = preset.outline ? '0 0 0 1px #000000' : 'none';
+                    if (side === 'left') return 'width:' + length + 'px;height:' + thickness + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateX(calc(-100% - ' + gap + 'px)) translateY(-50%);';
+                    if (side === 'right') return 'width:' + length + 'px;height:' + thickness + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateX(' + gap + 'px) translateY(-50%);';
+                    if (side === 'top') return 'width:' + thickness + 'px;height:' + length + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateY(calc(-100% - ' + gap + 'px)) translateX(-50%);';
+                    return 'width:' + thickness + 'px;height:' + length + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateY(' + gap + 'px) translateX(-50%);';
                 },
 
                 hexToRgb(hex) {
