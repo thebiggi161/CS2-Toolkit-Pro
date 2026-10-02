@@ -408,12 +408,14 @@
                             <div class="flex items-center gap-2">
                                 <span class="text-sm font-semibold text-white" x-text="activeMapPanel === 'smokes' ? 'Smoke-Touchpad & Lineups' : 'Interaktiver Bombenradius'"></span>
                                 <span class="text-xs text-gray-500" x-show="activeMapPanel === 'smokes'" x-text="placedSmokes.length + ' gesetzt'"></span>
+                                <span class="text-xs text-yellow-300" x-show="activeMapPanel === 'bombwave'" x-text="bombWave.inspectActive ? 'Prüfpunkt gesetzt' : 'Prüfpunkt auswählen'"></span>
                             </div>
                             <div class="flex flex-wrap gap-2 text-[10px] text-gray-400">
                                 <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">Gelb = Lineup</span>
                                 <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">Rot = Bombsite</span>
                                 <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700" x-show="activeMapPanel === 'smokes'">Weiß = deine Smoke</span>
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700" x-show="activeMapPanel === 'bombwave'">Gelber Kreis = Druckwelle</span>
+                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700" x-show="activeMapPanel === 'bombwave'">Gelb pulsierend = Wellenursprung</span>
+                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700" x-show="activeMapPanel === 'bombwave'">Weiß = Prüfpunkt</span>
                             </div>
                         </div>
 
@@ -440,10 +442,18 @@
                                 </template>
 
                                 <g x-show="bombWave.active">
+                                    <!-- Explosionszentrum: bleibt auf der ausgewählten Bombsite -->
                                     <circle :cx="bombWave.x" :cy="bombWave.y" r="2.0" fill="#facc15" stroke="#111827" stroke-width="0.55"></circle>
                                     <circle class="bomb-wave-ring ring-a" :cx="bombWave.x" :cy="bombWave.y" r="3" fill="none" stroke="#fde047" stroke-width="0.85" opacity="0.9"></circle>
                                     <circle class="bomb-wave-ring ring-b" :cx="bombWave.x" :cy="bombWave.y" r="8" fill="none" stroke="#facc15" stroke-width="0.65" opacity="0.65"></circle>
                                     <circle class="bomb-wave-ring ring-c" :cx="bombWave.x" :cy="bombWave.y" r="14" fill="none" stroke="#facc15" stroke-width="0.5" opacity="0.35"></circle>
+
+                                    <!-- Prüfpunkt: hier fragt der Nutzer die Schadenszone ab -->
+                                    <g x-show="bombWave.inspectActive">
+                                        <circle :cx="bombWave.inspectX" :cy="bombWave.inspectY" r="1.5" fill="none" stroke="#ffffff" stroke-width="0.6"></circle>
+                                        <line :x1="bombWave.inspectX - 2" :y1="bombWave.inspectY" :x2="bombWave.inspectX + 2" :y2="bombWave.inspectY" stroke="#ffffff" stroke-width="0.35"></line>
+                                        <line :x1="bombWave.inspectX" :y1="bombWave.inspectY - 2" :x2="bombWave.inspectX" :y2="bombWave.inspectY + 2" stroke="#ffffff" stroke-width="0.35"></line>
+                                    </g>
                                 </g>
                             </svg>
 
@@ -731,7 +741,7 @@
                 activeMapPanel: 'smokes',
                 placedSmokes: [],
                 smokeId: 0,
-                bombWave: { active: false, site: 'A', x: 50, y: 50 },
+                bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
                 maps: {
                     mirage: {
                         label: 'Mirage',
@@ -871,6 +881,7 @@ bombSites: [
 
                 clearBombWave() {
                     this.bombWave.active = false;
+                    this.bombWave.inspectActive = false;
                 },
 
                 selectBombSite(siteId) {
@@ -879,6 +890,9 @@ bombSites: [
                     if (site) {
                         this.bombWave.x = site.x;
                         this.bombWave.y = site.y;
+                        this.bombWave.inspectX = site.x;
+                        this.bombWave.inspectY = site.y;
+                        this.bombWave.inspectActive = true;
                         this.bombWave.active = true;
                     }
                 },
@@ -915,9 +929,18 @@ bombSites: [
                 setBombWave(event) {
                     const point = this.getMapPoint(event);
                     if (!point) return;
+
+                    // Valve-style model: the explosion originates at the selected
+                    // bombsite. The map click is only the point being inspected.
+                    const site = this.maps[this.selectedMap].bombSites.find(s => s.id === this.bombWave.site);
+                    if (!site) return;
+
+                    this.bombWave.x = site.x;
+                    this.bombWave.y = site.y;
+                    this.bombWave.inspectX = point.x;
+                    this.bombWave.inspectY = point.y;
+                    this.bombWave.inspectActive = true;
                     this.bombWave.active = true;
-                    this.bombWave.x = point.x;
-                    this.bombWave.y = point.y;
                 },
 
                 removeSmoke(index) {
