@@ -1,1 +1,727 @@
-The requested file reference is not currently visible. Use files.search or files.list to rediscover the file, then retry with a returned ref_id or file_id.
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Pro Toolkit & Economy Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        csdark: {
+                            900: '#070707',
+                            800: '#121212',
+                            700: '#1e1e1e',
+                            600: '#2d2d2d',
+                        },
+                        csorange: {
+                            DEFAULT: '#ff5500',
+                            hover: '#e04a00',
+                            light: '#ff7733',
+                            dark: '#cc4400'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Alpine.js für Interaktivität -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- FontAwesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #070707; }
+        ::-webkit-scrollbar-thumb { background: #ff5500; border-radius: 4px; }
+        .map-radar {
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .smoke-marker {
+            transform: translate(-50%, -50%);
+        }
+        .spot-dot {
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()">
+
+    <!-- Header -->
+    <header class="bg-csdark-800 border-b border-csorange/30 sticky top-0 z-50 shadow-lg shadow-black/50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-csorange text-black font-black px-3 py-1.5 rounded tracking-wider text-lg shadow-md shadow-csorange/20">CS2</div>
+                <h1 class="text-xl font-bold tracking-wide text-white">Pro Toolkit <span class="text-csorange text-sm font-normal">& Economy Manager</span></h1>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <nav class="flex flex-wrap gap-1 sm:gap-2">
+                <button @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-calculator"></i> Buy & Economy
+                </button>
+                <button @click="activeTab = 'callouts'" :class="activeTab === 'callouts' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-map"></i> Maps & Nades
+                </button>
+                <button @click="activeTab = 'crosshair'" :class="activeTab === 'crosshair' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-crosshairs"></i> Crosshair
+                </button>
+                <button @click="activeTab = 'commands'" :class="activeTab === 'commands' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-terminal"></i> Console
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- TAB 1: BUY & ECONOMY SIMULATOR (Zusammengelegt) -->
+        <div x-show="activeTab === 'buy-economy'" x-cloak class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Budget Steuerung -->
+                <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-5 shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-csorange/5 rounded-full blur-2xl pointer-events-none"></div>
+                    <h2 class="text-base font-bold mb-3 text-csorange flex items-center gap-2"><i class="fa-solid fa-wallet"></i> Dein Kontostand</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-300">Verfügbares Geld:</span>
+                                <span class="font-mono font-bold text-csorange text-lg" x-text="'$' + playerMoney"></span>
+                            </div>
+                            <input type="range" min="0" max="16000" step="50" x-model.number="playerMoney" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <button @click="playerMoney = 800" class="bg-csdark-700 hover:bg-csdark-600 text-xs px-2.5 py-1 rounded text-gray-300 border border-gray-700">$800 (Pistol)</button>
+                            <button @click="playerMoney = 2000" class="bg-csdark-700 hover:bg-csdark-600 text-xs px-2.5 py-1 rounded text-gray-300 border border-gray-700">$2.000 (Force)</button>
+                            <button @click="playerMoney = 4500" class="bg-csdark-700 hover:bg-csdark-600 text-xs px-2.5 py-1 rounded text-gray-300 border border-gray-700">$4.500 (Full Buy)</button>
+                            <button @click="playerMoney = 16000" class="bg-csdark-700 hover:bg-csdark-600 text-xs px-2.5 py-1 rounded text-gray-300 border border-gray-700">$16.000 (Max)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loss Streak Steuerung -->
+                <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-5 shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-csorange/5 rounded-full blur-2xl pointer-events-none"></div>
+                    <h2 class="text-base font-bold mb-3 text-csorange flex items-center gap-2"><i class="fa-solid fa-chart-line"></i> Loss-Bonus Simulation</h2>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 mb-1">Aktuelle Niederlagenserie: <span class="text-csorange font-bold" x-text="lossStreak"></span></label>
+                            <input type="range" min="0" max="4" x-model.number="lossStreak" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+                        </div>
+                        <div class="flex justify-between items-center bg-csdark-900 p-2.5 rounded border border-gray-800 text-sm">
+                            <span class="text-gray-300">Nächster Verlust-Bonus (pro Spieler):</span>
+                            <span class="font-mono font-bold text-csorange" x-text="'$' + getLossBonus(lossStreak)"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Haupt-Equipment Rechner mit Checkboxen & automatischem Ausgrauen -->
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2"><i class="fa-solid fa-toolbox"></i> Ausrüstungs-Konfigurator (Inventar)</h2>
+                        <p class="text-gray-400 text-sm mt-1">Wähle deine Items per Checkbox aus. Zu teure Gegenstände werden automatisch ausgegraut.</p>
+                    </div>
+                    <button @click="resetLoadout()" class="bg-csdark-700 hover:bg-csdark-600 text-xs text-gray-300 px-3 py-2 rounded border border-gray-700 transition">Auswahl zurücksetzen</button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Primärwaffen -->
+                    <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                        <h3 class="font-semibold text-gray-200 mb-3 border-b border-gray-800 pb-2 flex justify-between items-center">
+                            <span>Primärwaffen</span>
+                            <span class="text-xs text-gray-500 font-normal">Max. 1 wählbar</span>
+                        </h3>
+                        <div class="space-y-2">
+                            <template x-for="weapon in weapons.primary">
+                                <label :class="(playerMoney < (weapon.price + calculateTotalWithoutCategory('primary')) && selectedPrimary !== weapon.price) ? 'opacity-40 cursor-not-allowed bg-csdark-900/50' : 'hover:bg-csdark-800 cursor-pointer'" class="flex justify-between items-center p-2.5 rounded transition border border-transparent hover:border-gray-800">
+                                    <div class="flex items-center gap-2.5">
+                                        <input type="checkbox" :value="weapon.price" @change="selectPrimary(weapon.price)" :checked="selectedPrimary === weapon.price" :disabled="playerMoney < (weapon.price + calculateTotalWithoutCategory('primary')) && selectedPrimary !== weapon.price" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+                                        <span class="text-sm" x-text="weapon.name"></span>
+                                    </div>
+                                    <span class="text-xs font-mono" :class="(playerMoney < (weapon.price + calculateTotalWithoutCategory('primary')) && selectedPrimary !== weapon.price) ? 'text-gray-600' : 'text-csorange font-bold'" x-text="'$' + weapon.price"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Sekundär & Rüstung -->
+                    <div class="space-y-6">
+                        <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                            <h3 class="font-semibold text-gray-200 mb-3 border-b border-gray-800 pb-2 flex justify-between items-center">
+                                <span>Pistolen</span>
+                                <span class="text-xs text-gray-500 font-normal">Max. 1 wählbar</span>
+                            </h3>
+                            <div class="space-y-2">
+                                <template x-for="weapon in weapons.secondary">
+                                    <label :class="(playerMoney < (weapon.price + calculateTotalWithoutCategory('secondary')) && selectedSecondary !== weapon.price) ? 'opacity-40 cursor-not-allowed bg-csdark-900/50' : 'hover:bg-csdark-800 cursor-pointer'" class="flex justify-between items-center p-2 rounded transition border border-transparent">
+                                        <div class="flex items-center gap-2.5">
+                                            <input type="checkbox" :value="weapon.price" @change="selectSecondary(weapon.price)" :checked="selectedSecondary === weapon.price" :disabled="playerMoney < (weapon.price + calculateTotalWithoutCategory('secondary')) && selectedSecondary !== weapon.price" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+                                            <span class="text-sm" x-text="weapon.name"></span>
+                                        </div>
+                                        <span class="text-xs font-mono" :class="(playerMoney < (weapon.price + calculateTotalWithoutCategory('secondary')) && selectedSecondary !== weapon.price) ? 'text-gray-600' : 'text-csorange font-bold'" x-text="'$' + weapon.price"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                            <h3 class="font-semibold text-gray-200 mb-3 border-b border-gray-800 pb-2 flex justify-between items-center">
+                                <span>Rüstung & Helme</span>
+                                <span class="text-xs text-gray-500 font-normal">Max. 1 wählbar</span>
+                            </h3>
+                            <div class="space-y-2">
+                                <template x-for="gear in weapons.gear">
+                                    <label :class="(playerMoney < (gear.price + calculateTotalWithoutCategory('gear')) && selectedGear !== gear.price) ? 'opacity-40 cursor-not-allowed bg-csdark-900/50' : 'hover:bg-csdark-800 cursor-pointer'" class="flex justify-between items-center p-2 rounded transition border border-transparent">
+                                        <div class="flex items-center gap-2.5">
+                                            <input type="checkbox" :value="gear.price" @change="selectGear(gear.price)" :checked="selectedGear === gear.price" :disabled="playerMoney < (gear.price + calculateTotalWithoutCategory('gear')) && selectedGear !== gear.price" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+                                            <span class="text-sm" x-text="gear.name"></span>
+                                        </div>
+                                        <span class="text-xs font-mono" :class="(playerMoney < (gear.price + calculateTotalWithoutCategory('gear')) && selectedGear !== gear.price) ? 'text-gray-600' : 'text-csorange font-bold'" x-text="'$' + gear.price"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Granaten & Fazit -->
+                    <div class="space-y-6">
+                        <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                            <h3 class="font-semibold text-gray-200 mb-3 border-b border-gray-800 pb-2">Granaten (Utility)</h3>
+                            <div class="space-y-2">
+                                <template x-for="nade in weapons.nades">
+                                    <label :class="(playerMoney < calculateTotal() + nade.price && !selectedNades.includes(nade.price)) ? 'opacity-40 cursor-not-allowed bg-csdark-900/50' : 'hover:bg-csdark-800 cursor-pointer'" class="flex justify-between items-center p-2 rounded transition border border-transparent">
+                                        <div class="flex items-center gap-2.5">
+                                            <input type="checkbox" :value="nade.price" @change="toggleNade(nade.price)" :checked="selectedNades.includes(nade.price)" :disabled="playerMoney < calculateTotal() + nade.price && !selectedNades.includes(nade.price)" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+                                            <span class="text-sm" x-text="nade.name"></span>
+                                        </div>
+                                        <span class="text-xs font-mono text-csorange font-bold" x-text="'$' + nade.price"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Ergebnis & Restgeld Box (Team-Zusammenfassung entfernt) -->
+                        <div class="bg-csdark-900 border border-csorange/40 p-4 rounded-lg space-y-3">
+                            <h3 class="font-semibold text-csorange text-sm uppercase tracking-wider">Finanz-Zusammenfassung</h3>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-300">Gesamtkosten:</span>
+                                <span class="font-mono font-bold text-white" x-text="'$' + calculateTotal()"></span>
+                            </div>
+                            <div class="flex justify-between text-sm border-t border-gray-800 pt-2">
+                                <span class="text-gray-300">Verbleibendes Restgeld:</span>
+                                <span class="font-mono font-bold" :class="playerMoney - calculateTotal() < 0 ? 'text-red-500' : 'text-green-400'" x-text="'$' + (playerMoney - calculateTotal())"></span>
+                            </div>
+                            <div class="mt-3 pt-2 text-center">
+                                <span class="inline-block px-3 py-1 rounded text-xs font-bold uppercase" :class="playerMoney - calculateTotal() >= 0 ? 'bg-green-500/20 text-green-400 border border-green-500/40' : 'bg-red-500/20 text-red-400 border border-red-500/40'" x-text="playerMoney - calculateTotal() >= 0 ? 'Buy möglich ✓' : 'Nicht genug Geld ✗'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: MAPS, CALLOUTS & INTERACTIVE SMOKE OVERLAY -->
+        <div x-show="activeTab === 'callouts'" x-cloak class="space-y-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
+                            <i class="fa-solid fa-map"></i> Maps & interaktive Smokes
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">
+                            Klicke/tippe frei auf die Karte, um eine Smoke zu setzen. Die kleinen Punkte sind nur Orientierungspunkte.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="(mapData, mapName) in maps" :key="mapName">
+                            <button
+                                type="button"
+                                @click="selectMap(mapName)"
+                                :class="selectedMap === mapName ? 'bg-csorange text-black font-bold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
+                                class="px-4 py-2 rounded text-sm transition capitalize">
+                                <span x-text="mapData.label"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800 space-y-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg font-bold text-white" x-text="maps[selectedMap].label"></h3>
+                                <p class="text-xs text-gray-500 mt-1">Map-Wechsel löscht alle gesetzten Smokes.</p>
+                            </div>
+                            <button
+                                type="button"
+                                @click="clearSmokes()"
+                                class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded text-xs transition whitespace-nowrap">
+                                <i class="fa-solid fa-trash"></i> Smokes löschen
+                            </button>
+                        </div>
+
+                        <p class="text-sm text-gray-300" x-text="maps[selectedMap].description"></p>
+
+                        <div class="border-t border-gray-800 pt-3">
+                            <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Bedienung</h4>
+                            <div class="space-y-2 text-xs text-gray-300">
+                                <p><span class="text-csorange font-bold">1.</span> Karte auswählen.</p>
+                                <p><span class="text-csorange font-bold">2.</span> Auf ein freies Feld der Karte klicken oder tippen.</p>
+                                <p><span class="text-csorange font-bold">3.</span> Auf eine gesetzte Smoke klicken, um sie wieder zu löschen.</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-800 pt-3">
+                            <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Orientierungspunkte</h4>
+                            <div class="space-y-1.5 text-xs text-gray-300">
+                                <template x-for="spot in maps[selectedMap].smokeSpots" :key="spot.id">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-block w-2 h-2 rounded-full bg-csorange shadow-sm shadow-csorange/50"></span>
+                                        <span x-text="spot.name"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="xl:col-span-2 bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-semibold text-white">Smoke-Touchpad</span>
+                                <span class="text-xs text-gray-500" x-text="placedSmokes.length + ' gesetzt'"></span>
+                            </div>
+                            <div class="flex flex-wrap gap-2 text-[10px] text-gray-400">
+                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">● Orange = Orientierung</span>
+                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">● Nummer = deine Smoke</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="map-radar relative w-full aspect-square max-h-[720px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black"
+                            @pointerdown.prevent="placeSmoke($event)"
+                        >
+                            <img
+                                :src="maps[selectedMap].radar"
+                                :alt="maps[selectedMap].label + ' Radar Overlay'"
+                                class="absolute inset-0 w-full h-full object-cover"
+                                draggable="false"
+                                @dragstart.prevent
+                            >
+
+                            <!-- Kleine, nicht-blockierende Orientierungspunkte -->
+                            <template x-for="spot in maps[selectedMap].smokeSpots" :key="'spot-' + spot.id">
+                                <span
+                                    class="spot-dot absolute w-2.5 h-2.5 rounded-full bg-csorange ring-2 ring-black/60 shadow-lg shadow-csorange/30 pointer-events-none"
+                                    :style="`left:${spot.x}%; top:${spot.y}%;`"
+                                    :title="spot.name">
+                                </span>
+                            </template>
+
+                            <!-- Frei gesetzte Smokes -->
+                            <template x-for="(smoke, index) in placedSmokes" :key="smoke.id">
+                                <button
+                                    type="button"
+                                    class="smoke-marker absolute w-7 h-7 rounded-full bg-white text-black border-2 border-csorange font-black text-xs shadow-lg shadow-black/60 z-10 hover:scale-110 transition"
+                                    :style="`left:${smoke.x}%; top:${smoke.y}%;`"
+                                    :title="'Smoke ' + (index + 1) + ' – zum Löschen klicken'"
+                                    @pointerdown.stop.prevent="removeSmoke(index)"
+                                >
+                                    <span x-text="index + 1"></span>
+                                </button>
+                            </template>
+
+                            <div class="absolute left-3 bottom-3 z-20 bg-black/75 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300 pointer-events-none">
+                                <i class="fa-solid fa-hand-pointer text-csorange mr-1"></i>
+                                Frei platzieren · Marker anklicken = löschen
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800">
+                        <h3 class="text-sm font-semibold text-csorange uppercase tracking-wider flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-fire"></i> Wichtigste Granaten
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <template x-for="nade in maps[selectedMap].nades" :key="nade.title">
+                                <div class="bg-csdark-800 p-3 rounded-lg border border-gray-700/50 space-y-1">
+                                    <div class="flex justify-between items-center gap-2">
+                                        <span class="font-bold text-white text-xs" x-text="nade.title"></span>
+                                        <span class="text-[10px] px-2 py-0.5 rounded bg-csorange/20 text-csorange font-mono uppercase" x-text="nade.type"></span>
+                                    </div>
+                                    <p class="text-[11px] text-gray-300" x-text="'Setup: ' + nade.throwFrom"></p>
+                                    <p class="text-[11px] text-csorange/90 font-mono" x-text="'Ziel: ' + nade.target"></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800">
+                        <h3 class="text-sm font-semibold text-csorange uppercase tracking-wider flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-shield-halved"></i> Taktik-Tipps
+                        </h3>
+                        <ul class="space-y-2 text-xs text-gray-300 list-disc list-inside">
+                            <template x-for="tip in maps[selectedMap].tips" :key="tip">
+                                <li x-text="tip"></li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: CROSSHAIR GENERATOR -->
+        <div x-show="activeTab === 'crosshair'" x-cloak class="space-y-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <h2 class="text-xl font-bold mb-4 text-csorange flex items-center gap-2"><i class="fa-solid fa-crosshairs"></i> Crosshair Generator & Vorschau</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-csdark-900 rounded-xl border border-gray-800 flex flex-col items-center justify-center p-8 relative min-h-[300px] overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ff5500_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div class="relative w-32 h-32 flex items-center justify-center">
+                            <div class="absolute bg-white transition-all" :style="`width: ${chSize * 2}px; height: ${chThickness}px; margin-left: -${chSize + chGap}px; background-color: ${chColor}`"></div>
+                            <div class="absolute bg-white transition-all" :style="`width: ${chSize * 2}px; height: ${chThickness}px; margin-left: ${chSize + chGap}px; background-color: ${chColor}`"></div>
+                            <div class="absolute bg-white transition-all" :style="`width: ${chThickness}px; height: ${chSize * 2}px; margin-top: -${chSize + chGap}px; background-color: ${chColor}`"></div>
+                            <div class="absolute bg-white transition-all" :style="`width: ${chThickness}px; height: ${chSize * 2}px; margin-top: ${chSize + chGap}px; background-color: ${chColor}`"></div>
+                            <div x-show="chDot" class="absolute rounded-full transition-all" :style="`width: ${chThickness * 1.5}px; height: ${chThickness * 1.5}px; background-color: ${chColor}`"></div>
+                        </div>
+                        <span class="text-xs text-gray-500 mt-6">Live Vorschau</span>
+                    </div>
+
+                    <div class="bg-csdark-900 p-5 rounded-xl border border-gray-800 space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Größe (Size): <span class="text-csorange" x-text="chSize"></span></label>
+                            <input type="range" min="1" max="10" x-model.number="chSize" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Lücke (Gap): <span class="text-csorange" x-text="chGap"></span></label>
+                            <input type="range" min="-5" max="10" x-model.number="chGap" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Dicke (Thickness): <span class="text-csorange" x-text="chThickness"></span></label>
+                            <input type="range" min="0.5" max="4" step="0.5" x-model.number="chThickness" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Farbe</label>
+                            <select x-model="chColor" class="w-full bg-csdark-800 border border-gray-700 rounded p-2 text-sm text-gray-200">
+                                <option value="#ffffff">Weiß</option>
+                                <option value="#00ff00">Grün</option>
+                                <option value="#ffff00">Gelb</option>
+                                <option value="#00ffff">Cyan</option>
+                                <option value="#ff00ff">Pink</option>
+                                <option value="#ff5500">CS2 Orange</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2 pt-2 text-sm text-gray-300">
+                            Zentraler Punkt (Dot): <input type="checkbox" x-model="chDot" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+                        </div>
+                        <div class="pt-4 border-t border-gray-800">
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Konsolenbefehl</label>
+                            <div class="flex gap-2">
+                                <input type="text" readonly :value="generateCrosshairCode()" class="w-full bg-csdark-800 border border-gray-700 rounded p-2 text-xs font-mono text-csorange select-all">
+                                <button @click="navigator.clipboard.writeText(generateCrosshairCode()); alert('Code kopiert!')" class="bg-csorange hover:bg-csorange-hover text-black font-bold px-3 py-2 rounded text-xs transition"><i class="fa-solid fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: CONSOLE COMMANDS -->
+        <div x-show="activeTab === 'commands'" x-cloak class="space-y-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h2 class="text-xl font-bold text-csorange flex items-center gap-2"><i class="fa-solid fa-terminal"></i> Pro Console Commands & Binds</h2>
+                    <input type="text" x-model="commandSearch" placeholder="Befehl suchen..." class="bg-csdark-900 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-csorange w-full sm:w-64">
+                </div>
+                <div class="grid grid-cols-1 gap-3">
+                    <template x-for="cmd in filteredCommands">
+                        <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:border-gray-700 transition">
+                            <div>
+                                <span class="font-mono text-csorange text-sm font-bold bg-csdark-800 px-2 py-1 rounded border border-gray-700" x-text="cmd.command"></span>
+                                <p class="text-xs text-gray-300 mt-2" x-text="cmd.desc"></p>
+                            </div>
+                            <button @click="navigator.clipboard.writeText(cmd.command); alert('Befehl kopiert!')" class="bg-csdark-800 hover:bg-csdark-700 text-gray-300 hover:text-white px-3 py-1.5 rounded text-xs border border-gray-700 transition flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-copy"></i> Kopieren
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-csdark-800 border-t border-gray-800 py-4 mt-auto text-center text-xs text-gray-500">
+        CS2 Pro Toolkit & Economy Manager &bull; Orange/Black Edition
+    </footer>
+
+    <!-- App Logic -->
+    <script>
+        function cs2App() {
+            return {
+                activeTab: 'buy-economy',
+                playerMoney: 4500,
+                lossStreak: 1,
+                
+                // Ausgewählte Item-Preise (0 bedeutet nichts ausgewählt)
+                selectedPrimary: 2700,
+                selectedSecondary: 0,
+                selectedGear: 1000,
+                selectedNades: [],
+                
+                weapons: {
+                    primary: [
+                        { name: 'AK-47 / M4A4 / M4A1-S', price: 2700 },
+                        { name: 'AWP', price: 4750 },
+                        { name: 'Galil / FAMAS', price: 1800 },
+                        { name: 'MP9 / Mac-10', price: 1250 },
+                        { name: 'Scout (SSG 08)', price: 1700 }
+                    ],
+                    secondary: [
+                        { name: 'P250', price: 200 },
+                        { name: 'Five-Seven / Tec-9 / CZ75', price: 500 },
+                        { name: 'Desert Eagle / R8', price: 700 }
+                    ],
+                    gear: [
+                        { name: 'Nur Kevlar (Vest)', price: 650 },
+                        { name: 'Kevlar + Helm', price: 1000 }
+                    ],
+                    nades: [
+                        { name: 'Flashbang', price: 200 },
+                        { name: 'Smoke Grenade', price: 300 },
+                        { name: 'HE Grenade', price: 300 },
+                        { name: 'Molotov / Incendiary', price: 400 }
+                    ]
+                },
+
+                selectPrimary(price) {
+                    if (this.selectedPrimary === price) {
+                        this.selectedPrimary = 0;
+                    } else {
+                        if (this.playerMoney >= (price + this.calculateTotalWithoutCategory('primary'))) {
+                            this.selectedPrimary = price;
+                        }
+                    }
+                },
+
+                selectSecondary(price) {
+                    if (this.selectedSecondary === price) {
+                        this.selectedSecondary = 0;
+                    } else {
+                        if (this.playerMoney >= (price + this.calculateTotalWithoutCategory('secondary'))) {
+                            this.selectedSecondary = price;
+                        }
+                    }
+                },
+
+                selectGear(price) {
+                    if (this.selectedGear === price) {
+                        this.selectedGear = 0;
+                    } else {
+                        if (this.playerMoney >= (price + this.calculateTotalWithoutCategory('gear'))) {
+                            this.selectedGear = price;
+                        }
+                    }
+                },
+
+                toggleNade(price) {
+                    const index = this.selectedNades.indexOf(price);
+                    if (index > -1) {
+                        this.selectedNades.splice(index, 1);
+                    } else {
+                        if (this.playerMoney >= this.calculateTotal() + price) {
+                            this.selectedNades.push(price);
+                        }
+                    }
+                },
+
+                calculateTotalWithoutCategory(category) {
+                    let total = 0;
+                    if (category !== 'primary') total += this.selectedPrimary;
+                    if (category !== 'secondary') total += this.selectedSecondary;
+                    if (category !== 'gear') total += this.selectedGear;
+                    total += this.selectedNades.reduce((a, b) => a + b, 0);
+                    return total;
+                },
+
+                calculateTotal() {
+                    const nadesSum = this.selectedNades.reduce((a, b) => a + b, 0);
+                    return this.selectedPrimary + this.selectedSecondary + this.selectedGear + nadesSum;
+                },
+
+                resetLoadout() {
+                    this.selectedPrimary = 0;
+                    this.selectedSecondary = 0;
+                    this.selectedGear = 0;
+                    this.selectedNades = [];
+                },
+
+                getLossBonus(streak) {
+                    if (streak === 0) return 1400;
+                    if (streak === 1) return 1900;
+                    if (streak === 2) return 2400;
+                    if (streak === 3) return 2900;
+                    return 3400;
+                },
+
+                selectedMap: 'mirage',
+                placedSmokes: [],
+                smokeId: 0,
+                maps: {
+                    mirage: {
+                        label: 'Mirage',
+                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_mirage_radar_psd.png',
+                        description: 'Mid-Control und Utility auf A/B stehen im Mittelpunkt.',
+                        tips: ['A-Palace frühzeitig kontrollieren.', 'Mid-Control öffnet beide Bombenpunkte.', 'Connector und Jungle sind wichtige Info-Zonen.'],
+                        smokeSpots: [
+                            {id:'m1',name:'Mid',x:50,y:46},{id:'m2',name:'Window',x:49,y:38},{id:'m3',name:'Connector',x:60,y:43},
+                            {id:'m4',name:'A Site',x:72,y:30},{id:'m5',name:'Jungle',x:66,y:35},{id:'m6',name:'B Site',x:29,y:65},{id:'m7',name:'Short',x:42,y:58}
+                        ],
+                        nades: [
+                            {title:'A-Site Window Smoke',type:'Smoke',throwFrom:'T-Seite',target:'Window'},
+                            {title:'Connector Smoke',type:'Smoke',throwFrom:'T-Seite',target:'Connector'}
+                        ]
+                    },
+                    inferno: {
+                        label: 'Inferno',
+                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_inferno_radar_psd.png',
+                        description: 'Enge Wege und starke Utility-Kontrolle prägen die Map.',
+                        tips: ['Banana-Control ist zentral für den B-Split.', 'Second Mid ermöglicht schnelle Rotationen.', 'Utility für CT/Library beim B-Retake bereithalten.'],
+                        smokeSpots: [
+                            {id:'i1',name:'Banana',x:28,y:64},{id:'i2',name:'Coffins',x:26,y:54},{id:'i3',name:'CT',x:45,y:48},
+                            {id:'i4',name:'Arch',x:55,y:36},{id:'i5',name:'Short',x:70,y:34},{id:'i6',name:'A Site',x:72,y:22},{id:'i7',name:'Apartments',x:79,y:52}
+                        ],
+                        nades: [{title:'Banana Smoke',type:'Smoke',throwFrom:'T-Seite',target:'CT/Coffins'}]
+                    },
+                    nuke: {
+                        label: 'Nuke',
+                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_radar_psd.png',
+                        description: 'Vertikale Map mit Outside-Control und schnellen Rotationen.',
+                        tips: ['Outside-Control eröffnet mehrere Zugänge.', 'Vents verbinden die Ebenen.', 'Utility für Heaven/Rafters erleichtert A-Hits.'],
+                        smokeSpots: [
+                            {id:'n1',name:'Outside',x:46,y:65},{id:'n2',name:'Garage',x:57,y:59},{id:'n3',name:'Secret',x:45,y:51},
+                            {id:'n4',name:'A Site',x:70,y:26},{id:'n5',name:'Heaven',x:70,y:16},{id:'n6',name:'Ramp',x:30,y:42},{id:'n7',name:'B Site',x:67,y:70}
+                        ],
+                        nades: [{title:'Yard Smoke',type:'Smoke',throwFrom:'T-Spawn',target:'Garage/Outside'}]
+                    },
+                    ancient: {
+                        label: 'Ancient',
+                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_ancient_radar_psd.png',
+                        description: 'Mid-Control und enge Übergänge entscheiden viele Runden.',
+                        tips: ['Mid-Control verbindet die wichtigsten Angriffswege.', 'Donut ist ein zentraler Rotationspunkt.', 'B-Hall und Cave mit Utility absichern.'],
+                        smokeSpots: [
+                            {id:'a1',name:'Mid',x:52,y:48},{id:'a2',name:'Donut',x:67,y:40},{id:'a3',name:'A Site',x:77,y:25},
+                            {id:'a4',name:'Temple',x:65,y:28},{id:'a5',name:'B Site',x:25,y:67},{id:'a6',name:'Cave',x:18,y:56},{id:'a7',name:'CT',x:49,y:76}
+                        ],
+                        nades: [{title:'A-Main Smoke',type:'Smoke',throwFrom:'T-Seite',target:'A-Main'}]
+                    },
+                    dust2: {
+                        label: 'Dust II',
+                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_dust2_radar_psd.png',
+                        description: 'Klassische Long-, Short- und Mid-Kontrolle mit klaren Rotationen.',
+                        tips: ['Xbox/Mid-Smokes eröffnen Short und B-Rotationen.', 'Long-Duelle mit Flashbangs unterstützen.', 'CT/Spawn-Smokes helfen bei A-Ausführungen.'],
+                        smokeSpots: [
+                            {id:'d1',name:'Mid',x:51,y:45},{id:'d2',name:'Xbox',x:47,y:39},{id:'d3',name:'Short',x:61,y:35},
+                            {id:'d4',name:'A Cross',x:79,y:28},{id:'d5',name:'A Site',x:86,y:19},{id:'d6',name:'Long',x:65,y:73},{id:'d7',name:'B Site',x:24,y:35}
+                        ],
+                        nades: [{title:'Xbox Smoke',type:'Smoke',throwFrom:'T-Spawn',target:'Mid/Xbox'}]
+                    },
+                    anubis: {
+                        label: 'Anubis',
+                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_anubis_radar_psd.png',
+                        description: 'Viele Übergänge und Wasserwege machen Utility besonders wertvoll.',
+                        tips: ['Mid-Cycles mit Smokes kontrollieren.', 'Canal und Connector für Rotationen beobachten.', 'A-Main/B-Main mit frühen Flashes öffnen.'],
+                        smokeSpots: [
+                            {id:'u1',name:'Mid',x:52,y:48},{id:'u2',name:'Connector',x:62,y:44},{id:'u3',name:'A Site',x:76,y:24},
+                            {id:'u4',name:'Temple',x:68,y:25},{id:'u5',name:'B Site',x:23,y:70},{id:'u6',name:'Water',x:41,y:67},{id:'u7',name:'Canal',x:35,y:52}
+                        ],
+                        nades: [{title:'A-Main Smoke',type:'Smoke',throwFrom:'T-Seite',target:'A-Entry'}]
+                    },
+                    cache: {
+                        label: 'Cache',
+                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_cache_radar_psd.png',
+                        description: 'Vertikale Mid-Control und die schnellen A/B-Rotationen stehen im Vordergrund.',
+                        tips: ['Mid nimmt der CT-Seite Rotationswege.', 'A-Main und B-Main mit Utility vorbereiten.', 'Heaven/Truck bei A und Checkers bei B beachten.'],
+                        smokeSpots: [
+                            {id:'c1',name:'Mid',x:51,y:47},{id:'c2',name:'Heaven',x:68,y:20},{id:'c3',name:'A Site',x:78,y:32},
+                            {id:'c4',name:'A Main',x:88,y:42},{id:'c5',name:'Checkers',x:38,y:65},{id:'c6',name:'B Site',x:24,y:76},{id:'c7',name:'B Main',x:18,y:56}
+                        ],
+                        nades: [{title:'Mid Smoke',type:'Smoke',throwFrom:'T-Seite',target:'Mid'}]
+                    }
+                },
+
+                selectMap(mapName) {
+                    if (this.selectedMap === mapName) return;
+                    this.selectedMap = mapName;
+                    this.clearSmokes();
+                },
+
+                clearSmokes() {
+                    this.placedSmokes = [];
+                },
+
+                placeSmoke(event) {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    if (!rect.width || !rect.height) return;
+
+                    const x = ((event.clientX - rect.left) / rect.width) * 100;
+                    const y = ((event.clientY - rect.top) / rect.height) * 100;
+                    if (x < 0 || x > 100 || y < 0 || y > 100) return;
+
+                    this.placedSmokes.push({
+                        id: ++this.smokeId,
+                        x: Number(x.toFixed(3)),
+                        y: Number(y.toFixed(3))
+                    });
+                },
+
+                removeSmoke(index) {
+                    this.placedSmokes.splice(index, 1);
+                },
+
+                chSize: 3,
+                chGap: -2,
+                chThickness: 1,
+                chColor: '#ff5500',
+                chDot: false,
+
+                generateCrosshairCode() {
+                    let dotVal = this.chDot ? '1' : '0';
+                    return `cl_crosshairsize ${this.chSize}; cl_crosshairgap ${this.chGap}; cl_crosshairthickness ${this.chThickness}; cl_crosshaircolor 5; cl_crosshaircolor_r ${this.hexToRgb(this.chColor).r}; cl_crosshaircolor_g ${this.hexToRgb(this.chColor).g}; cl_crosshaircolor_b ${this.hexToRgb(this.chColor).b}; cl_crosshairdot ${dotVal};`;
+                },
+
+                hexToRgb(hex) {
+                    let bigint = parseInt(hex.replace('#',''), 16);
+                    let r = (bigint >> 16) & 255;
+                    let g = (bigint >> 8) & 255;
+                    let b = bigint & 255;
+                    return { r, g, b };
+                },
+
+                commandSearch: '',
+                commands: [
+                    { command: 'fps_max 0', desc: 'Entfernt das FPS-Limit für maximale Bildwiederholrate.' },
+                    { command: 'r_cleardecals', desc: 'Entfernt Blutflecken und Einschusslöcher.' },
+                    { command: 'bind "mwheeldown" "+jump"', desc: 'Befehl zum perfekten Bunnyhoppen auf das Mausrad.' }
+                ],
+
+                get filteredCommands() {
+                    if (!this.commandSearch) return this.commands;
+                    return this.commands.filter(c => c.command.toLowerCase().includes(this.commandSearch.toLowerCase()) || c.desc.toLowerCase().includes(this.commandSearch.toLowerCase()));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
