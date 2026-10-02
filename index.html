@@ -49,6 +49,18 @@
         .spot-dot {
             transform: translate(-50%, -50%);
         }
+        .bomb-wave-ring {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: bombWavePulse 1.8s ease-out infinite;
+        }
+        .ring-b { animation-delay: .45s; }
+        .ring-c { animation-delay: .9s; }
+        @keyframes bombWavePulse {
+            0% { opacity: .85; transform: scale(.25); }
+            70% { opacity: .25; }
+            100% { opacity: 0; transform: scale(1.35); }
+        }
         @keyframes bomb-wave-pulse {
             0% { opacity: 0.85; transform: scale(0.35); }
             65% { opacity: 0.18; transform: scale(1); }
@@ -334,31 +346,60 @@
                         <template x-if="activeMapPanel === 'bombwave'">
                             <div class="space-y-4">
                                 <div class="border-t border-gray-800 pt-3">
-                                    <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Interaktiver Bombenradius</h4>
-                                    <p class="text-xs text-gray-400">Auf die Karte klicken setzt den C4-Zentrumspunkt. Der Kreis visualisiert die Druckwellen-Reichweite als vereinfachte Radar-Darstellung.</p>
+                                    <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Valve-Schockwelle</h4>
+                                    <p class="text-xs text-gray-400">
+                                        Die aktuelle CS2-C4-Mechanik verwendet kein kugelförmiges Radiusmodell.
+                                        Der Schaden stammt aus einem pro Map und Bombsite vorberechneten Feld und breitet sich als Schockwelle durch die Map-Geometrie aus.
+                                    </p>
                                 </div>
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1">
-                                        <span class="text-gray-300">Radius</span>
-                                        <span class="text-yellow-300 font-mono" x-text="bombWave.radius + '%'" ></span>
-                                    </div>
-                                    <input type="range" min="6" max="42" step="1" x-model.number="bombWave.radius" class="w-full accent-yellow-300 bg-csdark-700 cursor-pointer">
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <template x-for="site in maps[selectedMap].bombSites" :key="'select-site-' + site.id">
+                                        <button type="button"
+                                            @click="selectBombSite(site.id)"
+                                            :class="bombWave.site === site.id ? 'bg-yellow-400 text-black border-yellow-300' : 'bg-csdark-800 text-gray-300 border-gray-700 hover:bg-csdark-700'"
+                                            class="px-3 py-2 rounded-lg border text-xs font-bold transition">
+                                            Site <span x-text="site.name"></span>
+                                        </button>
+                                    </template>
                                 </div>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <div class="bg-csdark-800 border border-gray-700 rounded-lg p-3">
-                                        <div class="text-gray-500">Zentrum</div>
-                                        <div class="font-mono text-white mt-1" x-text="bombWave.active ? bombWave.x.toFixed(1) + '% / ' + bombWave.y.toFixed(1) + '%' : 'Noch nicht gesetzt'"></div>
-                                    </div>
-                                    <div class="bg-csdark-800 border border-gray-700 rounded-lg p-3">
-                                        <div class="text-gray-500">Status</div>
-                                        <div class="font-semibold mt-1" :class="bombWave.active ? 'text-green-400' : 'text-gray-400'" x-text="bombWave.active ? 'Aktiv' : 'Inaktiv'"></div>
-                                    </div>
+
+                                <div class="bg-csdark-800 border border-gray-700 rounded-lg p-3 text-xs">
+                                    <div class="text-gray-500">Ausgewählte Site</div>
+                                    <div class="text-white font-bold mt-1" x-text="'Bombsite ' + bombWave.site"></div>
+                                    <div class="text-gray-500 mt-2">Darstellung</div>
+                                    <div class="text-yellow-300 mt-1">Schockwellen-Animation ohne künstlichen Kreisradius</div>
                                 </div>
+
+                                <div class="bg-csdark-800 border border-yellow-500/30 rounded-lg p-3 text-xs text-gray-300">
+                                    <div class="font-semibold text-yellow-300 mb-1">Exakte Valve-Daten</div>
+                                    <p>
+                                        Valve berechnet die Schadensfläche aus den kompilierten
+                                        <code>baked_bomb_damage</code>-Daten der jeweiligen Map.
+                                        Diese Rohfelder sind nicht als einfache Kreisform in der HTML-Datei enthalten.
+                                    </p>
+                                    <a href="https://skinsniper.com/tools/bomb-damage-radius" target="_blank" rel="noopener"
+                                       class="inline-flex items-center gap-2 mt-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 py-2 rounded-lg transition">
+                                        <i class="fa-solid fa-up-right-from-square"></i>
+                                        Exakte Season-5-Schadenskarte öffnen
+                                    </a>
+                                </div>
+
+                                <div class="bg-csdark-800 border border-gray-700 rounded-lg p-3 text-xs text-gray-300">
+                                    <div class="font-semibold text-white mb-1">In CS2 direkt testen</div>
+                                    <p>
+                                        <code>cl_bake_bomb_damage_debug 1</code> zeigt die
+                                        A-Schadensvorschau, <code>cl_bake_bomb_damage_debug 2</code>
+                                        die B-Schadensvorschau auf einem lokalen Server.
+                                    </p>
+                                </div>
+
                                 <button type="button" @click="clearBombWave()" class="w-full bg-csdark-800 hover:bg-csdark-700 border border-gray-700 text-gray-300 px-3 py-2 rounded-lg text-xs transition">
-                                    Bombenwelle zurücksetzen
+                                    Schockwellen-Markierung zurücksetzen
                                 </button>
                             </div>
                         </template>
+
                     </div>
 
                     <!-- Map Overlay -->
@@ -399,9 +440,10 @@
                                 </template>
 
                                 <g x-show="bombWave.active">
-                                    <circle :cx="bombWave.x" :cy="bombWave.y" :r="bombWave.radius" fill="#facc15" fill-opacity="0.08" stroke="#facc15" stroke-width="0.75" stroke-dasharray="2 1"></circle>
-                                    <circle class="bomb-wave-pulse" :cx="bombWave.x" :cy="bombWave.y" r="10" fill="none" stroke="#fde047" stroke-width="1.2" opacity="0.7"></circle>
-                                    <circle :cx="bombWave.x" :cy="bombWave.y" r="1.8" fill="#facc15" stroke="#111827" stroke-width="0.55"></circle>
+                                    <circle :cx="bombWave.x" :cy="bombWave.y" r="2.0" fill="#facc15" stroke="#111827" stroke-width="0.55"></circle>
+                                    <circle class="bomb-wave-ring ring-a" :cx="bombWave.x" :cy="bombWave.y" r="3" fill="none" stroke="#fde047" stroke-width="0.85" opacity="0.9"></circle>
+                                    <circle class="bomb-wave-ring ring-b" :cx="bombWave.x" :cy="bombWave.y" r="8" fill="none" stroke="#facc15" stroke-width="0.65" opacity="0.65"></circle>
+                                    <circle class="bomb-wave-ring ring-c" :cx="bombWave.x" :cy="bombWave.y" r="14" fill="none" stroke="#facc15" stroke-width="0.5" opacity="0.35"></circle>
                                 </g>
                             </svg>
 
@@ -689,7 +731,7 @@
                 activeMapPanel: 'smokes',
                 placedSmokes: [],
                 smokeId: 0,
-                bombWave: { active: false, x: 50, y: 50, radius: 18 },
+                bombWave: { active: false, site: 'A', x: 50, y: 50 },
                 maps: {
                     mirage: {
                         label: 'Mirage',
@@ -700,9 +742,7 @@
                             {id:'m1',name:'Mid',x:50,y:46},{id:'m2',name:'Window',x:49,y:38},{id:'m3',name:'Connector',x:60,y:43},
                             {id:'m4',name:'A Site',x:72,y:30},{id:'m5',name:'Jungle',x:66,y:35},{id:'m6',name:'B Site',x:29,y:65},{id:'m7',name:'Short',x:42,y:58}
                         ],
-bombSites: [
-                            {id:'A',name:'A',label:'Bombsite A',x:75,y:25},{id:'B',name:'B',label:'Bombsite B',x:29,y:67}
-                        ],
+bombSites: [{id:'A',name:'A',label:'Bombsite A',x:52,y:28},{id:'B',name:'B',label:'Bombsite B',x:42,y:72}],
                         lineups: [
                             {id:'m-line-1',title:'Window Smoke',description:'Visuelle Richtung T-Seite → Window.',fromX:27,fromY:82,toX:49,toY:38},
                             {id:'m-line-2',title:'Connector Smoke',description:'Visuelle Richtung T-Seite → Connector.',fromX:34,fromY:76,toX:60,toY:43},
@@ -758,9 +798,7 @@ bombSites: [
                             {id:'a1',name:'Mid',x:52,y:48},{id:'a2',name:'Donut',x:67,y:40},{id:'a3',name:'A Site',x:77,y:25},
                             {id:'a4',name:'Temple',x:65,y:28},{id:'a5',name:'B Site',x:25,y:67},{id:'a6',name:'Cave',x:18,y:56},{id:'a7',name:'CT',x:49,y:76}
                         ],
-bombSites: [
-                            {id:'A',name:'A',label:'Bombsite A',x:77,y:25},{id:'B',name:'B',label:'Bombsite B',x:25,y:67}
-                        ],
+bombSites: [{id:'A',name:'A',label:'Bombsite A',x:52,y:28},{id:'B',name:'B',label:'Bombsite B',x:55,y:72}],
                         lineups: [
                             {id:'a-line-1',title:'A-Main Smoke',description:'Visuelle Richtung T-Seite → A-Main.',fromX:91,fromY:52,toX:77,toY:39},
                             {id:'a-line-2',title:'Donut Smoke',description:'Visuelle Richtung Mid → Donut.',fromX:49,fromY:51,toX:67,toY:40}
@@ -794,9 +832,7 @@ bombSites: [
                             {id:'u1',name:'Mid',x:52,y:48},{id:'u2',name:'Connector',x:62,y:44},{id:'u3',name:'A Site',x:76,y:24},
                             {id:'u4',name:'Temple',x:68,y:25},{id:'u5',name:'B Site',x:23,y:70},{id:'u6',name:'Water',x:41,y:67},{id:'u7',name:'Canal',x:35,y:52}
                         ],
-bombSites: [
-                            {id:'A',name:'A',label:'Bombsite A',x:76,y:24},{id:'B',name:'B',label:'Bombsite B',x:23,y:70}
-                        ],
+bombSites: [{id:'A',name:'A',label:'Bombsite A',x:74.4,y:26.9},{id:'B',name:'B',label:'Bombsite B',x:32.7,y:49.5}],
                         lineups: [
                             {id:'u-line-1',title:'A-Main Smoke',description:'Visuelle Richtung T-Seite → A-Main.',fromX:92,fromY:54,toX:76,toY:43},
                             {id:'u-line-2',title:'Connector Smoke',description:'Visuelle Richtung Mid → Connector.',fromX:52,fromY:52,toX:62,toY:44}
@@ -835,6 +871,16 @@ bombSites: [
 
                 clearBombWave() {
                     this.bombWave.active = false;
+                },
+
+                selectBombSite(siteId) {
+                    this.bombWave.site = siteId;
+                    const site = this.maps[this.selectedMap].bombSites.find(s => s.id === siteId);
+                    if (site) {
+                        this.bombWave.x = site.x;
+                        this.bombWave.y = site.y;
+                        this.bombWave.active = true;
+                    }
                 },
 
                 clearMapOverlays() {
