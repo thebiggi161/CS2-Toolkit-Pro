@@ -229,154 +229,215 @@
             </div>
         </div>
 
-        <!-- TAB 2: MAPS, CALLOUTS & INTERACTIVE SMOKE OVERLAY -->
+        <!-- TAB 2: MAPS & LINEUP DATABASE -->
         <div x-show="activeTab === 'callouts'" x-cloak class="space-y-6">
-            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-5 shadow-lg">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                     <div>
-                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
-                            <i class="fa-solid fa-map"></i> Maps & interaktive Smokes
-                        </h2>
-                        <p class="text-sm text-gray-400 mt-1">
-                            Klicke/tippe frei auf die Karte, um eine Smoke zu setzen. Die kleinen Punkte sind nur Orientierungspunkte.
-                        </p>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-csorange text-black text-xs font-black px-2 py-1 rounded">PHASE 3</span>
+                            <h2 class="text-2xl font-black text-white">Maps & Lineup Database</h2>
+                        </div>
+                        <p class="text-gray-400 text-sm mt-1">Utility nach Map, Seite, Granate, Position und Ziel durchsuchen.</p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <template x-for="(mapData, mapName) in maps" :key="mapName">
-                            <button
-                                type="button"
-                                @click="selectMap(mapName)"
-                                :class="selectedMap === mapName ? 'bg-csorange text-black font-bold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
-                                class="px-4 py-2 rounded text-sm transition capitalize">
-                                <span x-text="mapData.label"></span>
-                            </button>
+                    <div class="flex gap-2">
+                        <button @click="lineupView = 'database'" :class="lineupView === 'database' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="px-3 py-2 rounded text-xs font-bold transition"><i class="fa-solid fa-database mr-1"></i> Datenbank</button>
+                        <button @click="lineupView = 'radar'" :class="lineupView === 'radar' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="px-3 py-2 rounded text-xs font-bold transition"><i class="fa-solid fa-crosshairs mr-1"></i> Radar</button>
+                        <button @click="lineupView = 'saved'" :class="lineupView === 'saved' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="px-3 py-2 rounded text-xs font-bold transition"><i class="fa-solid fa-bookmark mr-1"></i> Meine Lineups <span x-text="'(' + savedLineups.length + ')'"></span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="lineupView !== 'saved'" class="bg-csdark-800 border border-csorange/30 rounded-xl p-4 shadow-lg">
+                <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2">
+                    <template x-for="(map, key) in maps" :key="key">
+                        <button @click="selectMap(key)" :class="selectedMap === key ? 'border-csorange bg-csorange/10 text-white' : 'border-gray-800 bg-csdark-900 text-gray-400 hover:text-white'" class="p-3 rounded-lg border text-left transition">
+                            <span class="block text-sm font-bold" x-text="map.label"></span>
+                            <span class="text-[10px] text-gray-500" x-text="lineups.filter(l => l.map === key).length + ' Lineups'"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <div x-show="lineupView === 'database'" class="space-y-5">
+                <div class="bg-csdark-800 border border-gray-800 rounded-xl p-4">
+                    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                        <div>
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Granate</label>
+                            <select x-model="lineupFilters.type" class="w-full bg-csdark-900 border border-gray-700 rounded p-2 text-sm">
+                                <option value="all">Alle Utilities</option>
+                                <option value="Smoke">Smoke</option>
+                                <option value="Flash">Flash</option>
+                                <option value="Molotov">Molotov</option>
+                                <option value="HE">HE</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Seite</label>
+                            <select x-model="lineupFilters.side" class="w-full bg-csdark-900 border border-gray-700 rounded p-2 text-sm">
+                                <option value="all">T + CT</option>
+                                <option value="T">T-Seite</option>
+                                <option value="CT">CT-Seite</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Position</label>
+                            <select x-model="lineupFilters.position" class="w-full bg-csdark-900 border border-gray-700 rounded p-2 text-sm">
+                                <option value="all">Alle Positionen</option>
+                                <template x-for="position in availablePositions" :key="position"><option :value="position" x-text="position"></option></template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Ziel</label>
+                            <select x-model="lineupFilters.target" class="w-full bg-csdark-900 border border-gray-700 rounded p-2 text-sm">
+                                <option value="all">Alle Ziele</option>
+                                <template x-for="target in availableTargets" :key="target"><option :value="target" x-text="target"></option></template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Bombsite</label>
+                            <select x-model="lineupFilters.site" class="w-full bg-csdark-900 border border-gray-700 rounded p-2 text-sm">
+                                <option value="all">A + B</option>
+                                <option value="A">A Site</option>
+                                <option value="B">B Site</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold mb-1">Suche</label>
+                            <input x-model="lineupFilters.search" type="text" placeholder="z.B. Window" class="w-full bg-csdark-900 border border-gray-700 rounded p-2 text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="text-xs text-gray-500"><span class="text-csorange font-bold" x-text="filteredLineups.length"></span> Treffer auf <span class="text-white font-semibold" x-text="maps[selectedMap].label"></span></div>
+                    <button @click="resetLineupFilters()" class="text-xs text-gray-400 hover:text-white"><i class="fa-solid fa-rotate-left mr-1"></i> Filter zurücksetzen</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <template x-for="lineup in filteredLineups" :key="lineup.id">
+                        <article class="bg-csdark-800 border border-gray-800 hover:border-csorange/50 rounded-xl p-4 transition group">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="w-9 h-9 rounded-lg flex items-center justify-center bg-csdark-900 border border-gray-700" :class="utilityColor(lineup.type)"><i :class="utilityIcon(lineup.type)"></i></span>
+                                    <div>
+                                        <h3 class="font-bold text-white" x-text="lineup.title"></h3>
+                                        <div class="text-[11px] text-gray-500"><span x-text="lineup.side === 'T' ? 'T-Seite' : 'CT-Seite'"></span> · <span x-text="lineup.position"></span></div>
+                                    </div>
+                                </div>
+                                <button @click="toggleSavedLineup(lineup)" :title="isSaved(lineup.id) ? 'Gespeichert' : 'Speichern'" class="w-8 h-8 rounded bg-csdark-900 border border-gray-700 hover:border-csorange flex items-center justify-center transition">
+                                    <i :class="isSaved(lineup.id) ? 'fa-solid fa-bookmark text-csorange' : 'fa-regular fa-bookmark text-gray-400'"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mt-4">
+                                <div class="bg-csdark-900 rounded-lg p-2.5">
+                                    <div class="text-[10px] text-gray-500 uppercase">Ziel</div>
+                                    <div class="text-sm font-semibold text-white flex items-center gap-1.5 mt-1">
+                                        <i class="fa-solid fa-bomb text-csorange text-xs" x-show="lineup.site"></i>
+                                        <span x-text="lineup.target"></span>
+                                    </div>
+                                </div>
+                                <div class="bg-csdark-900 rounded-lg p-2.5">
+                                    <div class="text-[10px] text-gray-500 uppercase">Throw</div>
+                                    <div class="text-sm font-semibold text-white mt-1" x-text="lineup.throw"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-3 leading-relaxed" x-text="lineup.instructions"></p>
+                            <div class="flex flex-wrap gap-1.5 mt-3">
+                                <span class="px-2 py-1 rounded bg-csdark-900 text-[10px] text-gray-400" x-text="lineup.site ? 'Bombsite ' + lineup.site : 'Map Control'"></span>
+                                <span class="px-2 py-1 rounded bg-csdark-900 text-[10px] text-gray-400" x-text="lineup.difficulty"></span>
+                            </div>
+                        </article>
+                    </template>
+                </div>
+
+                <div x-show="filteredLineups.length === 0" class="bg-csdark-800 border border-dashed border-gray-700 rounded-xl p-10 text-center">
+                    <i class="fa-solid fa-filter-circle-xmark text-2xl text-gray-600"></i>
+                    <p class="text-gray-400 mt-3">Keine Lineups für diese Filterkombination.</p>
+                </div>
+            </div>
+
+            <div x-show="lineupView === 'radar'" class="bg-csdark-800 border border-csorange/30 rounded-xl p-5 shadow-lg">
+                <div class="flex flex-col lg:flex-row justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white" x-text="maps[selectedMap].label + ' Radar'"></h3>
+                        <p class="text-xs text-gray-500">Klick auf das Radar, um eigene Smoke-Landepunkte zu markieren.</p>
+                    </div>
+                    <button @click="clearSmokes()" class="bg-csdark-700 hover:bg-csdark-600 text-xs px-3 py-2 rounded border border-gray-700">Marker löschen</button>
+                </div>
+                <div class="grid lg:grid-cols-[1fr_300px] gap-5">
+                    <div class="relative bg-black rounded-xl overflow-hidden border border-gray-800 max-w-3xl mx-auto w-full">
+                        <img :src="maps[selectedMap].radar" :alt="maps[selectedMap].label + ' radar'" class="w-full aspect-square object-contain opacity-90 map-radar" @click="placeSmoke($event)">
+                        <template x-for="(smoke, index) in placedSmokes" :key="smoke.id">
+                            <button @click.stop="removeSmoke(index)" class="absolute smoke-marker w-8 h-8 rounded-full bg-csorange/90 border-2 border-white text-black text-xs font-black shadow-lg" :style="'left:' + smoke.x + '%;top:' + smoke.y + '%'" x-text="index + 1"></button>
                         </template>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800 space-y-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <h3 class="text-lg font-bold text-white" x-text="maps[selectedMap].label"></h3>
-                                <p class="text-xs text-gray-500 mt-1">Map-Wechsel löscht alle gesetzten Smokes.</p>
-                            </div>
-                            <button
-                                type="button"
-                                @click="clearSmokes()"
-                                class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded text-xs transition whitespace-nowrap">
-                                <i class="fa-solid fa-trash"></i> Smokes löschen
-                            </button>
-                        </div>
-
-                        <p class="text-sm text-gray-300" x-text="maps[selectedMap].description"></p>
-
-                        <div class="border-t border-gray-800 pt-3">
-                            <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Bedienung</h4>
-                            <div class="space-y-2 text-xs text-gray-300">
-                                <p><span class="text-csorange font-bold">1.</span> Karte auswählen.</p>
-                                <p><span class="text-csorange font-bold">2.</span> Auf ein freies Feld der Karte klicken oder tippen.</p>
-                                <p><span class="text-csorange font-bold">3.</span> Auf eine gesetzte Smoke klicken, um sie wieder zu löschen.</p>
+                    <div class="space-y-4">
+                        <div class="bg-csdark-900 rounded-xl p-4 border border-gray-800">
+                            <h4 class="font-bold text-white mb-3">Bombsites</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="rounded-lg border border-csorange/30 bg-csorange/5 p-3 text-center"><i class="fa-solid fa-bomb text-csorange text-xl"></i><div class="font-black text-white mt-1">A Site</div></div>
+                                <div class="rounded-lg border border-csorange/30 bg-csorange/5 p-3 text-center"><i class="fa-solid fa-bomb text-csorange text-xl"></i><div class="font-black text-white mt-1">B Site</div></div>
                             </div>
                         </div>
-
-                        <div class="border-t border-gray-800 pt-3">
-                            <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Orientierungspunkte</h4>
-                            <div class="space-y-1.5 text-xs text-gray-300">
-                                <template x-for="spot in maps[selectedMap].smokeSpots" :key="spot.id">
-                                    <div class="flex items-center gap-2">
-                                        <span class="inline-block w-2 h-2 rounded-full bg-csorange shadow-sm shadow-csorange/50"></span>
-                                        <span x-text="spot.name"></span>
-                                    </div>
-                                </template>
-                            </div>
+                        <div class="bg-csdark-900 rounded-xl p-4 border border-gray-800">
+                            <h4 class="font-bold text-white mb-2">Map Notes</h4>
+                            <template x-for="tip in maps[selectedMap].tips"><p class="text-xs text-gray-400 mb-2"><i class="fa-solid fa-circle text-csorange text-[5px] mr-2 align-middle"></i><span x-text="tip"></span></p></template>
                         </div>
-                    </div>
-
-                    <div class="xl:col-span-2 bg-csdark-900 p-4 rounded-lg border border-gray-800">
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-semibold text-white">Smoke-Touchpad</span>
-                                <span class="text-xs text-gray-500" x-text="placedSmokes.length + ' gesetzt'"></span>
-                            </div>
-                            <div class="flex flex-wrap gap-2 text-[10px] text-gray-400">
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">● Orange = Orientierung</span>
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">● Nummer = deine Smoke</span>
-                            </div>
-                        </div>
-
-                        <div
-                            class="map-radar relative w-full aspect-square max-h-[720px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black"
-                            @pointerdown.prevent="placeSmoke($event)"
-                        >
-                            <img
-                                :src="maps[selectedMap].radar"
-                                :alt="maps[selectedMap].label + ' Radar Overlay'"
-                                class="absolute inset-0 w-full h-full object-cover"
-                                draggable="false"
-                                @dragstart.prevent
-                            >
-
-                            <!-- Kleine, nicht-blockierende Orientierungspunkte -->
-                            <template x-for="spot in maps[selectedMap].smokeSpots" :key="'spot-' + spot.id">
-                                <span
-                                    class="spot-dot absolute w-2.5 h-2.5 rounded-full bg-csorange ring-2 ring-black/60 shadow-lg shadow-csorange/30 pointer-events-none"
-                                    :style="`left:${spot.x}%; top:${spot.y}%;`"
-                                    :title="spot.name">
-                                </span>
-                            </template>
-
-                            <!-- Frei gesetzte Smokes -->
-                            <template x-for="(smoke, index) in placedSmokes" :key="smoke.id">
-                                <button
-                                    type="button"
-                                    class="smoke-marker absolute w-7 h-7 rounded-full bg-white text-black border-2 border-csorange font-black text-xs shadow-lg shadow-black/60 z-10 hover:scale-110 transition"
-                                    :style="`left:${smoke.x}%; top:${smoke.y}%;`"
-                                    :title="'Smoke ' + (index + 1) + ' – zum Löschen klicken'"
-                                    @pointerdown.stop.prevent="removeSmoke(index)"
-                                >
-                                    <span x-text="index + 1"></span>
-                                </button>
-                            </template>
-
-                            <div class="absolute left-3 bottom-3 z-20 bg-black/75 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300 pointer-events-none">
-                                <i class="fa-solid fa-hand-pointer text-csorange mr-1"></i>
-                                Frei platzieren · Marker anklicken = löschen
-                            </div>
+                        <div class="bg-csdark-900 rounded-xl p-4 border border-gray-800">
+                            <div class="flex justify-between text-xs"><span class="text-gray-500">Eigene Marker</span><span class="text-csorange font-bold" x-text="placedSmokes.length"></span></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                    <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800">
-                        <h3 class="text-sm font-semibold text-csorange uppercase tracking-wider flex items-center gap-2 mb-3">
-                            <i class="fa-solid fa-fire"></i> Wichtigste Granaten
-                        </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="nade in maps[selectedMap].nades" :key="nade.title">
-                                <div class="bg-csdark-800 p-3 rounded-lg border border-gray-700/50 space-y-1">
-                                    <div class="flex justify-between items-center gap-2">
-                                        <span class="font-bold text-white text-xs" x-text="nade.title"></span>
-                                        <span class="text-[10px] px-2 py-0.5 rounded bg-csorange/20 text-csorange font-mono uppercase" x-text="nade.type"></span>
-                                    </div>
-                                    <p class="text-[11px] text-gray-300" x-text="'Setup: ' + nade.throwFrom"></p>
-                                    <p class="text-[11px] text-csorange/90 font-mono" x-text="'Ziel: ' + nade.target"></p>
+            <div x-show="lineupView === 'saved'" class="space-y-5">
+                <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-5">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-bookmark text-csorange mr-2"></i>Meine gespeicherten Lineups</h3>
+                            <p class="text-xs text-gray-500 mt-1">Bleiben lokal in deinem Browser gespeichert.</p>
+                        </div>
+                        <button @click="showLineupForm = !showLineupForm" class="bg-csorange hover:bg-csorange-hover text-black font-bold px-4 py-2 rounded text-xs"><i class="fa-solid fa-plus mr-1"></i> Eigenes Lineup anlegen</button>
+                    </div>
+                </div>
+
+                <div x-show="showLineupForm" class="bg-csdark-800 border border-csorange/30 rounded-xl p-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input x-model="newLineup.title" placeholder="Name, z.B. A Execute Smoke" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm">
+                        <select x-model="newLineup.map" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm">
+                            <template x-for="(map,key) in maps"><option :value="key" x-text="map.label"></option></template>
+                        </select>
+                        <select x-model="newLineup.type" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm"><option>Smoke</option><option>Flash</option><option>Molotov</option><option>HE</option></select>
+                        <select x-model="newLineup.side" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm"><option value="T">T-Seite</option><option value="CT">CT-Seite</option></select>
+                        <input x-model="newLineup.position" placeholder="Position, z.B. T Spawn" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm">
+                        <input x-model="newLineup.target" placeholder="Ziel, z.B. CT" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm">
+                        <select x-model="newLineup.site" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm"><option value="A">A Site</option><option value="B">B Site</option><option value="">Map Control</option></select>
+                        <input x-model="newLineup.throw" placeholder="Throw, z.B. Jumpthrow" class="bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm">
+                        <textarea x-model="newLineup.instructions" placeholder="Aim-/Stand-/Throw-Anleitung" class="md:col-span-2 bg-csdark-900 border border-gray-700 rounded p-2.5 text-sm min-h-24"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-2 mt-4">
+                        <button @click="showLineupForm=false" class="px-4 py-2 rounded bg-csdark-700 text-gray-300 text-xs">Abbrechen</button>
+                        <button @click="saveCustomLineup()" class="px-4 py-2 rounded bg-csorange text-black font-bold text-xs"><i class="fa-solid fa-floppy-disk mr-1"></i> Speichern</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <template x-for="lineup in savedLineups" :key="lineup.id">
+                        <article class="bg-csdark-800 border border-gray-800 rounded-xl p-4">
+                            <div class="flex justify-between gap-3">
+                                <div>
+                                    <h4 class="font-bold text-white" x-text="lineup.title"></h4>
+                                    <p class="text-xs text-gray-500 mt-1"><span x-text="maps[lineup.map]?.label || lineup.map"></span> · <span x-text="lineup.side === 'T' ? 'T' : 'CT'"></span> · <span x-text="lineup.type"></span></p>
                                 </div>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800">
-                        <h3 class="text-sm font-semibold text-csorange uppercase tracking-wider flex items-center gap-2 mb-3">
-                            <i class="fa-solid fa-shield-halved"></i> Taktik-Tipps
-                        </h3>
-                        <ul class="space-y-2 text-xs text-gray-300 list-disc list-inside">
-                            <template x-for="tip in maps[selectedMap].tips" :key="tip">
-                                <li x-text="tip"></li>
-                            </template>
-                        </ul>
-                    </div>
+                                <button @click="deleteSavedLineup(lineup.id)" class="text-gray-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                            <div class="mt-3 text-xs text-gray-400"><span x-text="lineup.position"></span> → <span class="text-white" x-text="lineup.target"></span></div>
+                            <p class="text-xs text-gray-500 mt-2" x-text="lineup.instructions"></p>
+                        </article>
+                    </template>
                 </div>
+                <div x-show="savedLineups.length === 0" class="bg-csdark-800 border border-dashed border-gray-700 rounded-xl p-10 text-center text-gray-500">Noch keine eigenen Lineups gespeichert.</div>
             </div>
         </div>
 
@@ -688,6 +749,105 @@
 
                 removeSmoke(index) {
                     this.placedSmokes.splice(index, 1);
+                },
+
+                lineupView: 'database',
+                lineupFilters: { type: 'all', side: 'all', position: 'all', target: 'all', site: 'all', search: '' },
+                savedLineups: JSON.parse(localStorage.getItem('cs2toolkit_saved_lineups') || '[]'),
+                showLineupForm: false,
+                newLineup: { title:'', map:'mirage', type:'Smoke', side:'T', position:'', target:'', site:'A', throw:'Standing', instructions:'' },
+
+                lineups: [
+                    {id:'mirage-1',map:'mirage',type:'Smoke',side:'T',site:'A',title:'CT Smoke from T Ramp',position:'T Ramp',target:'CT',throw:'Jumpthrow',difficulty:'Mittel',instructions:'Vom T Ramp an der Wand ausrichten und den Jumpthrow über den A-Execute nutzen.'},
+                    {id:'mirage-2',map:'mirage',type:'Smoke',side:'T',site:'A',title:'Jungle Smoke from T Spawn',position:'T Spawn',target:'Jungle',throw:'Standing',difficulty:'Leicht',instructions:'Von T Spawn den festen Aim-Punkt anpeilen und den Smoke für den A-Take setzen.'},
+                    {id:'mirage-3',map:'mirage',type:'Smoke',side:'T',site:'A',title:'Stairs Smoke',position:'Palace / Ramp',target:'Stairs',throw:'Jumpthrow',difficulty:'Mittel',instructions:'Palace/Ramp nutzen, um Stairs für den A-Take abzuschneiden.'},
+                    {id:'mirage-4',map:'mirage',type:'Flash',side:'T',site:'A',title:'A Ramp Pop Flash',position:'T Ramp',target:'A Site',throw:'Left Click',difficulty:'Leicht',instructions:'Flash hoch über die Site werfen, damit Entry-Spieler die ersten Winkel nehmen können.'},
+                    {id:'mirage-5',map:'mirage',type:'Molotov',side:'T',site:'B',title:'Van Molotov',position:'Apps',target:'Van',throw:'Left Click',difficulty:'Leicht',instructions:'Apps-Ausgang sichern und Van für den B-Take räumen.'},
+                    {id:'mirage-6',map:'mirage',type:'HE',side:'CT',site:'B',title:'B Apps HE',position:'Short / Market',target:'B Apps',throw:'Left Click',difficulty:'Leicht',instructions:'HE in Richtung Apps-Traffic einsetzen, um Entry-Spieler anzuschwächen.'},
+
+                    {id:'inferno-1',map:'inferno',type:'Smoke',side:'T',site:'B',title:'CT / Coffins Smoke',position:'Banana',target:'CT / Coffins',throw:'Left Click',difficulty:'Mittel',instructions:'Banana für den B-Execute absichern und die Sicht aus CT/Coffins schneiden.'},
+                    {id:'inferno-2',map:'inferno',type:'Smoke',side:'T',site:'A',title:'Arch Smoke',position:'Second Mid',target:'Arch',throw:'Jumpthrow',difficulty:'Mittel',instructions:'Second Mid nutzen, um Arch beim A-Split vom Retake-Weg abzuschneiden.'},
+                    {id:'inferno-3',map:'inferno',type:'Molotov',side:'T',site:'B',title:'Coffins Molotov',position:'Banana',target:'Coffins',throw:'Left Click',difficulty:'Leicht',instructions:'Coffins vor dem B-Entry aus dem Winkel drücken.'},
+                    {id:'inferno-4',map:'inferno',type:'Flash',side:'CT',site:'B',title:'Banana Retake Flash',position:'CT',target:'Banana',throw:'Pop Flash',difficulty:'Mittel',instructions:'Retake-Flash über die Banana-Linie setzen und gemeinsam peeken.'},
+
+                    {id:'nuke-1',map:'nuke',type:'Smoke',side:'T',site:'A',title:'Outside / Garage Smoke',position:'T Spawn',target:'Garage / Outside',throw:'Jumpthrow',difficulty:'Mittel',instructions:'Outside-Weg für den Secret-/Garage-Cross absichern.'},
+                    {id:'nuke-2',map:'nuke',type:'Smoke',side:'T',site:'A',title:'Heaven Smoke',position:'Outside',target:'Heaven',throw:'Jumpthrow',difficulty:'Mittel',instructions:'Heaven beim A-Execute aus dem Sichtfeld nehmen.'},
+                    {id:'nuke-3',map:'nuke',type:'Molotov',side:'T',site:'B',title:'Ramp Molotov',position:'Lobby',target:'Ramp',throw:'Left Click',difficulty:'Leicht',instructions:'Ramp kontrollieren und den ersten Close-Winkel räumen.'},
+                    {id:'nuke-4',map:'nuke',type:'Flash',side:'CT',site:'A',title:'A Retake Flash',position:'Heaven',target:'A Site',throw:'Pop Flash',difficulty:'Mittel',instructions:'Flash für einen abgestimmten A-Retake über die Site werfen.'},
+
+                    {id:'ancient-1',map:'ancient',type:'Smoke',side:'T',site:'A',title:'A Main Smoke',position:'A Main',target:'A Main',throw:'Standing',difficulty:'Leicht',instructions:'A Main mit Smoke vorbereiten und die Sicht auf die Defensivwinkel reduzieren.'},
+                    {id:'ancient-2',map:'ancient',type:'Smoke',side:'T',site:'A',title:'Donut Smoke',position:'Mid',target:'Donut',throw:'Jumpthrow',difficulty:'Mittel',instructions:'Mid-Control nutzen und Donut als Rotationsweg abschneiden.'},
+                    {id:'ancient-3',map:'ancient',type:'Molotov',side:'T',site:'B',title:'Cave Molotov',position:'B Main',target:'Cave',throw:'Left Click',difficulty:'Leicht',instructions:'Cave vor dem B-Entry ausräumen.'},
+                    {id:'ancient-4',map:'ancient',type:'Flash',side:'CT',site:'B',title:'B Retake Flash',position:'CT',target:'B Site',throw:'Pop Flash',difficulty:'Mittel',instructions:'Flash über den B-Eingang setzen und gemeinsam zurückerobern.'},
+
+                    {id:'dust2-1',map:'dust2',type:'Smoke',side:'T',site:'A',title:'Xbox Smoke',position:'T Spawn',target:'Xbox / Mid',throw:'Jumpthrow',difficulty:'Leicht',instructions:'Xbox/Mid für Short- und B-Rotationen abdecken.'},
+                    {id:'dust2-2',map:'dust2',type:'Smoke',side:'T',site:'A',title:'CT Cross Smoke',position:'Long',target:'CT',throw:'Standing',difficulty:'Mittel',instructions:'A-Cross beim Long-Execute abschirmen.'},
+                    {id:'dust2-3',map:'dust2',type:'Flash',side:'T',site:'A',title:'Long Pop Flash',position:'Long',target:'A Long',throw:'Pop Flash',difficulty:'Leicht',instructions:'Long-Duel mit einer schnellen Flash unterstützen.'},
+                    {id:'dust2-4',map:'dust2',type:'HE',side:'CT',site:'B',title:'Tunnel HE',position:'B Site',target:'B Tunnels',throw:'Left Click',difficulty:'Leicht',instructions:'HE gegen den B-Tunnel-Entry vor dem Contact nutzen.'},
+
+                    {id:'anubis-1',map:'anubis',type:'Smoke',side:'T',site:'A',title:'A Main Smoke',position:'T Side',target:'A Main / Site',throw:'Jumpthrow',difficulty:'Mittel',instructions:'A-Entry mit Smoke vorbereiten und Sichtlinien der CTs brechen.'},
+                    {id:'anubis-2',map:'anubis',type:'Smoke',side:'T',site:'B',title:'B Connector Smoke',position:'B Main',target:'Connector',throw:'Standing',difficulty:'Mittel',instructions:'Connector für den B-Execute vom Main-Zugang trennen.'},
+                    {id:'anubis-3',map:'anubis',type:'Molotov',side:'T',site:'B',title:'B Close Molotov',position:'B Main',target:'B Close',throw:'Left Click',difficulty:'Leicht',instructions:'Close-Winkel vor dem Entry ausräumen.'},
+                    {id:'anubis-4',map:'anubis',type:'Flash',side:'CT',site:'A',title:'A Retake Flash',position:'CT',target:'A Site',throw:'Pop Flash',difficulty:'Mittel',instructions:'Retake-Flash über die Site für einen gemeinsamen Swing.'}
+                ],
+
+                get filteredLineups() {
+                    const f=this.lineupFilters;
+                    return this.lineups.filter(l => l.map===this.selectedMap &&
+                        (f.type==='all'||l.type===f.type) &&
+                        (f.side==='all'||l.side===f.side) &&
+                        (f.position==='all'||l.position===f.position) &&
+                        (f.target==='all'||l.target===f.target) &&
+                        (f.site==='all'||l.site===f.site) &&
+                        (!f.search || [l.title,l.position,l.target,l.instructions].join(' ').toLowerCase().includes(f.search.toLowerCase()))
+                    );
+                },
+
+                get availablePositions() {
+                    return [...new Set(this.lineups.filter(l=>l.map===this.selectedMap).map(l=>l.position))].sort();
+                },
+
+                get availableTargets() {
+                    return [...new Set(this.lineups.filter(l=>l.map===this.selectedMap).map(l=>l.target))].sort();
+                },
+
+                resetLineupFilters() {
+                    this.lineupFilters={type:'all',side:'all',position:'all',target:'all',site:'all',search:''};
+                },
+
+                utilityIcon(type) {
+                    return {Smoke:'fa-solid fa-cloud',Flash:'fa-solid fa-bolt',Molotov:'fa-solid fa-fire',HE:'fa-solid fa-explosion'}[type] || 'fa-solid fa-circle';
+                },
+
+                utilityColor(type) {
+                    return {Smoke:'text-gray-300',Flash:'text-yellow-300',Molotov:'text-red-400',HE:'text-green-400'}[type] || 'text-csorange';
+                },
+
+                isSaved(id) {
+                    return this.savedLineups.some(l=>l.id===id);
+                },
+
+                toggleSavedLineup(lineup) {
+                    if(this.isSaved(lineup.id)) this.savedLineups=this.savedLineups.filter(l=>l.id!==lineup.id);
+                    else this.savedLineups=[...this.savedLineups,{...lineup}];
+                    localStorage.setItem('cs2toolkit_saved_lineups',JSON.stringify(this.savedLineups));
+                },
+
+                saveCustomLineup() {
+                    if(!this.newLineup.title.trim() || !this.newLineup.position.trim() || !this.newLineup.target.trim()) {
+                        alert('Bitte Name, Position und Ziel ausfüllen.');
+                        return;
+                    }
+                    const item={...this.newLineup,id:'custom-'+Date.now(),difficulty:'Eigene',custom:true};
+                    this.savedLineups=[item,...this.savedLineups];
+                    localStorage.setItem('cs2toolkit_saved_lineups',JSON.stringify(this.savedLineups));
+                    this.newLineup={title:'',map:this.selectedMap,type:'Smoke',side:'T',position:'',target:'',site:'A',throw:'Standing',instructions:''};
+                    this.showLineupForm=false;
+                },
+
+                deleteSavedLineup(id) {
+                    this.savedLineups=this.savedLineups.filter(l=>l.id!==id);
+                    localStorage.setItem('cs2toolkit_saved_lineups',JSON.stringify(this.savedLineups));
                 },
 
                 chSize: 3,
