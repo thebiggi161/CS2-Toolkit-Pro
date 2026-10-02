@@ -93,7 +93,7 @@
         }
     </style>
 </head>
-<body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()">
+<body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()" x-init="init()">
 
     <!-- Header -->
     <header class="bg-csdark-800 border-b border-csorange/30 sticky top-0 z-50 shadow-lg shadow-black/50">
@@ -105,14 +105,17 @@
             
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
-                <button @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-calculator"></i> Buy & Economy
+                <button @click="activeTab = 'maps-nades'" :class="activeTab === 'maps-nades' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-map"></i> Maps & Nades
                 </button>
                 <button @click="activeTab = 'callouts'" :class="activeTab === 'callouts' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-map"></i> Maps & Nades
+                    <i class="fa-solid fa-location-dot"></i> Callouts
                 </button>
                 <button @click="activeTab = 'crosshair'" :class="activeTab === 'crosshair' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-crosshairs"></i> Crosshair
+                </button>
+                <button @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-calculator"></i> Economy
                 </button>
                 <button @click="activeTab = 'commands'" :class="activeTab === 'commands' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-terminal"></i> Console
@@ -124,7 +127,7 @@
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
-        <!-- TAB 1: BUY & ECONOMY SIMULATOR (Zusammengelegt) -->
+        <!-- TAB 6: ECONOMY -->
         <div x-show="activeTab === 'buy-economy'" x-cloak class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Budget Steuerung -->
@@ -271,8 +274,8 @@
             </div>
         </div>
 
-        <!-- TAB 2: MAPS, CALLOUTS, LINEUPS & BOMB WAVE -->
-        <div x-show="activeTab === 'callouts'" x-cloak class="space-y-6">
+        <!-- TAB 2: MAPS & NADES -->
+        <div x-show="activeTab === 'maps-nades'" x-cloak class="space-y-6">
             <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-5">
                     <div>
@@ -567,47 +570,174 @@
                         <i class="fa-solid fa-circle-radiation"></i> C4-Druckwelle / Liquid-Bomb-Vorschau
                     </h3>
                     <p class="text-xs text-gray-400 mt-2">
-                        Valve beschreibt die aktuelle C4-Explosion als sich vom Explosionszentrum ausbreitende Schockwelle; Reichweite und Schadensstärke werden für offizielle Defusal-Maps anhand vorkompilierter Kartendaten bestimmt. Der Kreis hier ist daher eine vereinfachte Visualisierung und keine exakte Wall-/Damage-Simulation.
+                        Die aktuelle C4-Ansicht nutzt die originale SkinSniper-Darstellung der vorkompilierten Bombenschadensfelder und keinen künstlichen Kreisradius.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: CROSSHAIR GENERATOR -->
-        <div x-show="activeTab === 'crosshair'" x-cloak class="space-y-6">
+        <!-- TAB 3: CALLOUTS -->
+        <div x-show="activeTab === 'callouts'" x-cloak class="space-y-6">
             <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
-                <h2 class="text-xl font-bold mb-4 text-csorange flex items-center gap-2"><i class="fa-solid fa-crosshairs"></i> Crosshair Generator & Vorschau</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-csdark-900 rounded-xl border border-gray-800 flex flex-col items-center justify-center p-8 relative min-h-[300px] overflow-hidden">
-                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ff5500_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                        <div class="crosshair-preview flex items-center justify-center text-white">
-                            <div class="crosshair-arm" :style="crosshairArmStyle('left')"></div>
-                            <div class="crosshair-arm" :style="crosshairArmStyle('right')"></div>
-                            <div class="crosshair-arm" :style="crosshairArmStyle('top')"></div>
-                            <div class="crosshair-arm" :style="crosshairArmStyle('bottom')"></div>
-                            <div x-show="chDot"
-                                class="absolute rounded-full"
-                                :style="`left:50%; top:50%; width:${chThickness * 1.5}px; height:${chThickness * 1.5}px; transform:translate(-50%,-50%); background:${chColor};`"></div>
-                        </div></div>
-                        <span class="text-xs text-gray-500 mt-6">Live Vorschau</span>
+                <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
+                            <i class="fa-solid fa-location-dot"></i> Callouts
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">
+                            Interaktive Callout-Karte für alle aktuell im Toolkit hinterlegten Maps.
+                            Punkt anklicken oder suchen, um den Callout hervorzuheben.
+                        </p>
                     </div>
 
-                    <div class="bg-csdark-900 p-5 rounded-xl border border-gray-800 space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Größe (Size): <span class="text-csorange" x-text="chSize"></span></label>
-                            <input type="range" min="1" max="10" x-model.number="chSize" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <template x-for="(mapData, mapName) in maps" :key="'callout-map-' + mapName">
+                            <button type="button"
+                                @click="selectMap(mapName); resetCalloutSelection()"
+                                :class="selectedMap === mapName ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
+                                class="px-3 py-1.5 rounded text-xs transition"
+                                x-text="mapData.label">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                    <div class="xl:col-span-1 bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Callout suchen</label>
+                        <input type="search"
+                            x-model="calloutSearch"
+                            placeholder="z. B. Window, Mid, A Site..."
+                            class="w-full bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-csorange">
+
+                        <div class="mt-4 space-y-2 max-h-[520px] overflow-y-auto pr-1">
+                            <template x-for="callout in visibleCallouts()" :key="'list-' + callout.id">
+                                <button type="button"
+                                    @click="selectCallout(callout.id)"
+                                    :class="selectedCalloutId === callout.id ? 'bg-csorange text-black border-csorange' : 'bg-csdark-800 text-gray-300 border-gray-700 hover:bg-csdark-700'"
+                                    class="w-full text-left p-3 rounded-lg border transition">
+                                    <div class="font-semibold text-xs" x-text="callout.name"></div>
+                                    <div class="text-[10px] mt-1 opacity-70" x-text="callout.x.toFixed(1) + '% / ' + callout.y.toFixed(1) + '%'"></div>
+                                </button>
+                            </template>
+
+                            <div x-show="visibleCallouts().length === 0" class="text-xs text-gray-500 p-3 border border-dashed border-gray-700 rounded-lg">
+                                Kein Callout gefunden.
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Lücke (Gap): <span class="text-csorange" x-text="chGap"></span></label>
-                            <input type="range" min="-5" max="10" x-model.number="chGap" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+
+                        <div class="mt-4 pt-4 border-t border-gray-800">
+                            <button type="button" @click="resetCalloutSelection()"
+                                class="w-full bg-csdark-800 hover:bg-csdark-700 text-gray-300 px-3 py-2 rounded-lg border border-gray-700 text-xs transition">
+                                Auswahl zurücksetzen
+                            </button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Dicke (Thickness): <span class="text-csorange" x-text="chThickness"></span></label>
-                            <input type="range" min="0.5" max="4" step="0.5" x-model.number="chThickness" class="w-full accent-csorange bg-csdark-700 cursor-pointer">
+                    </div>
+
+                    <div class="xl:col-span-3 bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <div>
+                                <div class="text-sm font-semibold text-white" x-text="maps[selectedMap].label + ' – Callouts'"></div>
+                                <div class="text-[11px] text-gray-500">Alle Punkte sitzen direkt auf dem verwendeten Radar-Overlay.</div>
+                            </div>
+                            <div x-show="selectedCalloutId"
+                                class="text-xs text-csorange font-semibold"
+                                x-text="selectedCallout()?.name || ''"></div>
                         </div>
+
+                        <div class="relative w-full aspect-square max-h-[760px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black">
+                            <img :src="maps[selectedMap].radar"
+                                :alt="maps[selectedMap].label + ' Callout Radar'"
+                                class="absolute inset-0 w-full h-full object-cover"
+                                draggable="false">
+
+                            <div class="absolute inset-0 z-10 pointer-events-none">
+                                <template x-for="callout in visibleCallouts()" :key="'dot-' + callout.id">
+                                    <button type="button"
+                                        class="absolute pointer-events-auto -translate-x-1/2 -translate-y-1/2 transition"
+                                        :style="`left:${callout.x}%; top:${callout.y}%;`"
+                                        @click.stop="selectCallout(callout.id)"
+                                        :title="callout.name">
+                                        <span class="block rounded-full border-2 shadow-lg"
+                                            :class="selectedCalloutId === callout.id ? 'w-5 h-5 bg-csorange border-white shadow-csorange/50' : 'w-3.5 h-3.5 bg-white border-csorange shadow-black/60'"></span>
+                                        <span x-show="selectedCalloutId === callout.id"
+                                            class="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap bg-black/85 text-white text-[10px] font-bold px-2 py-1 rounded border border-csorange"
+                                            x-text="callout.name"></span>
+                                    </button>
+                                </template>
+                            </div>
+
+                            <div class="absolute left-3 bottom-3 z-20 bg-black/80 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300">
+                                <i class="fa-solid fa-location-dot text-csorange mr-1"></i>
+                                Callout-Punkt anklicken = hervorheben
+                            </div>
+                        </div>
+
+                        <div x-show="selectedCallout()" class="mt-4 bg-csdark-800 border border-csorange/30 rounded-lg p-4">
+                            <div class="text-xs text-gray-400 uppercase tracking-wider">Ausgewählter Callout</div>
+                            <div class="text-lg font-bold text-white mt-1" x-text="selectedCallout()?.name || ''"></div>
+                            <div class="text-xs text-gray-500 mt-2" x-text="selectedCallout() ? 'Radar: ' + selectedCallout().x.toFixed(1) + '% / ' + selectedCallout().y.toFixed(1) + '%' : ''"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: CROSSHAIR GENERATOR -->
+        <div x-show="activeTab === 'crosshair'" x-cloak class="space-y-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
+                            <i class="fa-solid fa-crosshairs"></i> Crosshair
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">Stabile Live-Vorschau und direkter CS2-Konsolenbefehl.</p>
+                    </div>
+                    <button type="button" @click="resetCrosshair()"
+                        class="bg-csdark-700 hover:bg-csdark-600 text-gray-300 px-3 py-2 rounded border border-gray-700 text-xs transition">
+                        Zurücksetzen
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-black/50 rounded-xl border border-gray-800 min-h-[360px] flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,85,0,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,85,0,.35)_1px,transparent_1px)] [background-size:24px_24px]"></div>
+
+                        <div class="relative w-64 h-64" aria-label="Crosshair Vorschau">
+                            <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm"
+                                :style="crosshairPreviewStyle('left')"></div>
+                            <div class="absolute left-1/2 top-1/2 -translate-y-1/2 rounded-sm"
+                                :style="crosshairPreviewStyle('right')"></div>
+                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm"
+                                :style="crosshairPreviewStyle('top')"></div>
+                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-sm"
+                                :style="crosshairPreviewStyle('bottom')"></div>
+                            <div x-show="chDot" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                                :style="`width:${Math.max(2,chThickness * 1.6)}px;height:${Math.max(2,chThickness * 1.6)}px;background:${chColor};box-shadow:${chOutline ? '0 0 0 1px #000' : 'none'};`"></div>
+                        </div>
+
+                        <div class="absolute bottom-3 left-3 text-[10px] text-gray-500">Live Vorschau</div>
+                    </div>
+
+                    <div class="bg-csdark-900 rounded-xl border border-gray-800 p-5 space-y-5">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Größe <span class="text-csorange" x-text="chSize"></span></label>
+                            <input type="range" min="1" max="10" step="1" x-model.number="chSize" class="w-full accent-csorange">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Lücke <span class="text-csorange" x-text="chGap"></span></label>
+                            <input type="range" min="-5" max="10" step="1" x-model.number="chGap" class="w-full accent-csorange">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Dicke <span class="text-csorange" x-text="chThickness"></span></label>
+                            <input type="range" min="1" max="4" step="1" x-model.number="chThickness" class="w-full accent-csorange">
+                        </div>
+
                         <div>
                             <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Farbe</label>
-                            <select x-model="chColor" class="w-full bg-csdark-800 border border-gray-700 rounded p-2 text-sm text-gray-200">
+                            <select x-model="chColor" class="w-full bg-csdark-800 border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200">
                                 <option value="#ffffff">Weiß</option>
                                 <option value="#00ff00">Grün</option>
                                 <option value="#ffff00">Gelb</option>
@@ -616,29 +746,36 @@
                                 <option value="#ff5500">CS2 Orange</option>
                             </select>
                         </div>
-                        <div class="flex items-center gap-2 pt-2 text-sm text-gray-300">
-                            Zentraler Punkt (Dot): <input type="checkbox" x-model="chDot" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-300">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" x-model="chDot" class="rounded text-csorange">
+                                Dot
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" x-model="chOutline" class="rounded text-csorange">
+                                Outline
+                            </label>
                         </div>
-                        <div class="flex items-center gap-2 text-sm text-gray-300">
-                            Schatten: <input type="checkbox" x-model="chOutline" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
-                        </div>
-                        <button type="button" @click="resetCrosshair()"
-                            class="w-full bg-csdark-800 hover:bg-csdark-700 text-gray-300 px-3 py-2 rounded border border-gray-700 text-xs transition">
-                            Crosshair zurücksetzen
-                        </button>
+
                         <div class="pt-4 border-t border-gray-800">
-                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Konsolenbefehl</label>
+                            <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">CS2 Konsolenbefehl</label>
                             <div class="flex gap-2">
-                                <input type="text" readonly :value="generateCrosshairCode()" class="w-full bg-csdark-800 border border-gray-700 rounded p-2 text-xs font-mono text-csorange select-all">
-                                <button @click="navigator.clipboard.writeText(generateCrosshairCode()); alert('Code kopiert!')" class="bg-csorange hover:bg-csorange-hover text-black font-bold px-3 py-2 rounded text-xs transition"><i class="fa-solid fa-copy"></i></button>
+                                <input type="text" readonly :value="generateCrosshairCode()"
+                                    class="flex-1 bg-csdark-800 border border-gray-700 rounded-lg p-2.5 text-xs font-mono text-csorange select-all">
+                                <button type="button" @click="copyCrosshair()"
+                                    class="bg-csorange hover:bg-csorange-hover text-black font-bold px-3 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
                             </div>
+                            <p class="text-[10px] text-gray-500 mt-2">Der Befehl wird automatisch aktualisiert.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 4: CONSOLE COMMANDS -->
+        <!-- TAB 5: CONSOLE COMMANDS -->
         <div x-show="activeTab === 'commands'" x-cloak class="space-y-6">
             <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -672,7 +809,7 @@
     <script>
         function cs2App() {
             return {
-                activeTab: 'buy-economy',
+                activeTab: 'maps-nades',
                 playerMoney: 4500,
                 lossStreak: 1,
                 
@@ -788,6 +925,7 @@
 
                 init() {
                     this.selectedLineupId = this.maps[this.selectedMap]?.lineups?.[0]?.id ?? null;
+                    this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
                 },
                 smokeId: 0,
                 bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
@@ -918,12 +1056,134 @@ bombSites: [
                     }
                 },
 
+                calloutSearch: '',
+                selectedCalloutId: null,
+                calloutsByMap: {
+                    mirage: [
+                        {id:'mirage-tspawn',name:'T Spawn',x:10,y:80},
+                        {id:'mirage-mid',name:'Mid',x:38,y:52},
+                        {id:'mirage-topmid',name:'Top Mid',x:38,y:42},
+                        {id:'mirage-window',name:'Window',x:44,y:38},
+                        {id:'mirage-aramp',name:'A Ramp',x:22,y:35},
+                        {id:'mirage-palace',name:'Palace',x:15,y:28},
+                        {id:'mirage-asite',name:'A Site',x:52,y:28},
+                        {id:'mirage-ct',name:'CT Spawn',x:65,y:48},
+                        {id:'mirage-short',name:'Short',x:55,y:38},
+                        {id:'mirage-jungle',name:'Jungle',x:60,y:30},
+                        {id:'mirage-apps',name:'B Apartments',x:12,y:65},
+                        {id:'mirage-bshort',name:'B Short',x:28,y:68},
+                        {id:'mirage-bsite',name:'B Site',x:42,y:72},
+                        {id:'mirage-van',name:'Van',x:48,y:78}
+                    ],
+                    inferno: [
+                        {id:'inferno-tspawn',name:'T Spawn',x:8,y:72},
+                        {id:'inferno-apps',name:'Apartments',x:18,y:45},
+                        {id:'inferno-balcony',name:'Balcony',x:28,y:42},
+                        {id:'inferno-asite',name:'A Site',x:48,y:32},
+                        {id:'inferno-arch',name:'Arch',x:42,y:40},
+                        {id:'inferno-library',name:'Library',x:55,y:28},
+                        {id:'inferno-pit',name:'Pit',x:50,y:42},
+                        {id:'inferno-ct',name:'CT Spawn',x:68,y:45},
+                        {id:'inferno-mid',name:'Mid',x:42,y:58},
+                        {id:'inferno-banana',name:'Banana',x:30,y:72},
+                        {id:'inferno-bsite',name:'B Site',x:58,y:72},
+                        {id:'inferno-construction',name:'Construction',x:50,y:65}
+                    ],
+                    nuke: [
+                        {id:'nuke-tspawn',name:'T Spawn',x:12,y:50},
+                        {id:'nuke-outside',name:'Outside',x:22,y:35},
+                        {id:'nuke-silo',name:'Silo',x:35,y:28},
+                        {id:'nuke-ramp',name:'Ramp',x:28,y:52},
+                        {id:'nuke-lobby',name:'Lobby',x:28,y:65},
+                        {id:'nuke-asite',name:'A Site',x:52,y:38},
+                        {id:'nuke-heaven',name:'Heaven',x:55,y:28},
+                        {id:'nuke-ct',name:'CT Spawn',x:68,y:45},
+                        {id:'nuke-secret',name:'Secret',x:52,y:60},
+                        {id:'nuke-bsite',name:'B Site',x:52,y:72},
+                        {id:'nuke-squeaky',name:'Squeaky',x:42,y:68}
+                    ],
+                    ancient: [
+                        {id:'ancient-tspawn',name:'T Spawn',x:10,y:75},
+                        {id:'ancient-mid',name:'Mid',x:35,y:52},
+                        {id:'ancient-cave',name:'Cave',x:22,y:42},
+                        {id:'ancient-temple',name:'Temple',x:30,y:32},
+                        {id:'ancient-asite',name:'A Site',x:52,y:28},
+                        {id:'ancient-steps',name:'Steps',x:45,y:35},
+                        {id:'ancient-ct',name:'CT Spawn',x:68,y:42},
+                        {id:'ancient-bsite',name:'B Site',x:55,y:72},
+                        {id:'ancient-ruins',name:'Ruins',x:42,y:72},
+                        {id:'ancient-river',name:'River',x:30,y:65}
+                    ],
+                    dust2: [
+                        {id:'dust2-tspawn',name:'T Spawn',x:8,y:82},
+                        {id:'dust2-longa',name:'Long A',x:18,y:55},
+                        {id:'dust2-longdoors',name:'Long Doors',x:30,y:52},
+                        {id:'dust2-asite',name:'A Site',x:55,y:38},
+                        {id:'dust2-ct',name:'CT Spawn',x:62,y:60},
+                        {id:'dust2-short',name:'Short',x:50,y:28},
+                        {id:'dust2-cat',name:'Catwalk',x:42,y:32},
+                        {id:'dust2-mid',name:'Mid',x:37,y:42},
+                        {id:'dust2-bsite',name:'B Site',x:72,y:78},
+                        {id:'dust2-bdoors',name:'B Doors',x:52,y:78},
+                        {id:'dust2-upper',name:'Upper Tunnels',x:28,y:72},
+                        {id:'dust2-lower',name:'Lower Tunnels',x:22,y:85}
+                    ],
+                    anubis: [
+                        {id:'anubis-tspawn',name:'T Spawn',x:10,y:72},
+                        {id:'anubis-canal',name:'Canal',x:22,y:60},
+                        {id:'anubis-mid',name:'Mid',x:38,y:50},
+                        {id:'anubis-palace',name:'Palace',x:20,y:35},
+                        {id:'anubis-asite',name:'A Site',x:48,y:28},
+                        {id:'anubis-flower',name:'Flower',x:55,y:35},
+                        {id:'anubis-ct',name:'CT Spawn',x:70,y:45},
+                        {id:'anubis-bsite',name:'B Site',x:60,y:72},
+                        {id:'anubis-connector',name:'Connector',x:45,y:62},
+                        {id:'anubis-alley',name:'Alley',x:35,y:72}
+                    ],
+                    cache: [
+                        {id:'cache-tspawn',name:'T Spawn',x:10,y:72},
+                        {id:'cache-mid',name:'Mid',x:38,y:52},
+                        {id:'cache-halls',name:'A Main',x:45,y:32},
+                        {id:'cache-asite',name:'A Site',x:62,y:28},
+                        {id:'cache-heaven',name:'Heaven',x:68,y:20},
+                        {id:'cache-ct',name:'CT Spawn',x:70,y:45},
+                        {id:'cache-checkers',name:'Checkers',x:38,y:65},
+                        {id:'cache-bsite',name:'B Site',x:24,y:76},
+                        {id:'cache-bmain',name:'B Main',x:18,y:56}
+                    ]
+                },
+
+                visibleCallouts() {
+                    const list = this.calloutsByMap[this.selectedMap] || [];
+                    const query = this.calloutSearch.trim().toLowerCase();
+                    if (!query) return list;
+                    return list.filter(callout => callout.name.toLowerCase().includes(query));
+                },
+
+                selectedCallout() {
+                    const list = this.calloutsByMap[this.selectedMap] || [];
+                    return list.find(callout => callout.id === this.selectedCalloutId) || null;
+                },
+
+                selectCallout(id) {
+                    this.selectedCalloutId = id;
+                },
+
+                resetCalloutSelection() {
+                    this.calloutSearch = '';
+                    const first = (this.calloutsByMap[this.selectedMap] || [])[0];
+                    this.selectedCalloutId = first ? first.id : null;
+                },
+
                 selectMap(mapName) {
                     if (this.selectedMap === mapName) return;
                     this.pauseLineupAnimation();
                     this.selectedMap = mapName;
                     this.selectedLineupId = this.maps[mapName].lineups?.[0]?.id ?? null;
                     this.lineupProgress = 0;
+                    this.calloutSearch = '';
+                    const firstCallout = (this.calloutsByMap[mapName] || [])[0];
+                    this.selectedCalloutId = firstCallout ? firstCallout.id : null;
                     this.clearMapOverlays();
                 },
 
@@ -1080,24 +1340,24 @@ bombSites: [
                 chDot: false,
                 chOutline: true,
 
-                crosshairArmStyle(side) {
-                    const length = Math.max(2, Number(this.chSize) * 2);
-                    const gap = Number(this.chGap);
-                    const thickness = Math.max(1, Number(this.chThickness));
-                    const outline = this.chOutline ? '0 0 0.75px #000000' : 'none';
+                crosshairPreviewStyle(side) {
+                    const size = Math.max(1, Number(this.chSize) || 1);
+                    const gap = Number(this.chGap) || 0;
+                    const thickness = Math.max(1, Number(this.chThickness) || 1);
+                    const length = size * 5;
                     const color = this.chColor;
-                    const common = `position:absolute; left:50%; top:50%; background:${color}; box-shadow:${outline};`;
+                    const shadow = this.chOutline ? '0 0 0 1px #000000' : 'none';
 
                     if (side === 'left') {
-                        return common + `width:${length}px; height:${thickness}px; transform:translate(calc(-100% - ${gap}px), -50%);`;
+                        return `width:${length}px;height:${thickness}px;background:${color};box-shadow:${shadow};transform:translateX(calc(-100% - ${gap}px)) translateY(-50%);`;
                     }
                     if (side === 'right') {
-                        return common + `width:${length}px; height:${thickness}px; transform:translate(${gap}px, -50%);`;
+                        return `width:${length}px;height:${thickness}px;background:${color};box-shadow:${shadow};transform:translateX(${gap}px) translateY(-50%);`;
                     }
                     if (side === 'top') {
-                        return common + `width:${thickness}px; height:${length}px; transform:translate(-50%, calc(-100% - ${gap}px));`;
+                        return `width:${thickness}px;height:${length}px;background:${color};box-shadow:${shadow};transform:translateY(calc(-100% - ${gap}px)) translateX(-50%);`;
                     }
-                    return common + `width:${thickness}px; height:${length}px; transform:translate(-50%, ${gap}px);`;
+                    return `width:${thickness}px;height:${length}px;background:${color};box-shadow:${shadow};transform:translateY(${gap}px) translateX(-50%);`;
                 },
 
                 resetCrosshair() {
@@ -1109,17 +1369,51 @@ bombSites: [
                     this.chOutline = true;
                 },
 
-                generateCrosshairCode() {
-                    let dotVal = this.chDot ? '1' : '0';
-                    return `cl_crosshairsize ${this.chSize}; cl_crosshairgap ${this.chGap}; cl_crosshairthickness ${this.chThickness}; cl_crosshaircolor 5; cl_crosshaircolor_r ${this.hexToRgb(this.chColor).r}; cl_crosshaircolor_g ${this.hexToRgb(this.chColor).g}; cl_crosshaircolor_b ${this.hexToRgb(this.chColor).b}; cl_crosshairdot ${dotVal}; cl_crosshair_drawoutline ${this.chOutline ? 1 : 0};`;
+                hexToRgb(hex) {
+                    const clean = String(hex || '').replace('#', '');
+                    const bigint = parseInt(clean || '000000', 16);
+                    return {
+                        r: (bigint >> 16) & 255,
+                        g: (bigint >> 8) & 255,
+                        b: bigint & 255
+                    };
                 },
 
-                hexToRgb(hex) {
-                    let bigint = parseInt(hex.replace('#',''), 16);
-                    let r = (bigint >> 16) & 255;
-                    let g = (bigint >> 8) & 255;
-                    let b = bigint & 255;
-                    return { r, g, b };
+                generateCrosshairCode() {
+                    const rgb = this.hexToRgb(this.chColor);
+                    return [
+                        `cl_crosshairsize ${this.chSize}`,
+                        `cl_crosshairgap ${this.chGap}`,
+                        `cl_crosshairthickness ${this.chThickness}`,
+                        'cl_crosshaircolor 5',
+                        `cl_crosshaircolor_r ${rgb.r}`,
+                        `cl_crosshaircolor_g ${rgb.g}`,
+                        `cl_crosshaircolor_b ${rgb.b}`,
+                        `cl_crosshairdot ${this.chDot ? 1 : 0}`,
+                        `cl_crosshair_drawoutline ${this.chOutline ? 1 : 0}`
+                    ].join('; ') + ';';
+                },
+
+                async copyCrosshair() {
+                    const code = this.generateCrosshairCode();
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) {
+                            await navigator.clipboard.writeText(code);
+                        } else {
+                            const area = document.createElement('textarea');
+                            area.value = code;
+                            area.style.position = 'fixed';
+                            area.style.opacity = '0';
+                            document.body.appendChild(area);
+                            area.focus();
+                            area.select();
+                            document.execCommand('copy');
+                            area.remove();
+                        }
+                        alert('Crosshair-Code kopiert!');
+                    } catch (error) {
+                        alert('Kopieren nicht möglich. Bitte den Code markieren und manuell kopieren.');
+                    }
                 },
 
                 commandSearch: '',
