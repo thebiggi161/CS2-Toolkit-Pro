@@ -49,6 +49,32 @@
         .spot-dot {
             transform: translate(-50%, -50%);
         }
+        .overlay-mode {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            background: transparent;
+        }
+        .overlay-panel {
+            pointer-events: auto;
+            position: absolute;
+            top: 72px;
+            right: 20px;
+            width: min(430px, calc(100vw - 40px));
+            max-height: calc(100vh - 92px);
+            overflow: auto;
+            background: rgba(7,7,7,.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,85,0,.55);
+            box-shadow: 0 18px 50px rgba(0,0,0,.45);
+            border-radius: 16px;
+        }
+        .overlay-click-through .overlay-panel,
+        .overlay-click-through .overlay-panel * {
+            pointer-events: none !important;
+        }
         .bomb-wave-ring {
             transform-box: fill-box;
             transform-origin: center;
@@ -117,6 +143,9 @@
                 <button @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-calculator"></i> Economy
                 </button>
+                <button @click="toggleOverlay()" :class="overlayMode ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> Overlay
+                </button>
                 <button @click="activeTab = 'commands'" :class="activeTab === 'commands' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-terminal"></i> Console
                 </button>
@@ -130,6 +159,35 @@
             </nav>
         </div>
     </header>
+
+    <!-- IN-APP OVERLAY MODE -->
+    <div x-show="overlayMode" x-cloak class="overlay-mode" :class="clickThrough ? 'overlay-click-through' : ''">
+        <section class="overlay-panel text-gray-100 p-4" :style="'background: rgba(7,7,7,' + overlayOpacity + ')'">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <div>
+                    <div class="text-xs font-black tracking-widest text-csorange uppercase">CS2 Toolkit Overlay</div>
+                    <div class="text-sm text-gray-300">Transluzent · immer im Vordergrund des App-Fensters</div>
+                </div>
+                <button @click="toggleOverlay()" class="w-9 h-9 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" title="Overlay schließen"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <button @click="activeTab='callouts'; lineupView='database'; clickThrough=false" class="bg-csdark-700/80 hover:bg-csdark-600 p-3 rounded-xl text-left border border-gray-700">
+                    <i class="fa-solid fa-smog text-csorange mr-2"></i><span class="text-sm font-bold">Lineups</span><div class="text-[11px] text-gray-500 mt-1">Utility-Datenbank öffnen</div>
+                </button>
+                <button @click="activeTab='buy-economy'; clickThrough=false" class="bg-csdark-700/80 hover:bg-csdark-600 p-3 rounded-xl text-left border border-gray-700">
+                    <i class="fa-solid fa-wallet text-csorange mr-2"></i><span class="text-sm font-bold">Buy</span><div class="text-[11px] text-gray-500 mt-1">Economy schnell prüfen</div>
+                </button>
+            </div>
+            <div class="rounded-xl bg-black/30 border border-gray-800 p-3 space-y-3">
+                <div class="flex items-center justify-between"><span class="text-xs text-gray-400">Deckkraft</span><span class="text-xs font-mono text-csorange" x-text="Math.round(overlayOpacity*100)+'%'"></span></div>
+                <input type="range" min="0.25" max="0.95" step="0.05" x-model.number="overlayOpacity" class="w-full accent-csorange" @input="saveOverlaySettings()">
+                <button @click="clickThrough=!clickThrough; saveOverlaySettings()" :class="clickThrough ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="w-full py-2 rounded-lg text-xs font-bold transition">
+                    <i class="fa-solid" :class="clickThrough ? 'fa-mouse-pointer' : 'fa-hand-pointer'"></i> <span x-text="clickThrough ? 'Klicks durchlassen: AN' : 'Klicks durchlassen: AUS'"></span>
+                </button>
+                <p class="text-[10px] text-gray-500 leading-relaxed">Klick-durch-Modus macht die Overlay-Fläche nicht anklickbar. Zum Bedienen wieder ausschalten.</p>
+            </div>
+        </section>
+    </div>
 
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
