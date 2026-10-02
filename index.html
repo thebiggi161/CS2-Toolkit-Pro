@@ -61,6 +61,13 @@
             70% { opacity: .25; }
             100% { opacity: 0; transform: scale(1.35); }
         }
+        .lineup-grenade-pulse {
+            animation: lineupGrenadePulse 0.75s ease-in-out infinite alternate;
+        }
+        @keyframes lineupGrenadePulse {
+            from { transform: scale(.9); opacity: .85; }
+            to { transform: scale(1.15); opacity: 1; }
+        }
         @keyframes bomb-wave-pulse {
             0% { opacity: 0.85; transform: scale(0.35); }
             65% { opacity: 0.18; transform: scale(1); }
@@ -315,6 +322,52 @@
                                     <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Lineup-Anzeige</h4>
                                     <p class="text-xs text-gray-400">Gelbe Linie = Wurfrichtung. Gelber Punkt = Ziel. Die Linien sind als visuelle Orientierung gedacht und keine pixelgenaue Wurf-Simulation.</p>
                                 </div>
+                                <div class="border-t border-gray-800 pt-3">
+                                    <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Lineup-Animation</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="line in maps[selectedMap].lineups" :key="'pick-' + line.id">
+                                                <button type="button"
+                                                    @click="selectLineup(line.id)"
+                                                    :class="selectedLineupId === line.id ? 'bg-yellow-300 text-black border-yellow-200' : 'bg-csdark-800 text-gray-300 border-gray-700 hover:bg-csdark-700'"
+                                                    class="px-2.5 py-1.5 rounded border text-[11px] font-semibold transition"
+                                                    x-text="line.title">
+                                                </button>
+                                            </template>
+                                        </div>
+
+                                        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                                            <button type="button"
+                                                @click="toggleLineupAnimation()"
+                                                class="bg-yellow-300 hover:bg-yellow-200 text-black font-bold px-3 py-2 rounded-lg text-xs transition">
+                                                <i :class="lineupPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+                                                <span x-text="lineupPlaying ? 'Pause' : 'Abspielen'"></span>
+                                            </button>
+
+                                            <input type="range" min="0" max="100" step="1"
+                                                x-model.number="lineupProgress"
+                                                @input="pauseLineupAnimation()"
+                                                class="w-full accent-yellow-300 bg-csdark-700 cursor-pointer">
+
+                                            <span class="text-[11px] font-mono text-yellow-300 w-12 text-right"
+                                                x-text="Math.round(lineupProgress) + '%'"></span>
+                                        </div>
+
+                                        <div class="flex items-center gap-2 text-[11px] text-gray-400">
+                                            <span>Geschwindigkeit</span>
+                                            <input type="range" min="0.5" max="3" step="0.5"
+                                                x-model.number="lineupSpeed"
+                                                class="flex-1 accent-yellow-300 bg-csdark-700 cursor-pointer">
+                                            <span class="font-mono text-gray-300 w-8" x-text="lineupSpeed + '×'"></span>
+                                        </div>
+
+                                        <div class="text-[10px] text-gray-500">
+                                            Die Animation bewegt die Granate entlang der vorhandenen gelben Lineup-Linie.
+                                            Der Slider kann jederzeit manuell bewegt werden.
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="border-t border-gray-800 pt-3">
                                     <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Wichtige Punkte</h4>
                                     <div class="space-y-1.5 text-xs text-gray-300">
@@ -698,6 +751,11 @@
                 selectedMap: 'mirage',
                 activeMapPanel: 'smokes',
                 placedSmokes: [],
+                selectedLineupId: null,
+                lineupProgress: 0,
+                lineupPlaying: false,
+                lineupSpeed: 1,
+                lineupTimer: null,
                 smokeId: 0,
                 bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
                 maps: {
@@ -829,8 +887,71 @@ bombSites: [
 
                 selectMap(mapName) {
                     if (this.selectedMap === mapName) return;
+                    this.pauseLineupAnimation();
                     this.selectedMap = mapName;
+                    this.selectedLineupId = this.maps[mapName].lineups?.[0]?.id ?? null;
+                    this.lineupProgress = 0;
                     this.clearMapOverlays();
+                },
+
+                selectLineup(lineupId) {
+                    if (this.selectedLineupId === lineupId) return;
+                    this.pauseLineupAnimation();
+                    this.selectedLineupId = lineupId;
+                    this.lineupProgress = 0;
+                },
+
+                activeLineup() {
+                    const list = this.maps[this.selectedMap]?.lineups || [];
+                    return list.find(line => line.id === this.selectedLineupId) || list[0] || null;
+                },
+
+                lineupPositionX() {
+                    const line = this.activeLineup();
+                    if (!line) return 0;
+                    const p = Math.max(0, Math.min(100, Number(this.lineupProgress) || 0)) / 100;
+                    return line.fromX + (line.toX - line.fromX) * p;
+                },
+
+                lineupPositionY() {
+                    const line = this.activeLineup();
+                    if (!line) return 0;
+                    const p = Math.max(0, Math.min(100, Number(this.lineupProgress) || 0)) / 100;
+                    return line.fromY + (line.toY - line.fromY) * p;
+                },
+
+                toggleLineupAnimation() {
+                    if (this.lineupPlaying) {
+                        this.pauseLineupAnimation();
+                        return;
+                    }
+
+                    if (this.lineupProgress >= 100) {
+                        this.lineupProgress = 0;
+                    }
+
+                    this.lineupPlaying = true;
+                    this.lineupTimer = window.setInterval(() => {
+                        this.lineupProgress = Math.min(100, this.lineupProgress + (0.9 * this.lineupSpeed));
+
+                        if (this.lineupProgress >= 100) {
+                            this.lineupProgress = 100;
+                            this.pauseLineupAnimation();
+                        }
+                    }, 40);
+                },
+
+                pauseLineupAnimation() {
+                    this.lineupPlaying = false;
+                    if (this.lineupTimer !== null) {
+                        window.clearInterval(this.lineupTimer);
+                        this.lineupTimer = null;
+                    }
+                },
+
+                resetLineupAnimation() {
+                    this.pauseLineupAnimation();
+                    this.lineupProgress = 0;
                 },
 
                 clearSmokes() {
@@ -858,6 +979,7 @@ bombSites: [
                 clearMapOverlays() {
                     this.clearSmokes();
                     this.clearBombWave();
+                    this.resetLineupAnimation();
                 },
 
                 handleMapPointer(event) {
