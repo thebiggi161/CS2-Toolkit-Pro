@@ -448,7 +448,7 @@
 
                             <div class="map-radar relative w-full aspect-square max-h-[720px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black"
                                 @pointerdown.prevent="placeSmoke($event)">
-                                <img :src="maps[selectedMap].radar" :alt="maps[selectedMap].label + ' Radar Overlay'"
+                                <img :src="calloutRadar()" :alt="maps[selectedMap].label + ' Radar Overlay'"
                                     class="absolute inset-0 w-full h-full object-cover" draggable="false" @dragstart.prevent>
 
                                 <!-- Nur Lineup-Linien, keine eigenen Bombsite-Markierungen -->
@@ -601,6 +601,14 @@
                             </button>
                         </template>
                     </div>
+                    <div x-show="selectedMap === 'nuke'" class="flex items-center gap-2 bg-csdark-900 border border-gray-700 rounded-lg p-1 mt-2">
+                        <button type="button" @click="selectNukeCalloutLevel('upper')"
+                            :class="nukeCalloutLevel === 'upper' ? 'bg-csorange text-black font-bold' : 'text-gray-300 hover:bg-csdark-700'"
+                            class="px-2.5 py-1.5 rounded text-[11px] transition">Nuke Upper</button>
+                        <button type="button" @click="selectNukeCalloutLevel('lower')"
+                            :class="nukeCalloutLevel === 'lower' ? 'bg-csorange text-black font-bold' : 'text-gray-300 hover:bg-csdark-700'"
+                            class="px-2.5 py-1.5 rounded text-[11px] transition">Nuke Lower</button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -639,7 +647,7 @@
                         <div class="flex items-center justify-between gap-3 mb-3">
                             <div>
                                 <div class="text-sm font-semibold text-white" x-text="maps[selectedMap].label + ' – Callouts'"></div>
-                                <div class="text-[11px] text-gray-500">Alle Punkte sitzen direkt auf dem verwendeten Radar-Overlay.</div>
+                                <div class="text-[11px] text-gray-500">Die Punkte sind auf das jeweilige CS2-Radar ausgerichtet. Nuke besitzt getrennte Upper-/Lower-Ebenen.</div>
                             </div>
                             <div x-show="selectedCalloutId"
                                 class="text-xs text-csorange font-semibold"
@@ -972,6 +980,7 @@ bombSites: [
                     nuke: {
                         label: 'Nuke',
                         radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_radar_psd.png',
+                        radarLower: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_lower_radar_psd.png',
                         description: 'Vertikale Map mit Outside-Control und schnellen Rotationen.',
                         tips: ['Outside-Control eröffnet mehrere Zugänge.', 'Vents verbinden die Ebenen.', 'Utility für Heaven/Rafters erleichtert A-Hits.'],
                         smokeSpots: [
@@ -1059,106 +1068,124 @@ bombSites: [
 
                 calloutSearch: '',
                 selectedCalloutId: null,
+                nukeCalloutLevel: 'upper',
                 calloutsByMap: {
                     mirage: [
-                        {id:'mirage-tspawn',name:'T Spawn',x:10,y:80},
-                        {id:'mirage-mid',name:'Mid',x:38,y:52},
-                        {id:'mirage-topmid',name:'Top Mid',x:38,y:42},
-                        {id:'mirage-window',name:'Window',x:44,y:38},
-                        {id:'mirage-aramp',name:'A Ramp',x:22,y:35},
-                        {id:'mirage-palace',name:'Palace',x:15,y:28},
-                        {id:'mirage-asite',name:'A Site',x:52,y:28},
-                        {id:'mirage-ct',name:'CT Spawn',x:65,y:48},
-                        {id:'mirage-short',name:'Short',x:55,y:38},
-                        {id:'mirage-jungle',name:'Jungle',x:60,y:30},
-                        {id:'mirage-apps',name:'B Apartments',x:12,y:65},
-                        {id:'mirage-bshort',name:'B Short',x:28,y:68},
-                        {id:'mirage-bsite',name:'B Site',x:42,y:72},
-                        {id:'mirage-van',name:'Van',x:48,y:78}
+                        {id:'mirage-tspawn',name:'T Spawn',x:84.0,y:35.0},
+                        {id:'mirage-mid',name:'Mid',x:54.0,y:45.0},
+                        {id:'mirage-topmid',name:'Top Mid',x:63.0,y:40.0},
+                        {id:'mirage-window',name:'Window',x:38.0,y:51.0},
+                        {id:'mirage-aramp',name:'A Ramp',x:65.0,y:59.0},
+                        {id:'mirage-palace',name:'Palace',x:64.0,y:76.0},
+                        {id:'mirage-asite',name:'A Site',x:52.0,y:73.0},
+                        {id:'mirage-ct',name:'CT Spawn',x:25.0,y:74.0},
+                        {id:'mirage-short',name:'Short',x:47.0,y:35.0},
+                        {id:'mirage-jungle',name:'Jungle',x:41.0,y:61.0},
+                        {id:'mirage-apps',name:'B Apartments',x:37.0,y:18.0},
+                        {id:'mirage-bshort',name:'B Short',x:44.0,y:29.0},
+                        {id:'mirage-bsite',name:'B Site',x:22.0,y:34.0},
+                        {id:'mirage-van',name:'Van',x:23.0,y:21.0}
                     ],
                     inferno: [
-                        {id:'inferno-tspawn',name:'T Spawn',x:8,y:72},
-                        {id:'inferno-apps',name:'Apartments',x:18,y:45},
-                        {id:'inferno-balcony',name:'Balcony',x:28,y:42},
-                        {id:'inferno-asite',name:'A Site',x:48,y:32},
-                        {id:'inferno-arch',name:'Arch',x:42,y:40},
-                        {id:'inferno-library',name:'Library',x:55,y:28},
-                        {id:'inferno-pit',name:'Pit',x:50,y:42},
-                        {id:'inferno-ct',name:'CT Spawn',x:68,y:45},
-                        {id:'inferno-mid',name:'Mid',x:42,y:58},
-                        {id:'inferno-banana',name:'Banana',x:30,y:72},
-                        {id:'inferno-bsite',name:'B Site',x:58,y:72},
-                        {id:'inferno-construction',name:'Construction',x:50,y:65}
+                        {id:'inferno-tspawn',name:'T Spawn',x:17.0,y:65.0},
+                        {id:'inferno-apps',name:'Apartments',x:59.0,y:77.0},
+                        {id:'inferno-balcony',name:'Balcony',x:68.0,y:75.0},
+                        {id:'inferno-asite',name:'A Site',x:81.0,y:65.0},
+                        {id:'inferno-arch',name:'Arch',x:82.0,y:53.0},
+                        {id:'inferno-library',name:'Library',x:89.0,y:50.0},
+                        {id:'inferno-pit',name:'Pit',x:89.0,y:77.0},
+                        {id:'inferno-ct',name:'CT Spawn',x:82.0,y:35.0},
+                        {id:'inferno-mid',name:'Mid',x:59.0,y:64.0},
+                        {id:'inferno-banana',name:'Banana',x:55.0,y:46.0},
+                        {id:'inferno-bsite',name:'B Site',x:53.0,y:29.0},
+                        {id:'inferno-construction',name:'Construction',x:62.0,y:22.0}
                     ],
                     nuke: [
-                        {id:'nuke-tspawn',name:'T Spawn',x:12,y:50},
-                        {id:'nuke-outside',name:'Outside',x:22,y:35},
-                        {id:'nuke-silo',name:'Silo',x:35,y:28},
-                        {id:'nuke-ramp',name:'Ramp',x:28,y:52},
-                        {id:'nuke-lobby',name:'Lobby',x:28,y:65},
-                        {id:'nuke-asite',name:'A Site',x:52,y:38},
-                        {id:'nuke-heaven',name:'Heaven',x:55,y:28},
-                        {id:'nuke-ct',name:'CT Spawn',x:68,y:45},
-                        {id:'nuke-secret',name:'Secret',x:52,y:60},
-                        {id:'nuke-bsite',name:'B Site',x:52,y:72},
-                        {id:'nuke-squeaky',name:'Squeaky',x:42,y:68}
+                        {id:'nuke-tspawn',name:'T Spawn',x:17.0,y:60.0,layer:'upper'},
+                        {id:'nuke-outside',name:'Outside',x:55.0,y:66.0,layer:'upper'},
+                        {id:'nuke-silo',name:'Silo',x:47.0,y:68.0,layer:'upper'},
+                        {id:'nuke-ramp',name:'Ramp',x:59.0,y:29.0,layer:'upper'},
+                        {id:'nuke-lobby',name:'Lobby',x:47.0,y:48.0,layer:'upper'},
+                        {id:'nuke-asite',name:'A Site',x:57.0,y:51.0,layer:'upper'},
+                        {id:'nuke-heaven',name:'Heaven',x:64.0,y:30.0,layer:'upper'},
+                        {id:'nuke-ct',name:'CT Spawn',x:84.0,y:32.0,layer:'upper'},
+                        {id:'nuke-secret',name:'Secret',x:73.0,y:82.0,layer:'lower'},
+                        {id:'nuke-bsite',name:'B Site',x:21.0,y:24.0,layer:'lower'},
+                        {id:'nuke-squeaky',name:'Squeaky',x:50.0,y:43.0,layer:'upper'}
                     ],
                     ancient: [
-                        {id:'ancient-tspawn',name:'T Spawn',x:10,y:75},
-                        {id:'ancient-mid',name:'Mid',x:35,y:52},
-                        {id:'ancient-cave',name:'Cave',x:22,y:42},
-                        {id:'ancient-temple',name:'Temple',x:30,y:32},
-                        {id:'ancient-asite',name:'A Site',x:52,y:28},
-                        {id:'ancient-steps',name:'Steps',x:45,y:35},
-                        {id:'ancient-ct',name:'CT Spawn',x:68,y:42},
-                        {id:'ancient-bsite',name:'B Site',x:55,y:72},
-                        {id:'ancient-ruins',name:'Ruins',x:42,y:72},
-                        {id:'ancient-river',name:'River',x:30,y:65}
+                        {id:'ancient-tspawn',name:'T Spawn',x:50.0,y:86.0},
+                        {id:'ancient-mid',name:'Mid',x:50.0,y:57.0},
+                        {id:'ancient-cave',name:'Cave',x:61.0,y:34.0},
+                        {id:'ancient-temple',name:'Temple',x:31.0,y:15.0},
+                        {id:'ancient-asite',name:'A Site',x:31.0,y:29.0},
+                        {id:'ancient-steps',name:'Steps',x:46.0,y:26.0},
+                        {id:'ancient-ct',name:'CT Spawn',x:51.0,y:17.0},
+                        {id:'ancient-bsite',name:'B Site',x:61.0,y:33.0},
+                        {id:'ancient-ruins',name:'Ruins',x:32.0,y:68.0},
+                        {id:'ancient-river',name:'Water',x:36.0,y:70.0}
                     ],
                     dust2: [
-                        {id:'dust2-tspawn',name:'T Spawn',x:8,y:82},
-                        {id:'dust2-longa',name:'Long A',x:18,y:55},
-                        {id:'dust2-longdoors',name:'Long Doors',x:30,y:52},
-                        {id:'dust2-asite',name:'A Site',x:55,y:38},
-                        {id:'dust2-ct',name:'CT Spawn',x:62,y:60},
-                        {id:'dust2-short',name:'Short',x:50,y:28},
-                        {id:'dust2-cat',name:'Catwalk',x:42,y:32},
-                        {id:'dust2-mid',name:'Mid',x:37,y:42},
-                        {id:'dust2-bsite',name:'B Site',x:72,y:78},
-                        {id:'dust2-bdoors',name:'B Doors',x:52,y:78},
-                        {id:'dust2-upper',name:'Upper Tunnels',x:28,y:72},
-                        {id:'dust2-lower',name:'Lower Tunnels',x:22,y:85}
+                        {id:'dust2-tspawn',name:'T Spawn',x:50.0,y:87.0},
+                        {id:'dust2-longa',name:'Long A',x:83.0,y:41.0},
+                        {id:'dust2-longdoors',name:'Long Doors',x:67.0,y:48.0},
+                        {id:'dust2-asite',name:'A Site',x:78.0,y:25.0},
+                        {id:'dust2-ct',name:'CT Spawn',x:58.0,y:25.0},
+                        {id:'dust2-short',name:'Short',x:59.0,y:33.0},
+                        {id:'dust2-cat',name:'Catwalk',x:56.0,y:43.0},
+                        {id:'dust2-mid',name:'Mid',x:49.0,y:51.0},
+                        {id:'dust2-bsite',name:'B Site',x:22.0,y:23.0},
+                        {id:'dust2-bdoors',name:'B Doors',x:35.0,y:26.0},
+                        {id:'dust2-upper',name:'Upper Tunnels',x:19.0,y:43.0},
+                        {id:'dust2-lower',name:'Lower Tunnels',x:29.0,y:44.0}
                     ],
                     anubis: [
-                        {id:'anubis-tspawn',name:'T Spawn',x:10,y:72},
-                        {id:'anubis-canal',name:'Canal',x:22,y:60},
-                        {id:'anubis-mid',name:'Mid',x:38,y:50},
-                        {id:'anubis-palace',name:'Palace',x:20,y:35},
-                        {id:'anubis-asite',name:'A Site',x:48,y:28},
-                        {id:'anubis-flower',name:'Flower',x:55,y:35},
-                        {id:'anubis-ct',name:'CT Spawn',x:70,y:45},
-                        {id:'anubis-bsite',name:'B Site',x:60,y:72},
-                        {id:'anubis-connector',name:'Connector',x:45,y:62},
-                        {id:'anubis-alley',name:'Alley',x:35,y:72}
+                        {id:'anubis-tspawn',name:'T Spawn',x:51.0,y:87.0},
+                        {id:'anubis-canal',name:'Canal',x:48.0,y:60.0},
+                        {id:'anubis-mid',name:'Mid',x:54.0,y:49.0},
+                        {id:'anubis-palace',name:'Palace',x:39.0,y:44.0},
+                        {id:'anubis-asite',name:'A Site',x:69.0,y:26.0},
+                        {id:'anubis-flower',name:'Fountain',x:78.0,y:23.0},
+                        {id:'anubis-ct',name:'CT Spawn',x:50.0,y:20.0},
+                        {id:'anubis-bsite',name:'B Site',x:27.0,y:49.0},
+                        {id:'anubis-connector',name:'Connector',x:48.0,y:50.0},
+                        {id:'anubis-alley',name:'Alley',x:67.0,y:72.0}
                     ],
                     cache: [
-                        {id:'cache-tspawn',name:'T Spawn',x:10,y:72},
-                        {id:'cache-mid',name:'Mid',x:38,y:52},
-                        {id:'cache-halls',name:'A Main',x:45,y:32},
-                        {id:'cache-asite',name:'A Site',x:62,y:28},
-                        {id:'cache-heaven',name:'Heaven',x:68,y:20},
-                        {id:'cache-ct',name:'CT Spawn',x:70,y:45},
-                        {id:'cache-checkers',name:'Checkers',x:38,y:65},
-                        {id:'cache-bsite',name:'B Site',x:24,y:76},
-                        {id:'cache-bmain',name:'B Main',x:18,y:56}
+                        {id:'cache-tspawn',name:'T Spawn',x:82.0,y:58.0},
+                        {id:'cache-mid',name:'Mid',x:52.0,y:51.0},
+                        {id:'cache-halls',name:'A Main',x:37.0,y:20.0},
+                        {id:'cache-asite',name:'A Site',x:31.0,y:24.0},
+                        {id:'cache-heaven',name:'Heaven',x:18.0,y:61.0},
+                        {id:'cache-ct',name:'CT Spawn',x:9.0,y:57.0},
+                        {id:'cache-checkers',name:'Checkers',x:27.0,y:65.0},
+                        {id:'cache-bsite',name:'B Site',x:32.0,y:82.0},
+                        {id:'cache-bmain',name:'B Main',x:64.0,y:79.0}
                     ]
                 },
 
                 visibleCallouts() {
-                    const list = this.calloutsByMap[this.selectedMap] || [];
+                    let list = this.calloutsByMap[this.selectedMap] || [];
+                    if (this.selectedMap === 'nuke') {
+                        list = list.filter(callout => (callout.layer || 'upper') === this.nukeCalloutLevel);
+                    }
                     const query = this.calloutSearch.trim().toLowerCase();
                     if (!query) return list;
                     return list.filter(callout => callout.name.toLowerCase().includes(query));
+                },
+
+                calloutRadar() {
+                    if (this.selectedMap === 'nuke' && this.nukeCalloutLevel === 'lower') {
+                        return this.maps.nuke.radarLower;
+                    }
+                    return this.maps[this.selectedMap].radar;
+                },
+
+                selectNukeCalloutLevel(level) {
+                    this.nukeCalloutLevel = level === 'lower' ? 'lower' : 'upper';
+                    this.calloutSearch = '';
+                    const first = this.visibleCallouts()[0];
+                    this.selectedCalloutId = first ? first.id : null;
                 },
 
                 selectedCallout() {
@@ -1183,7 +1210,10 @@ bombSites: [
                     this.selectedLineupId = this.maps[mapName].lineups?.[0]?.id ?? null;
                     this.lineupProgress = 0;
                     this.calloutSearch = '';
-                    const firstCallout = (this.calloutsByMap[mapName] || [])[0];
+                    this.nukeCalloutLevel = 'upper';
+                    const firstCallout = (mapName === 'nuke'
+                        ? (this.calloutsByMap[mapName] || []).filter(callout => (callout.layer || 'upper') === this.nukeCalloutLevel)
+                        : (this.calloutsByMap[mapName] || []))[0];
                     this.selectedCalloutId = firstCallout ? firstCallout.id : null;
                     this.clearMapOverlays();
                 },
