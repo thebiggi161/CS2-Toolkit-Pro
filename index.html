@@ -335,56 +335,6 @@
                         <template x-if="activeMapPanel === 'smokes'">
                             <div class="space-y-4">
                                 <div class="border-t border-gray-800 pt-3">
-                                    <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Lineup-Anzeige</h4>
-                                    <p class="text-xs text-gray-400">Gelbe Linie = Wurfrichtung. Gelber Punkt = Ziel. Die Linien sind als visuelle Orientierung gedacht und keine pixelgenaue Wurf-Simulation.</p>
-                                </div>
-                                <div class="border-t border-gray-800 pt-3">
-                                    <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Lineup-Animation</h4>
-                                    <div class="space-y-3">
-                                        <div class="flex flex-wrap gap-2">
-                                            <template x-for="line in maps[selectedMap].lineups" :key="'pick-' + line.id">
-                                                <button type="button"
-                                                    @click="selectLineup(line.id)"
-                                                    :class="selectedLineupId === line.id ? 'bg-yellow-300 text-black border-yellow-200' : 'bg-csdark-800 text-gray-300 border-gray-700 hover:bg-csdark-700'"
-                                                    class="px-2.5 py-1.5 rounded border text-[11px] font-semibold transition"
-                                                    x-text="line.title">
-                                                </button>
-                                            </template>
-                                        </div>
-
-                                        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-                                            <button type="button"
-                                                @click="toggleLineupAnimation()"
-                                                class="bg-yellow-300 hover:bg-yellow-200 text-black font-bold px-3 py-2 rounded-lg text-xs transition">
-                                                <i :class="lineupPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
-                                                <span x-text="lineupPlaying ? 'Pause' : 'Abspielen'"></span>
-                                            </button>
-
-                                            <input type="range" min="0" max="100" step="1"
-                                                x-model.number="lineupProgress"
-                                                @input="pauseLineupAnimation()"
-                                                class="w-full accent-yellow-300 bg-csdark-700 cursor-pointer">
-
-                                            <span class="text-[11px] font-mono text-yellow-300 w-12 text-right"
-                                                x-text="Math.round(lineupProgress) + '%'"></span>
-                                        </div>
-
-                                        <div class="flex items-center gap-2 text-[11px] text-gray-400">
-                                            <span>Geschwindigkeit</span>
-                                            <input type="range" min="0.5" max="3" step="0.5"
-                                                x-model.number="lineupSpeed"
-                                                class="flex-1 accent-yellow-300 bg-csdark-700 cursor-pointer">
-                                            <span class="font-mono text-gray-300 w-8" x-text="lineupSpeed + '×'"></span>
-                                        </div>
-
-                                        <div class="text-[10px] text-gray-500">
-                                            Die Animation bewegt die Granate entlang der vorhandenen gelben Lineup-Linie.
-                                            Der Slider kann jederzeit manuell bewegt werden.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="border-t border-gray-800 pt-3">
                                     <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Wichtige Punkte</h4>
                                     <div class="space-y-1.5 text-xs text-gray-300">
                                         <template x-for="spot in maps[selectedMap].smokeSpots" :key="spot.id">
@@ -450,28 +400,6 @@
                                 <img :src="calloutRadarImage()" :alt="maps[selectedMap].label + ' Radar Overlay'"
                                     class="absolute inset-0 w-full h-full object-contain bg-black" draggable="false" @dragstart.prevent>
 
-                                <!-- Nur Lineup-Linien, keine eigenen Bombsite-Markierungen -->
-                                <div class="absolute inset-0 pointer-events-none z-10" aria-hidden="true">
-                                    <template x-for="line in maps[selectedMap].lineups" :key="'visual-' + line.id">
-                                        <div>
-                                            <div class="absolute rounded-full bg-yellow-300 shadow-[0_0_5px_rgba(250,204,21,0.75)]"
-                                                :style="lineStyle(line)"></div>
-                                            <span class="absolute w-2.5 h-2.5 rounded-full bg-yellow-300 border border-black/70 shadow-[0_0_5px_rgba(250,204,21,0.85)]"
-                                                :style="pointStyle(line.fromX, line.fromY)"
-                                                :title="line.title + ' – Wurfposition'"></span>
-                                            <span class="absolute w-3 h-3 rounded-full bg-yellow-300/90 border-2 border-black/70 shadow-[0_0_7px_rgba(250,204,21,0.95)]"
-                                                :style="pointStyle(line.toX, line.toY)"
-                                                :title="line.title + ' – Ziel'"></span>
-                                        </div>
-                                    </template>
-
-                                    <template x-if="activeLineup()">
-                                        <div class="absolute w-4 h-4 rounded-full bg-white border-2 border-yellow-300 shadow-[0_0_9px_rgba(250,204,21,0.95)]"
-                                            :style="pointStyle(lineupPositionX(), lineupPositionY())"
-                                            title="Animierte Granate"></div>
-                                    </template>
-                                </div>
-
                                 <!-- Kleine, nicht-blockierende Orientierungspunkte -->
                                 <template x-for="spot in maps[selectedMap].smokeSpots" :key="'spot-' + spot.id">
                                     <span class="spot-dot absolute w-2.5 h-2.5 rounded-full bg-csorange ring-2 ring-black/60 shadow-lg shadow-csorange/30 pointer-events-none z-6"
@@ -526,24 +454,7 @@
                     </div>
 
                     <!-- Lineup cards -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6" x-show="activeMapPanel === 'smokes'">
-                    <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800">
-                        <h3 class="text-sm font-semibold text-yellow-300 uppercase tracking-wider flex items-center gap-2 mb-3">
-                            <i class="fa-solid fa-route"></i> Lineups auf dem Overlay
-                        </h3>
-                        <div class="space-y-2">
-                            <template x-for="line in maps[selectedMap].lineups" :key="'card-' + line.id">
-                                <div class="bg-csdark-800 p-3 rounded-lg border border-gray-700/50">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="font-bold text-white text-xs" x-text="line.title"></span>
-                                        <span class="text-[10px] px-2 py-0.5 rounded bg-yellow-300/10 text-yellow-300 border border-yellow-300/30">Gelbe Linie</span>
-                                    </div>
-                                    <p class="text-[11px] text-gray-300 mt-1" x-text="line.description"></p>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-
+                <div class="grid grid-cols-1 gap-6 mt-6" x-show="activeMapPanel === 'smokes'">
                     <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800">
                         <h3 class="text-sm font-semibold text-csorange uppercase tracking-wider flex items-center gap-2 mb-3">
                             <i class="fa-solid fa-fire"></i> Wichtigste Granaten
