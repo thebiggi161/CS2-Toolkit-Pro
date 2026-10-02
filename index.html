@@ -260,7 +260,7 @@
                             <i class="fa-solid fa-map"></i> Maps & Nades
                         </h2>
                         <p class="text-sm text-gray-400 mt-1">
-                            Gelbe Linien zeigen die hinterlegten Lineup-Richtungen. A/B markieren die Bombsites.
+                            Gelbe Linien zeigen die hinterlegten Lineup-Richtungen. Eigene Bombsite-Marker werden nicht über das Radar gelegt.
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-2">
@@ -316,20 +316,6 @@
                                     <p class="text-xs text-gray-400">Gelbe Linie = Wurfrichtung. Gelber Punkt = Ziel. Die Linien sind als visuelle Orientierung gedacht und keine pixelgenaue Wurf-Simulation.</p>
                                 </div>
                                 <div class="border-t border-gray-800 pt-3">
-                                    <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Bombsites</h4>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <template x-for="site in maps[selectedMap].bombSites" :key="site.id">
-                                            <div class="bg-csdark-800 rounded-lg border border-gray-700 px-3 py-2 flex items-center gap-2">
-                                                <span class="w-7 h-7 rounded-full bg-red-500/20 border border-red-400/60 text-red-300 flex items-center justify-center font-black" x-text="site.name"></span>
-                                                <div>
-                                                    <div class="text-xs font-semibold text-white" x-text="site.label"></div>
-                                                    <div class="text-[10px] text-gray-500" x-text="'Radar: ' + site.x + '% / ' + site.y + '%'" ></div>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                                <div class="border-t border-gray-800 pt-3">
                                     <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Wichtige Punkte</h4>
                                     <div class="space-y-1.5 text-xs text-gray-300">
                                         <template x-for="spot in maps[selectedMap].smokeSpots" :key="spot.id">
@@ -346,57 +332,32 @@
                         <template x-if="activeMapPanel === 'bombwave'">
                             <div class="space-y-4">
                                 <div class="border-t border-gray-800 pt-3">
-                                    <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Valve-Schockwelle</h4>
+                                    <h4 class="text-xs font-semibold text-yellow-300 uppercase tracking-wider mb-2">Originale SkinSniper-Darstellung</h4>
                                     <p class="text-xs text-gray-400">
-                                        Die aktuelle CS2-C4-Mechanik verwendet kein kugelförmiges Radiusmodell.
-                                        Der Schaden stammt aus einem pro Map und Bombsite vorberechneten Feld und breitet sich als Schockwelle durch die Map-Geometrie aus.
+                                        Hier wird die originale interaktive Schadenskarte von SkinSniper angezeigt.
+                                        Sie verwendet die für CS2 Season 5 ausgelieferten, vorkompilierten Bombenschadensfelder.
                                     </p>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2">
-                                    <template x-for="site in maps[selectedMap].bombSites" :key="'select-site-' + site.id">
-                                        <button type="button"
-                                            @click="selectBombSite(site.id)"
-                                            :class="bombWave.site === site.id ? 'bg-yellow-400 text-black border-yellow-300' : 'bg-csdark-800 text-gray-300 border-gray-700 hover:bg-csdark-700'"
-                                            class="px-3 py-2 rounded-lg border text-xs font-bold transition">
-                                            Site <span x-text="site.name"></span>
-                                        </button>
-                                    </template>
-                                </div>
-
-                                <div class="bg-csdark-800 border border-gray-700 rounded-lg p-3 text-xs">
-                                    <div class="text-gray-500">Ausgewählte Site</div>
-                                    <div class="text-white font-bold mt-1" x-text="'Bombsite ' + bombWave.site"></div>
-                                    <div class="text-gray-500 mt-2">Darstellung</div>
-                                    <div class="text-yellow-300 mt-1">Schockwellen-Animation ohne künstlichen Kreisradius</div>
                                 </div>
 
                                 <div class="bg-csdark-800 border border-yellow-500/30 rounded-lg p-3 text-xs text-gray-300">
-                                    <div class="font-semibold text-yellow-300 mb-1">Exakte Valve-Daten</div>
+                                    <div class="font-semibold text-yellow-300 mb-1">Warum nicht unsere eigene Heatmap?</div>
                                     <p>
-                                        Valve berechnet die Schadensfläche aus den kompilierten
-                                        <code>baked_bomb_damage</code>-Daten der jeweiligen Map.
-                                        Diese Rohfelder sind nicht als einfache Kreisform in der HTML-Datei enthalten.
+                                        Die Form der Druckwelle hängt von Map-Geometrie, Wänden und den
+                                        vorberechneten <code>baked_bomb_damage</code>-Daten ab.
+                                        Die SkinSniper-Ansicht rendert genau dieses Feld statt eines künstlichen Kreises.
                                     </p>
-                                    <a href="https://skinsniper.com/tools/bomb-damage-radius" target="_blank" rel="noopener"
-                                       class="inline-flex items-center gap-2 mt-3 bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 py-2 rounded-lg transition">
-                                        <i class="fa-solid fa-up-right-from-square"></i>
-                                        Exakte Season-5-Schadenskarte öffnen
-                                    </a>
                                 </div>
+
+                                <a href="https://skinsniper.com/tools/bomb-damage-radius" target="_blank" rel="noopener"
+                                   class="inline-flex items-center justify-center gap-2 w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-3 py-2 rounded-lg transition text-xs">
+                                    <i class="fa-solid fa-up-right-from-square"></i>
+                                    SkinSniper separat öffnen
+                                </a>
 
                                 <div class="bg-csdark-800 border border-gray-700 rounded-lg p-3 text-xs text-gray-300">
-                                    <div class="font-semibold text-white mb-1">In CS2 direkt testen</div>
-                                    <p>
-                                        <code>cl_bake_bomb_damage_debug 1</code> zeigt die
-                                        A-Schadensvorschau, <code>cl_bake_bomb_damage_debug 2</code>
-                                        die B-Schadensvorschau auf einem lokalen Server.
-                                    </p>
+                                    <div class="font-semibold text-white mb-1">CS2-Console</div>
+                                    <p><code>cl_bake_bomb_damage_debug 1</code> = Site A, <code>2</code> = Site B.</p>
                                 </div>
-
-                                <button type="button" @click="clearBombWave()" class="w-full bg-csdark-800 hover:bg-csdark-700 border border-gray-700 text-gray-300 px-3 py-2 rounded-lg text-xs transition">
-                                    Schockwellen-Markierung zurücksetzen
-                                </button>
                             </div>
                         </template>
 
@@ -404,95 +365,92 @@
 
                     <!-- Map Overlay -->
                     <div class="xl:col-span-2 bg-csdark-900 p-4 rounded-lg border border-gray-800">
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-semibold text-white" x-text="activeMapPanel === 'smokes' ? 'Smoke-Touchpad & Lineups' : 'Interaktiver Bombenradius'"></span>
-                                <span class="text-xs text-gray-500" x-show="activeMapPanel === 'smokes'" x-text="placedSmokes.length + ' gesetzt'"></span>
-                                <span class="text-xs text-yellow-300" x-show="activeMapPanel === 'bombwave'" x-text="bombWave.inspectActive ? 'Prüfpunkt gesetzt' : 'Prüfpunkt auswählen'"></span>
+                        <div x-show="activeMapPanel === 'smokes'">
+                            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-semibold text-white">Smoke-Touchpad & Lineups</span>
+                                    <span class="text-xs text-gray-500" x-text="placedSmokes.length + ' gesetzt'"></span>
+                                </div>
+                                <div class="flex flex-wrap gap-2 text-[10px] text-gray-400">
+                                    <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">Gelb = Lineup</span>
+                                    <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">Weiß = deine Smoke</span>
+                                </div>
                             </div>
-                            <div class="flex flex-wrap gap-2 text-[10px] text-gray-400">
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">Gelb = Lineup</span>
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700">Rot = Bombsite</span>
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700" x-show="activeMapPanel === 'smokes'">Weiß = deine Smoke</span>
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700" x-show="activeMapPanel === 'bombwave'">Gelb pulsierend = Wellenursprung</span>
-                                <span class="px-2 py-1 rounded bg-csdark-800 border border-gray-700" x-show="activeMapPanel === 'bombwave'">Weiß = Prüfpunkt</span>
+
+                            <div class="map-radar relative w-full aspect-square max-h-[720px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black"
+                                @pointerdown.prevent="placeSmoke($event)">
+                                <img :src="maps[selectedMap].radar" :alt="maps[selectedMap].label + ' Radar Overlay'"
+                                    class="absolute inset-0 w-full h-full object-cover" draggable="false" @dragstart.prevent>
+
+                                <!-- Nur Lineup-Linien, keine eigenen Bombsite-Markierungen -->
+                                <svg class="absolute inset-0 w-full h-full z-5 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                                    <template x-for="line in maps[selectedMap].lineups" :key="line.id">
+                                        <g>
+                                            <line :x1="line.fromX" :y1="line.fromY" :x2="line.toX" :y2="line.toY"
+                                                stroke="#facc15" stroke-width="0.9" stroke-linecap="round"
+                                                stroke-dasharray="2 1" opacity="0.95"></line>
+                                            <circle :cx="line.fromX" :cy="line.fromY" r="1.2"
+                                                fill="#facc15" stroke="#111827" stroke-width="0.45"></circle>
+                                            <circle :cx="line.toX" :cy="line.toY" r="1.6"
+                                                fill="#facc15" stroke="#111827" stroke-width="0.55"></circle>
+                                        </g>
+                                    </template>
+                                </svg>
+
+                                <!-- Kleine, nicht-blockierende Orientierungspunkte -->
+                                <template x-for="spot in maps[selectedMap].smokeSpots" :key="'spot-' + spot.id">
+                                    <span class="spot-dot absolute w-2.5 h-2.5 rounded-full bg-csorange ring-2 ring-black/60 shadow-lg shadow-csorange/30 pointer-events-none z-6"
+                                        :style="`left:${spot.x}%; top:${spot.y}%;`" :title="spot.name"></span>
+                                </template>
+
+                                <!-- Frei gesetzte Smokes -->
+                                <template x-for="(smoke, index) in placedSmokes" :key="smoke.id">
+                                    <button type="button"
+                                        class="smoke-marker absolute w-7 h-7 rounded-full bg-white text-black border-2 border-csorange font-black text-xs shadow-lg shadow-black/60 z-20 hover:scale-110 transition"
+                                        :style="`left:${smoke.x}%; top:${smoke.y}%;`"
+                                        :title="'Smoke ' + (index + 1) + ' – zum Löschen klicken'"
+                                        @pointerdown.stop.prevent="removeSmoke(index)">
+                                        <span x-text="index + 1"></span>
+                                    </button>
+                                </template>
+
+                                <div class="absolute left-3 bottom-3 z-20 bg-black/75 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300 pointer-events-none">
+                                    <i class="fa-solid fa-hand-pointer text-csorange mr-1"></i>
+                                    Frei platzieren · Marker anklicken = löschen
+                                </div>
                             </div>
                         </div>
 
-                        <div class="map-radar relative w-full aspect-square max-h-[720px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black"
-                            @pointerdown.prevent="handleMapPointer($event)">
-                            <img :src="maps[selectedMap].radar" :alt="maps[selectedMap].label + ' Radar Overlay'"
-                                class="absolute inset-0 w-full h-full object-cover" draggable="false" @dragstart.prevent>
-
-                            <!-- SVG overlay: Bombsites + yellow lineup lines -->
-                            <svg class="absolute inset-0 w-full h-full z-5 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                                <template x-for="line in maps[selectedMap].lineups" :key="line.id">
-                                    <g>
-                                        <line :x1="line.fromX" :y1="line.fromY" :x2="line.toX" :y2="line.toY" stroke="#facc15" stroke-width="0.9" stroke-linecap="round" stroke-dasharray="2 1" opacity="0.95"></line>
-                                        <circle :cx="line.fromX" :cy="line.fromY" r="1.2" fill="#facc15" stroke="#111827" stroke-width="0.45"></circle>
-                                        <circle :cx="line.toX" :cy="line.toY" r="1.6" fill="#facc15" stroke="#111827" stroke-width="0.55"></circle>
-                                    </g>
-                                </template>
-
-                                <template x-for="site in maps[selectedMap].bombSites" :key="'site-' + site.id">
-                                    <g>
-                                        <circle :cx="site.x" :cy="site.y" r="3.2" fill="#ef4444" fill-opacity="0.15" stroke="#ef4444" stroke-width="0.8"></circle>
-                                        <circle :cx="site.x" :cy="site.y" r="1.9" fill="#111827" stroke="#fca5a5" stroke-width="0.5"></circle>
-                                    </g>
-                                </template>
-
-                                <g x-show="bombWave.active">
-                                    <!-- Explosionszentrum: bleibt auf der ausgewählten Bombsite -->
-                                    <circle :cx="bombWave.x" :cy="bombWave.y" r="2.0" fill="#facc15" stroke="#111827" stroke-width="0.55"></circle>
-                                    <circle class="bomb-wave-ring ring-a" :cx="bombWave.x" :cy="bombWave.y" r="3" fill="none" stroke="#fde047" stroke-width="0.85" opacity="0.9"></circle>
-                                    <circle class="bomb-wave-ring ring-b" :cx="bombWave.x" :cy="bombWave.y" r="8" fill="none" stroke="#facc15" stroke-width="0.65" opacity="0.65"></circle>
-                                    <circle class="bomb-wave-ring ring-c" :cx="bombWave.x" :cy="bombWave.y" r="14" fill="none" stroke="#facc15" stroke-width="0.5" opacity="0.35"></circle>
-
-                                    <!-- Prüfpunkt: hier fragt der Nutzer die Schadenszone ab -->
-                                    <g x-show="bombWave.inspectActive">
-                                        <circle :cx="bombWave.inspectX" :cy="bombWave.inspectY" r="1.5" fill="none" stroke="#ffffff" stroke-width="0.6"></circle>
-                                        <line :x1="bombWave.inspectX - 2" :y1="bombWave.inspectY" :x2="bombWave.inspectX + 2" :y2="bombWave.inspectY" stroke="#ffffff" stroke-width="0.35"></line>
-                                        <line :x1="bombWave.inspectX" :y1="bombWave.inspectY - 2" :x2="bombWave.inspectX" :y2="bombWave.inspectY + 2" stroke="#ffffff" stroke-width="0.35"></line>
-                                    </g>
-                                </g>
-                            </svg>
-
-                            <!-- Kleine, nicht-blockierende Orientierungspunkte -->
-                            <template x-for="spot in maps[selectedMap].smokeSpots" :key="'spot-' + spot.id">
-                                <span class="spot-dot absolute w-2.5 h-2.5 rounded-full bg-csorange ring-2 ring-black/60 shadow-lg shadow-csorange/30 pointer-events-none z-6"
-                                    :style="`left:${spot.x}%; top:${spot.y}%;`" :title="spot.name"></span>
-                            </template>
-
-                            <!-- Frei gesetzte Smokes -->
-                            <template x-for="(smoke, index) in placedSmokes" :key="smoke.id">
-                                <button type="button"
-                                    class="smoke-marker absolute w-7 h-7 rounded-full bg-white text-black border-2 border-csorange font-black text-xs shadow-lg shadow-black/60 z-20 hover:scale-110 transition"
-                                    :style="`left:${smoke.x}%; top:${smoke.y}%;`"
-                                    :title="'Smoke ' + (index + 1) + ' – zum Löschen klicken'"
-                                    @pointerdown.stop.prevent="removeSmoke(index)">
-                                    <span x-text="index + 1"></span>
-                                </button>
-                            </template>
-
-                            <!-- Bombsite labels -->
-                            <template x-for="site in maps[selectedMap].bombSites" :key="'label-' + site.id">
-                                <div class="absolute z-10 pointer-events-none -translate-x-1/2 -translate-y-1/2 bg-red-500/80 text-white font-black text-xs px-1.5 py-0.5 rounded shadow-lg"
-                                    :style="`left:${site.x}%; top:${site.y - 5}%;`" x-text="site.name"></div>
-                            </template>
-
-                            <div class="absolute left-3 bottom-3 z-20 bg-black/75 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300 pointer-events-none">
-                                <template x-if="activeMapPanel === 'smokes'">
-                                    <span><i class="fa-solid fa-hand-pointer text-csorange mr-1"></i> Frei platzieren · Marker anklicken = löschen</span>
-                                </template>
-                                <template x-if="activeMapPanel === 'bombwave'">
-                                    <span><i class="fa-solid fa-circle-radiation text-yellow-300 mr-1"></i> Klicken = C4-Zentrum setzen</span>
-                                </template>
+                        <div x-show="activeMapPanel === 'bombwave'" class="space-y-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <div class="text-sm font-semibold text-white">SkinSniper – exakte Bombenschadenskarte</div>
+                                    <div class="text-[11px] text-gray-500">Interaktive Map-, Site-, 2D/3D- und Prüfpunkt-Steuerung direkt von SkinSniper.</div>
+                                </div>
+                                <a href="https://skinsniper.com/tools/bomb-damage-radius" target="_blank" rel="noopener"
+                                   class="shrink-0 bg-csdark-800 hover:bg-csdark-700 border border-gray-700 text-gray-300 px-3 py-2 rounded-lg text-[11px] transition">
+                                    <i class="fa-solid fa-up-right-from-square"></i> Öffnen
+                                </a>
                             </div>
+
+                            <div class="w-full overflow-hidden rounded-xl border border-gray-700 bg-black">
+                                <iframe
+                                    src="https://skinsniper.com/tools/bomb-damage-radius"
+                                    title="SkinSniper CS2 Bomb Damage Map"
+                                    class="w-full h-[780px] border-0"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer">
+                                </iframe>
+                            </div>
+
+                            <p class="text-[10px] text-gray-500">
+                                Quelle: SkinSniper. Die eingebettete Ansicht nutzt die originale interaktive Darstellung
+                                der vorkompilierten CS2-Bombenschadensfelder.
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                <!-- Lineup cards -->
+                    <!-- Lineup cards -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6" x-show="activeMapPanel === 'smokes'">
                     <div class="bg-csdark-900 p-5 rounded-lg border border-gray-800">
                         <h3 class="text-sm font-semibold text-yellow-300 uppercase tracking-wider flex items-center gap-2 mb-3">
