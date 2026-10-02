@@ -398,6 +398,7 @@
                             <div class="map-radar relative w-full aspect-square max-h-[720px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black"
                                 @pointerdown.prevent="placeSmoke($event)">
                                 <img :src="calloutRadarImage()" :alt="maps[selectedMap].label + ' Radar Overlay'"
+                                    @error="event.target.src = maps[selectedMap].radar"
                                     class="absolute inset-0 w-full h-full object-contain bg-black" draggable="false" @dragstart.prevent>
 
                                 <!-- Kleine, nicht-blockierende Orientierungspunkte -->
@@ -1059,14 +1060,14 @@ bombSites: [
                 },
 
                 calloutRadarImages: {
-                    mirage: 'https://files.bo3.gg/uploads/image/64780/image/webp-884969c928be112efae6a43965569d1c.webp',
-                    inferno: 'https://files.bo3.gg/uploads/image/72688/image/webp-342fc7111a0c20751b2ad5e530fb0fcc.webp',
-                    nuke: 'https://images.steamusercontent.com/ugc/11726073136044731436/0B59200BCA3857D828D07CE689898B462E8E5D4B/',
-                    ancient: 'https://cdn.stavka.tv/static/bk/froala/bb7/e58/df28dd6bf745aa6f3995ef09033d7933fe.webp',
+                    mirage: 'https://images.steamusercontent.com/ugc/2358265741783745854/CB35BD75A5D3FE658F9B6CDD2DD875B166FD30CD/',
+                    inferno: 'https://static.stavka.tv/static/bk/froala/d81/053/be527187e3b0726422de8e5f9f875f0e44.webp',
+                    nuke: 'https://images.steamusercontent.com/ugc/2515898701083548669/B19B2115BE080A273DEA7EA0369C392F4353716F/',
+                    ancient: 'https://images.steamusercontent.com/ugc/2515898701083546826/2F2F0E5E1661B58CD0CD908330A1CC561B3F3A9B/',
                     dust2: 'https://static.stavka.tv/static/bk/froala/fd2/1fd/8422ade764d68123f97bb0468bb70e7030.png',
-                    anubis: 'https://steamuserimages-a.akamaihd.net/ugc/1732217195757336482/4A141D9F2B30854F8B3081419280963D74881186/',
-                    cache: 'https://images.steamusercontent.com/ugc/2012595138552722104/75F2670D972603FDD587ADF5F1C519001299185A/'
-                },
+                    anubis: 'https://images.steamusercontent.com/ugc/2510275718586790544/4A141D9F2B30854F8B3081419280963D74881186/',
+                    cache: 'https://refrag.gg/cdn-cgi/imagedelivery/5wML_ikJr-qv52ESeLE6CQ/wordpress.refrag.gg/2023/12/de_cache_radar.jpg/public'
+                }
 
                 calloutRadarImage() {
                     return this.calloutRadarImages[this.selectedMap] || this.maps[this.selectedMap].radar;
