@@ -64,6 +64,19 @@
         .lineup-grenade-pulse {
             animation: lineupGrenadePulse 0.75s ease-in-out infinite alternate;
         }
+        .crosshair-preview {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+        .crosshair-arm {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            background: currentColor;
+            border-radius: 1px;
+        }
         @keyframes lineupGrenadePulse {
             from { transform: scale(.9); opacity: .85; }
             to { transform: scale(1.15); opacity: 1; }
@@ -436,19 +449,26 @@
                                     class="absolute inset-0 w-full h-full object-cover" draggable="false" @dragstart.prevent>
 
                                 <!-- Nur Lineup-Linien, keine eigenen Bombsite-Markierungen -->
-                                <svg class="absolute inset-0 w-full h-full z-5 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                                    <template x-for="line in maps[selectedMap].lineups" :key="line.id">
-                                        <g>
-                                            <line :x1="line.fromX" :y1="line.fromY" :x2="line.toX" :y2="line.toY"
-                                                stroke="#facc15" stroke-width="0.9" stroke-linecap="round"
-                                                stroke-dasharray="2 1" opacity="0.95"></line>
-                                            <circle :cx="line.fromX" :cy="line.fromY" r="1.2"
-                                                fill="#facc15" stroke="#111827" stroke-width="0.45"></circle>
-                                            <circle :cx="line.toX" :cy="line.toY" r="1.6"
-                                                fill="#facc15" stroke="#111827" stroke-width="0.55"></circle>
-                                        </g>
+                                <div class="absolute inset-0 pointer-events-none z-10" aria-hidden="true">
+                                    <template x-for="line in maps[selectedMap].lineups" :key="'visual-' + line.id">
+                                        <div>
+                                            <div class="absolute rounded-full bg-yellow-300 shadow-[0_0_5px_rgba(250,204,21,0.75)]"
+                                                :style="lineStyle(line)"></div>
+                                            <span class="absolute w-2.5 h-2.5 rounded-full bg-yellow-300 border border-black/70 shadow-[0_0_5px_rgba(250,204,21,0.85)]"
+                                                :style="pointStyle(line.fromX, line.fromY)"
+                                                :title="line.title + ' – Wurfposition'"></span>
+                                            <span class="absolute w-3 h-3 rounded-full bg-yellow-300/90 border-2 border-black/70 shadow-[0_0_7px_rgba(250,204,21,0.95)]"
+                                                :style="pointStyle(line.toX, line.toY)"
+                                                :title="line.title + ' – Ziel'"></span>
+                                        </div>
                                     </template>
-                                </svg>
+
+                                    <template x-if="activeLineup()">
+                                        <div class="absolute w-4 h-4 rounded-full bg-white border-2 border-yellow-300 shadow-[0_0_9px_rgba(250,204,21,0.95)]"
+                                            :style="pointStyle(lineupPositionX(), lineupPositionY())"
+                                            title="Animierte Granate"></div>
+                                    </template>
+                                </div>
 
                                 <!-- Kleine, nicht-blockierende Orientierungspunkte -->
                                 <template x-for="spot in maps[selectedMap].smokeSpots" :key="'spot-' + spot.id">
@@ -560,13 +580,15 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-csdark-900 rounded-xl border border-gray-800 flex flex-col items-center justify-center p-8 relative min-h-[300px] overflow-hidden">
                         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ff5500_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                        <div class="relative w-32 h-32 flex items-center justify-center">
-                            <div class="absolute bg-white transition-all" :style="`width: ${chSize * 2}px; height: ${chThickness}px; margin-left: -${chSize + chGap}px; background-color: ${chColor}`"></div>
-                            <div class="absolute bg-white transition-all" :style="`width: ${chSize * 2}px; height: ${chThickness}px; margin-left: ${chSize + chGap}px; background-color: ${chColor}`"></div>
-                            <div class="absolute bg-white transition-all" :style="`width: ${chThickness}px; height: ${chSize * 2}px; margin-top: -${chSize + chGap}px; background-color: ${chColor}`"></div>
-                            <div class="absolute bg-white transition-all" :style="`width: ${chThickness}px; height: ${chSize * 2}px; margin-top: ${chSize + chGap}px; background-color: ${chColor}`"></div>
-                            <div x-show="chDot" class="absolute rounded-full transition-all" :style="`width: ${chThickness * 1.5}px; height: ${chThickness * 1.5}px; background-color: ${chColor}`"></div>
-                        </div>
+                        <div class="crosshair-preview flex items-center justify-center text-white">
+                            <div class="crosshair-arm" :style="crosshairArmStyle('left')"></div>
+                            <div class="crosshair-arm" :style="crosshairArmStyle('right')"></div>
+                            <div class="crosshair-arm" :style="crosshairArmStyle('top')"></div>
+                            <div class="crosshair-arm" :style="crosshairArmStyle('bottom')"></div>
+                            <div x-show="chDot"
+                                class="absolute rounded-full"
+                                :style="`left:50%; top:50%; width:${chThickness * 1.5}px; height:${chThickness * 1.5}px; transform:translate(-50%,-50%); background:${chColor};`"></div>
+                        </div></div>
                         <span class="text-xs text-gray-500 mt-6">Live Vorschau</span>
                     </div>
 
@@ -597,6 +619,13 @@
                         <div class="flex items-center gap-2 pt-2 text-sm text-gray-300">
                             Zentraler Punkt (Dot): <input type="checkbox" x-model="chDot" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
                         </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-300">
+                            Schatten: <input type="checkbox" x-model="chOutline" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+                        </div>
+                        <button type="button" @click="resetCrosshair()"
+                            class="w-full bg-csdark-800 hover:bg-csdark-700 text-gray-300 px-3 py-2 rounded border border-gray-700 text-xs transition">
+                            Crosshair zurücksetzen
+                        </button>
                         <div class="pt-4 border-t border-gray-800">
                             <label class="block text-xs font-semibold text-gray-300 uppercase mb-1">Konsolenbefehl</label>
                             <div class="flex gap-2">
@@ -756,6 +785,10 @@
                 lineupPlaying: false,
                 lineupSpeed: 1,
                 lineupTimer: null,
+
+                init() {
+                    this.selectedLineupId = this.maps[this.selectedMap]?.lineups?.[0]?.id ?? null;
+                },
                 smokeId: 0,
                 bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
                 maps: {
@@ -901,6 +934,19 @@ bombSites: [
                     this.lineupProgress = 0;
                 },
 
+                pointStyle(x, y) {
+                    return `left:${x}%; top:${y}%; transform:translate(-50%,-50%);`;
+                },
+
+                lineStyle(line) {
+                    const dx = line.toX - line.fromX;
+                    const dy = line.toY - line.fromY;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    const selected = this.selectedLineupId === line.id;
+                    return `left:${line.fromX}%; top:${line.fromY}%; width:${length}%; transform-origin:left center; transform:translateY(-50%) rotate(${angle}deg); opacity:${selected ? 1 : .55}; height:${selected ? 3 : 2}px;`;
+                },
+
                 activeLineup() {
                     const list = this.maps[this.selectedMap]?.lineups || [];
                     return list.find(line => line.id === this.selectedLineupId) || list[0] || null;
@@ -1032,10 +1078,40 @@ bombSites: [
                 chThickness: 1,
                 chColor: '#ff5500',
                 chDot: false,
+                chOutline: true,
+
+                crosshairArmStyle(side) {
+                    const length = Math.max(2, Number(this.chSize) * 2);
+                    const gap = Number(this.chGap);
+                    const thickness = Math.max(1, Number(this.chThickness));
+                    const outline = this.chOutline ? '0 0 0.75px #000000' : 'none';
+                    const color = this.chColor;
+                    const common = `position:absolute; left:50%; top:50%; background:${color}; box-shadow:${outline};`;
+
+                    if (side === 'left') {
+                        return common + `width:${length}px; height:${thickness}px; transform:translate(calc(-100% - ${gap}px), -50%);`;
+                    }
+                    if (side === 'right') {
+                        return common + `width:${length}px; height:${thickness}px; transform:translate(${gap}px, -50%);`;
+                    }
+                    if (side === 'top') {
+                        return common + `width:${thickness}px; height:${length}px; transform:translate(-50%, calc(-100% - ${gap}px));`;
+                    }
+                    return common + `width:${thickness}px; height:${length}px; transform:translate(-50%, ${gap}px);`;
+                },
+
+                resetCrosshair() {
+                    this.chSize = 3;
+                    this.chGap = -2;
+                    this.chThickness = 1;
+                    this.chColor = '#ff5500';
+                    this.chDot = false;
+                    this.chOutline = true;
+                },
 
                 generateCrosshairCode() {
                     let dotVal = this.chDot ? '1' : '0';
-                    return `cl_crosshairsize ${this.chSize}; cl_crosshairgap ${this.chGap}; cl_crosshairthickness ${this.chThickness}; cl_crosshaircolor 5; cl_crosshaircolor_r ${this.hexToRgb(this.chColor).r}; cl_crosshaircolor_g ${this.hexToRgb(this.chColor).g}; cl_crosshaircolor_b ${this.hexToRgb(this.chColor).b}; cl_crosshairdot ${dotVal};`;
+                    return `cl_crosshairsize ${this.chSize}; cl_crosshairgap ${this.chGap}; cl_crosshairthickness ${this.chThickness}; cl_crosshaircolor 5; cl_crosshaircolor_r ${this.hexToRgb(this.chColor).r}; cl_crosshaircolor_g ${this.hexToRgb(this.chColor).g}; cl_crosshaircolor_b ${this.hexToRgb(this.chColor).b}; cl_crosshairdot ${dotVal}; cl_crosshair_drawoutline ${this.chOutline ? 1 : 0};`;
                 },
 
                 hexToRgb(hex) {
