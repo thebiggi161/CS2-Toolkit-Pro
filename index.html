@@ -168,6 +168,133 @@
                 </div>
             </div>
 
+
+            <!-- Erweiterter Team-Economy-Rechner -->
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5 border-b border-gray-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
+                            <i class="fa-solid fa-users"></i> Team-Economy & Runden-Simulator
+                        </h2>
+                        <p class="text-gray-400 text-sm mt-1">Richtwerte für Team-Budget, Buy-Stärke und die erwartete Kasse nach der nächsten Runde.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" @click="setTeamCash(4500)" class="bg-csdark-700 hover:bg-csdark-600 text-xs px-3 py-2 rounded border border-gray-700">Alle $4.500</button>
+                        <button type="button" @click="setTeamCash(2000)" class="bg-csdark-700 hover:bg-csdark-600 text-xs px-3 py-2 rounded border border-gray-700">Alle $2.000</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-white">5-Spieler-Kasse</h3>
+                            <span class="text-xs text-gray-500">max. $16.000 / Spieler</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <template x-for="(cash, index) in teamCash" :key="'cash-' + index">
+                                <label class="flex items-center gap-2 bg-csdark-800 rounded-lg px-3 py-2 border border-gray-700">
+                                    <span class="text-xs font-bold text-csorange w-12">Spieler <span x-text="index + 1"></span></span>
+                                    <span class="text-gray-500">$</span>
+                                    <input type="number" min="0" max="16000" step="50"
+                                        x-model.number="teamCash[index]"
+                                        class="min-w-0 w-full bg-transparent text-white font-mono text-sm focus:outline-none">
+                                </label>
+                            </template>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 mt-4">
+                            <div class="bg-csdark-800 rounded-lg p-3 border border-gray-700">
+                                <div class="text-[10px] text-gray-500 uppercase">Team gesamt</div>
+                                <div class="text-lg font-bold text-csorange font-mono" x-text="'$' + teamCashTotal()"></div>
+                            </div>
+                            <div class="bg-csdark-800 rounded-lg p-3 border border-gray-700">
+                                <div class="text-[10px] text-gray-500 uppercase">Ø pro Spieler</div>
+                                <div class="text-lg font-bold text-white font-mono" x-text="'$' + Math.round(teamCashAverage())"></div>
+                            </div>
+                            <div class="bg-csdark-800 rounded-lg p-3 border border-gray-700">
+                                <div class="text-[10px] text-gray-500 uppercase">Niedrigster</div>
+                                <div class="text-lg font-bold text-white font-mono" x-text="'$' + teamCashMin()"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 bg-csdark-800 rounded-lg border border-csorange/30 p-3">
+                            <div class="flex justify-between items-center gap-3">
+                                <span class="text-xs text-gray-400">Budget-Status</span>
+                                <span class="text-sm font-bold text-csorange" x-text="teamBuyStatus()"></span>
+                            </div>
+                            <div class="text-[10px] text-gray-500 mt-1">
+                                Berechnet aus der Anzahl der Spieler, die den jeweiligen Richtwert für den Buy erreichen.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <h3 class="font-semibold text-white">Nächste Runde simulieren</h3>
+                            <span class="text-[10px] text-gray-500">Richtwerte, keine automatische Buy-Empfehlung</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label>
+                                <span class="block text-xs text-gray-400 mb-1">Seite</span>
+                                <select x-model="economySide" class="w-full bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                                    <option value="T">Terrorists</option>
+                                    <option value="CT">Counter-Terrorists</option>
+                                </select>
+                            </label>
+                            <label>
+                                <span class="block text-xs text-gray-400 mb-1">Kaufplan</span>
+                                <select x-model="economyPlan" class="w-full bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                                    <option value="eco">Eco / Save – ca. $800</option>
+                                    <option value="force">Force Buy – ca. $2.200</option>
+                                    <option value="half">Half Buy – ca. $3.000</option>
+                                    <option value="full">Full Buy – ca. $4.500 / $5.000</option>
+                                </select>
+                            </label>
+                            <label>
+                                <span class="block text-xs text-gray-400 mb-1">Vorherige Niederlagen</span>
+                                <input type="number" min="0" max="4" step="1" x-model.number="economyLossesBeforeRound"
+                                    class="w-full bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                            </label>
+                            <label>
+                                <span class="block text-xs text-gray-400 mb-1">Rundenausgang</span>
+                                <select x-model="economyOutcome" class="w-full bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                                    <option value="loss">Verloren</option>
+                                    <option value="win">Gewonnen – Eliminierung / Timer</option>
+                                    <option value="bomb">Gewonnen – Bombe explodiert / defused</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="mt-3" x-show="economyOutcome === 'loss' && economySide === 'T'">
+                            <label class="flex items-center gap-2 bg-csdark-800 border border-gray-700 rounded-lg p-3 cursor-pointer">
+                                <input type="checkbox" x-model="economyBombPlanted" class="rounded text-csorange focus:ring-csorange bg-csdark-700 border-gray-700">
+                                <span class="text-xs text-gray-300">C4 wurde vor der Niederlage gepflanzt <span class="text-gray-500">(+ $300 für den Pflanzer)</span></span>
+                            </label>
+                        </div>
+
+                        <div class="mt-4 bg-csdark-800 rounded-lg border border-gray-700 overflow-hidden">
+                            <div class="grid grid-cols-3 text-[10px] uppercase tracking-wider text-gray-500 bg-black/20 px-3 py-2">
+                                <span>Spieler</span><span>Jetzt</span><span>Nächste Runde</span>
+                            </div>
+                            <template x-for="(cash, index) in teamCash" :key="'projection-' + index">
+                                <div class="grid grid-cols-3 items-center px-3 py-2 border-t border-gray-800 text-sm">
+                                    <span class="text-gray-300" x-text="'Spieler ' + (index + 1)"></span>
+                                    <span class="font-mono text-white" x-text="'$' + cash"></span>
+                                    <span class="font-mono font-bold" :class="projectedCash(index) >= 4000 ? 'text-green-400' : projectedCash(index) >= 2000 ? 'text-yellow-300' : 'text-red-400'" x-text="'$' + projectedCash(index)"></span>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="mt-3 flex flex-wrap justify-between gap-2 text-xs">
+                            <span class="text-gray-400">Runden-Einkommen:</span>
+                            <span class="font-mono font-bold text-csorange" x-text="'$' + economyRoundIncome()"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Haupt-Equipment Rechner mit Checkboxen & automatischem Ausgrauen -->
             <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
                 <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
@@ -715,6 +842,12 @@
                 activeTab: 'maps-nades',
                 playerMoney: 4500,
                 lossStreak: 1,
+                teamCash: [4500, 4500, 4500, 4500, 4500],
+                economySide: 'T',
+                economyPlan: 'full',
+                economyOutcome: 'loss',
+                economyLossesBeforeRound: 1,
+                economyBombPlanted: false,
                 
                 // Ausgewählte Item-Preise (0 bedeutet nichts ausgewählt)
                 selectedPrimary: 2700,
@@ -724,15 +857,18 @@
                 
                 weapons: {
                     primary: [
-                        { name: 'AK-47 / M4A4 / M4A1-S', price: 2700 },
+                        { name: 'AK-47 (T)', price: 2700 },
+                        { name: 'M4A4 (CT)', price: 3100 },
+                        { name: 'M4A1-S (CT)', price: 2900 },
                         { name: 'AWP', price: 4750 },
-                        { name: 'Galil / FAMAS', price: 1800 },
-                        { name: 'MP9 / Mac-10', price: 1250 },
-                        { name: 'Scout (SSG 08)', price: 1700 }
+                        { name: 'Galil AR (T)', price: 1800 },
+                        { name: 'FAMAS (CT)', price: 1950 },
+                        { name: 'MP9 / MAC-10', price: 1250 },
+                        { name: 'SSG 08', price: 1700 }
                     ],
                     secondary: [
-                        { name: 'P250', price: 200 },
-                        { name: 'Five-Seven / Tec-9 / CZ75', price: 500 },
+                        { name: 'P250', price: 300 },
+                        { name: 'Five-SeveN / Tec-9', price: 500 },
                         { name: 'Desert Eagle / R8', price: 700 }
                     ],
                     gear: [
@@ -743,7 +879,10 @@
                         { name: 'Flashbang', price: 200 },
                         { name: 'Smoke Grenade', price: 300 },
                         { name: 'HE Grenade', price: 300 },
-                        { name: 'Molotov / Incendiary', price: 400 }
+                        { name: 'Molotov (T)', price: 400 },
+                        { name: 'Incendiary (CT)', price: 600 },
+                        { name: 'Decoy', price: 50 },
+                        { name: 'Defuse Kit (CT)', price: 400 }
                     ]
                 },
 
@@ -815,6 +954,64 @@
                     if (streak === 2) return 2400;
                     if (streak === 3) return 2900;
                     return 3400;
+                },
+
+
+                setTeamCash(amount) {
+                    const value = Math.max(0, Math.min(16000, Number(amount) || 0));
+                    this.teamCash = [value, value, value, value, value];
+                },
+
+                teamCashTotal() {
+                    return this.teamCash.reduce((sum, value) => sum + (Number(value) || 0), 0);
+                },
+
+                teamCashAverage() {
+                    return this.teamCashTotal() / this.teamCash.length;
+                },
+
+                teamCashMin() {
+                    return Math.min(...this.teamCash.map(value => Number(value) || 0));
+                },
+
+                economyPlanCost() {
+                    const costs = {
+                        eco: 800,
+                        force: 2200,
+                        half: 3000,
+                        full: this.economySide === 'CT' ? 5000 : 4500
+                    };
+                    return costs[this.economyPlan] ?? costs.full;
+                },
+
+                affordablePlayers(cost) {
+                    return this.teamCash.filter(value => (Number(value) || 0) >= cost).length;
+                },
+
+                teamBuyStatus() {
+                    const full = this.economySide === 'CT' ? 5000 : 4500;
+                    if (this.affordablePlayers(full) === 5) return 'Full Buy für alle im Richtwert';
+                    if (this.affordablePlayers(3000) === 5) return 'Half Buy / gemischter Buy';
+                    if (this.affordablePlayers(2200) === 5) return 'Force-Buy-Bereich';
+                    return 'Eco / Save-Bereich';
+                },
+
+                economyRoundIncome() {
+                    const losses = Math.max(0, Math.min(4, Number(this.economyLossesBeforeRound) || 0));
+                    if (this.economyOutcome === 'bomb') return 3500;
+                    if (this.economyOutcome === 'win') return 3250;
+                    return this.getLossBonus(losses);
+                },
+
+                projectedCash(index) {
+                    let income = this.economyRoundIncome();
+                    let personalBonus = 0;
+                    if (this.economyOutcome === 'loss' && this.economySide === 'T' && this.economyBombPlanted && index === 0) {
+                        personalBonus = 300;
+                    }
+                    const current = Number(this.teamCash[index]) || 0;
+                    const next = current - this.economyPlanCost() + income + personalBonus;
+                    return Math.max(0, Math.min(16000, Math.round(next)));
                 },
 
                 selectedMap: 'mirage',
