@@ -126,6 +126,9 @@
                 <button @click="activeTab = 'krunker'" :class="activeTab === 'krunker' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-gamepad"></i> Krunker.io
                 </button>
+                <button @click="activeTab = 'play-cs'" :class="activeTab === 'play-cs' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-globe"></i> Play-CS
+                </button>
             </nav>
         </div>
     </header>
@@ -1017,6 +1020,39 @@
                         <div class="text-csorange font-bold mb-1">Fallback</div>
                         <div class="text-gray-400">Falls Krunker die Einbettung blockiert, kannst du es oben in einem neuen Tab öffnen.</div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 8: PLAY-CS -->
+        <div x-show="activeTab === 'play-cs'" x-cloak class="space-y-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
+                    <div>
+                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
+                            <i class="fa-solid fa-globe"></i> Play-CS
+                        </h2>
+                        <p class="text-sm text-gray-400 mt-1">game.play-cs.com direkt im Toolkit.</p>
+                    </div>
+                    <a href="https://game.play-cs.com/" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 bg-csorange hover:bg-csorange-hover text-black font-bold px-4 py-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-up-right-from-square"></i> Extern öffnen
+                    </a>
+                </div>
+
+                <div class="bg-csdark-900 border border-gray-800 rounded-xl overflow-hidden">
+                    <iframe
+                        src="https://game.play-cs.com/"
+                        title="Play-CS"
+                        loading="lazy"
+                        allow="fullscreen; pointer-lock; autoplay"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        class="w-full h-[800px] border-0 bg-black"></iframe>
+                </div>
+
+                <div class="mt-4 bg-csdark-900 border border-gray-800 rounded-lg p-3 text-xs text-gray-400">
+                    Falls die externe Seite eine Einbettung durch deinen Browser oder ihre Sicherheitsrichtlinien blockiert,
+                    kannst du sie über „Extern öffnen“ direkt in einem neuen Tab starten.
                 </div>
             </div>
         </div>
