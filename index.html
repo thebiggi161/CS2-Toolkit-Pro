@@ -432,13 +432,19 @@
                         @click="activeMapPanel = 'smokes'"
                         :class="activeMapPanel === 'smokes' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
                         class="px-4 py-2 rounded-lg text-xs transition">
-                        <i class="fa-solid fa-bomb mr-1"></i> Smokes & Lineups
+<i class="fa-solid fa-bomb mr-1"></i> Smokes
                     </button>
                     <button type="button"
                         @click="activeMapPanel = 'bombwave'"
                         :class="activeMapPanel === 'bombwave' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
                         class="px-4 py-2 rounded-lg text-xs transition">
                         <i class="fa-solid fa-circle-radiation mr-1"></i> Bombenwelle / Liquid-Bomb
+                    </button>
+                    <button type="button"
+                        @click="activeMapPanel = 'flashes'"
+                        :class="activeMapPanel === 'flashes' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
+                        class="px-4 py-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-bolt mr-1"></i> Flashes
                     </button>
                 </div>
 
@@ -471,6 +477,32 @@
                                             </div>
                                         </template>
                                     </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template x-if="activeMapPanel === 'flashes'">
+                            <div class="space-y-4">
+                                <div class="border-t border-gray-800 pt-3">
+                                    <h4 class="text-xs font-semibold text-csorange uppercase tracking-wider mb-2">Flash-Datenbank</h4>
+                                    <p class="text-xs text-gray-400">Map-spezifische Flash-Ideen für Entry, Retake, Anti-Rush und Site-Executes.</p>
+                                </div>
+                                <label class="block">
+                                    <span class="text-[11px] text-gray-500 uppercase tracking-wider">Flash suchen</span>
+                                    <input type="search" x-model="flashSearch" placeholder="z. B. Entry, B Short, Mid..."
+                                        class="mt-1 w-full bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-csorange">
+                                </label>
+                                <label class="block">
+                                    <span class="text-[11px] text-gray-500 uppercase tracking-wider">Seite</span>
+                                    <select x-model="flashSide" class="mt-1 w-full bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white">
+                                        <option value="all">Alle</option>
+                                        <option value="T">Terrorists</option>
+                                        <option value="CT">Counter-Terrorists</option>
+                                    </select>
+                                </label>
+                                <div class="bg-csdark-800 border border-gray-700 rounded-lg p-3">
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-wider">Aktuelle Map</div>
+                                    <div class="text-sm font-bold text-csorange mt-1" x-text="filteredFlashes().length + ' Flash-Setups'"></div>
                                 </div>
                             </div>
                         </template>
@@ -547,6 +579,48 @@
                                 <div class="absolute left-3 bottom-3 z-20 bg-black/75 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300 pointer-events-none">
                                     <i class="fa-solid fa-hand-pointer text-csorange mr-1"></i>
                                     Frei platzieren · Marker anklicken = löschen
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="activeMapPanel === 'flashes'" class="space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <div class="text-sm font-semibold text-white">Flashbang-Datenbank – <span x-text="maps[selectedMap].label"></span></div>
+                                    <div class="text-[11px] text-gray-500">Setups, Zielbereich, Rolle und Schwierigkeit.</div>
+                                </div>
+                                <button type="button" @click="flashSearch=''; flashSide='all'"
+                                    class="bg-csdark-800 hover:bg-csdark-700 border border-gray-700 text-gray-300 px-3 py-2 rounded-lg text-[11px] transition">
+                                    Filter zurücksetzen
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <template x-for="flash in filteredFlashes()" :key="flash.id">
+                                    <article class="bg-csdark-800 border border-gray-700/80 rounded-xl p-4 hover:border-csorange/50 transition">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div>
+                                                <div class="text-sm font-bold text-white" x-text="flash.name"></div>
+                                                <div class="text-[10px] text-csorange font-semibold uppercase tracking-wider mt-1" x-text="flash.side + ' · ' + flash.role"></div>
+                                            </div>
+                                            <span class="text-[10px] px-2 py-1 rounded border"
+                                                :class="flash.difficulty === 'Einfach' ? 'text-green-400 border-green-500/30 bg-green-500/10' : flash.difficulty === 'Mittel' ? 'text-yellow-300 border-yellow-300/30 bg-yellow-300/10' : 'text-red-400 border-red-500/30 bg-red-500/10'"
+                                                x-text="flash.difficulty"></span>
+                                        </div>
+                                        <div class="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+                                            <div class="bg-csdark-900 rounded-lg p-2 border border-gray-800">
+                                                <div class="text-gray-500">Setup</div>
+                                                <div class="text-gray-300 mt-0.5" x-text="flash.setup"></div>
+                                            </div>
+                                            <div class="bg-csdark-900 rounded-lg p-2 border border-gray-800">
+                                                <div class="text-gray-500">Ziel</div>
+                                                <div class="text-gray-300 mt-0.5" x-text="flash.target"></div>
+                                            </div>
+                                        </div>
+                                        <p class="text-[11px] text-gray-400 mt-3" x-text="flash.description"></p>
+                                    </article>
+                                </template>
+                                <div x-show="filteredFlashes().length === 0" class="md:col-span-2 border border-dashed border-gray-700 rounded-xl p-6 text-center text-xs text-gray-500">
+                                    Keine passende Flash gefunden.
                                 </div>
                             </div>
                         </div>
@@ -1014,6 +1088,63 @@
                     return Math.max(0, Math.min(16000, Math.round(next)));
                 },
 
+                flashSearch: '',
+                flashSide: 'all',
+                flashbangsByMap: {
+                    mirage: [
+                        {id:'mirage-flash-a-ramp',name:'A Ramp Popflash',side:'T',role:'Entry',difficulty:'Einfach',setup:'A Ramp Ecke',target:'A Ramp / Site',description:'Blendet typische Haltewinkel an A Ramp für den Entry.'},
+                        {id:'mirage-flash-mid-window',name:'Mid → Window Flash',side:'T',role:'Entry',difficulty:'Mittel',setup:'Top Mid',target:'Window',description:'Nimmt den Window-Winkel beim Mid-Cross.'},
+                        {id:'mirage-flash-b-short',name:'B Short Popflash',side:'T',role:'Entry',difficulty:'Mittel',setup:'B Short',target:'B Site',description:'Flash kurz vor dem B-Entry gegen Site-Holds.'},
+                        {id:'mirage-flash-jungle-retake',name:'Jungle Retake Flash',side:'CT',role:'Retake',difficulty:'Mittel',setup:'CT / Stairs',target:'Jungle / Site',description:'Unterstützt den A-Retake gegen Jungle und Site.'}
+                    ],
+                    inferno: [
+                        {id:'inferno-flash-banana',name:'Banana Popflash',side:'T',role:'Entry',difficulty:'Einfach',setup:'Banana',target:'Banana',description:'Kurzer Flash für enge Banana-Haltewinkel.'},
+                        {id:'inferno-flash-coffins',name:'Coffins Execute Flash',side:'T',role:'Execute',difficulty:'Mittel',setup:'Banana',target:'Coffins / B Site',description:'Öffnet den Coffins-Winkel beim B-Execute.'},
+                        {id:'inferno-flash-a-site',name:'A Site Retake Flash',side:'CT',role:'Retake',difficulty:'Mittel',setup:'Arch / Library',target:'A Site / Pit',description:'Flash für Site- und Pit-Holds beim Retake.'},
+                        {id:'inferno-flash-mid',name:'Mid Anti-Rush Flash',side:'CT',role:'Anti-Rush',difficulty:'Einfach',setup:'Second Mid',target:'Mid',description:'Schneller Flash gegen aggressive Mid-Runs.'}
+                    ],
+                    nuke: [
+                        {id:'nuke-flash-outside',name:'Outside Entry Flash',side:'T',role:'Entry',difficulty:'Mittel',setup:'Outside',target:'Garage / Secret',description:'Unterstützt den Outside-Cross.'},
+                        {id:'nuke-flash-ramp',name:'Ramp Popflash',side:'T',role:'Entry',difficulty:'Einfach',setup:'Ramp',target:'Ramp',description:'Popflash für den ersten Ramp-Kontakt.'},
+                        {id:'nuke-flash-a-retake',name:'A Site Retake Flash',side:'CT',role:'Retake',difficulty:'Mittel',setup:'Heaven / Hut',target:'A Site',description:'Unterstützt den A-Retake.'},
+                        {id:'nuke-flash-lobby',name:'Lobby Anti-Rush',side:'CT',role:'Anti-Rush',difficulty:'Einfach',setup:'Lobby',target:'Lobby',description:'Schneller Flash gegen Lobby-Rushes.'}
+                    ],
+                    ancient: [
+                        {id:'ancient-flash-mid',name:'Mid Popflash',side:'T',role:'Entry',difficulty:'Einfach',setup:'Mid',target:'Mid',description:'Öffnet frühe Mid-Duelle.'},
+                        {id:'ancient-flash-cave',name:'Cave Entry Flash',side:'T',role:'Entry',difficulty:'Mittel',setup:'T Cave',target:'A Cave',description:'Unterstützt den Cave-Entry.'},
+                        {id:'ancient-flash-b',name:'B Site Execute Flash',side:'T',role:'Execute',difficulty:'Mittel',setup:'B Main',target:'B Site',description:'Blendet enge B-Site-Winkel.'},
+                        {id:'ancient-flash-a-retake',name:'A Retake Flash',side:'CT',role:'Retake',difficulty:'Mittel',setup:'CT',target:'A Site',description:'Unterstützt CT-Retakes auf A.'}
+                    ],
+                    dust2: [
+                        {id:'dust2-flash-long',name:'Long A Entry Flash',side:'T',role:'Entry',difficulty:'Einfach',setup:'Long',target:'Long A',description:'Flash für den Kampf um Long A.'},
+                        {id:'dust2-flash-cat',name:'Catwalk Popflash',side:'T',role:'Entry',difficulty:'Mittel',setup:'Top Mid / Cat',target:'Catwalk',description:'Nimmt den ersten Cat-Hold.'},
+                        {id:'dust2-flash-b-tuns',name:'B Tunnels Entry Flash',side:'T',role:'Entry',difficulty:'Einfach',setup:'Upper Tunnels',target:'B Site',description:'Öffnet den Tunnels-Exit auf B.'},
+                        {id:'dust2-flash-a-retake',name:'A Retake Flash',side:'CT',role:'Retake',difficulty:'Mittel',setup:'CT',target:'A Site / Default',description:'Blendet A-Site-Holds beim Retake.'}
+                    ],
+                    anubis: [
+                        {id:'anubis-flash-mid',name:'Mid Canal Flash',side:'T',role:'Entry',difficulty:'Mittel',setup:'Mid / Canal',target:'Mid',description:'Unterstützt frühe Mid-Control.'},
+                        {id:'anubis-flash-a-main',name:'A Main Entry Flash',side:'T',role:'Entry',difficulty:'Einfach',setup:'A Main',target:'A Site',description:'Öffnet den ersten A-Site-Kontakt.'},
+                        {id:'anubis-flash-b-main',name:'B Main Entry Flash',side:'T',role:'Entry',difficulty:'Mittel',setup:'B Main',target:'B Site',description:'Flash für enge B-Winkel.'},
+                        {id:'anubis-flash-ct',name:'A Retake Flash',side:'CT',role:'Retake',difficulty:'Mittel',setup:'CT',target:'A Site',description:'Unterstützt den A-Retake.'}
+                    ],
+                    cache: [
+                        {id:'cache-flash-a-main',name:'A Main Entry Flash',side:'T',role:'Entry',difficulty:'Einfach',setup:'A Main',target:'A Site / Truck',description:'Flash für den A-Main-Entry.'},
+                        {id:'cache-flash-mid',name:'Mid Boost Flash',side:'T',role:'Entry',difficulty:'Mittel',setup:'Mid',target:'Mid / Vents',description:'Öffnet Mid gegen passive Defender.'},
+                        {id:'cache-flash-b-main',name:'B Main Popflash',side:'T',role:'Entry',difficulty:'Einfach',setup:'B Main',target:'B Site',description:'Schneller Flash vor dem B-Entry.'},
+                        {id:'cache-flash-b-retake',name:'B Retake Flash',side:'CT',role:'Retake',difficulty:'Mittel',setup:'Checkers / CT',target:'B Site',description:'Hilft beim B-Retake.'}
+                    ]
+                },
+
+                filteredFlashes() {
+                    const list = this.flashbangsByMap[this.selectedMap] || [];
+                    const query = this.flashSearch.trim().toLowerCase();
+                    return list.filter(flash => {
+                        const matchesSide = this.flashSide === 'all' || flash.side === this.flashSide;
+                        const haystack = [flash.name, flash.role, flash.setup, flash.target, flash.description].join(' ').toLowerCase();
+                        return matchesSide && (!query || haystack.includes(query));
+                    });
+                },
+
                 selectedMap: 'mirage',
                 activeMapPanel: 'smokes',
                 placedSmokes: [],
@@ -1315,6 +1446,8 @@ bombSites: [
                     this.selectedLineupId = this.maps[mapName].lineups?.[0]?.id ?? null;
                     this.lineupProgress = 0;
                     this.calloutSearch = '';
+                    this.flashSearch = '';
+                    this.flashSide = 'all';
                     this.nukeCalloutLevel = 'upper';
                     const firstCallout = (mapName === 'nuke'
                         ? (this.calloutsByMap[mapName] || []).filter(callout => (callout.layer || 'upper') === this.nukeCalloutLevel)
