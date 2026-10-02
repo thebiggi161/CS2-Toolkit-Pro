@@ -1384,6 +1384,8 @@
                 init() {
                     this.selectedLineupId = this.maps[this.selectedMap]?.lineups?.[0]?.id ?? null;
                     this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
+                    this.overlayOpacity = Number(localStorage.getItem('cs2toolkit_overlay_opacity') || '0.72');
+                    this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
                 },
                 smokeId: 0,
                 bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
