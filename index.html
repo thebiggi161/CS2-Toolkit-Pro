@@ -176,9 +176,7 @@
                 <button @click="activeTab = 'weapons'" :class="activeTab === 'weapons' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-gun"></i> Weapons
                 </button>
-                <button @click="activeTab = 'surf-trainer'" :class="activeTab === 'surf-trainer' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-water"></i> Surf Trainer
-                </button>
+
 
             </nav>
         </div>
@@ -1104,57 +1102,7 @@
             </div>
         </div>
 
-        <!-- TAB 7: SURF TRAINER -->
-        <div x-show="activeTab === 'surf-trainer'" x-cloak class="space-y-6">
-            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-                <div>
-                    <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">Movement Lab</div>
-                    <h2 class="text-2xl font-black text-white mt-1">CS2 Surf Trainer</h2>
-                    <p class="text-sm text-gray-400 mt-1">Eingebettetes WebGL-Surf-Spiel statt einer eigenen Simulation.</p>
-                </div>
-                <a href="https://www.brightestgames.com/game/cs2-surf-with-knives" target="_blank" rel="noopener noreferrer"
-                   class="px-4 py-2 rounded-lg bg-csorange text-black border border-csorange text-xs font-black hover:bg-csorange-hover transition">
-                    <i class="fa-solid fa-up-right-from-square mr-1"></i> Extern öffnen
-                </a>
-            </div>
-
-            <div class="bg-csdark-800 border border-csorange/30 rounded-2xl overflow-hidden shadow-xl">
-                <div class="px-4 py-3 border-b border-gray-800 flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                        <div class="text-sm font-bold text-white"><i class="fa-solid fa-water text-csorange mr-2"></i>CS2 Surf With Knives!</div>
-                        <div class="text-[11px] text-gray-500">WebGL/HTML5 • WASD • Maus • Space • F/E • P/ESC</div>
-                    </div>
-                    <div class="text-[11px] text-gray-500">Wenn dein Browser die Einbettung blockiert, „Extern öffnen“ verwenden.</div>
-                </div>
-                <div class="relative bg-black" style="height:min(78vh,820px); min-height:560px;">
-                    <iframe
-                        src="https://www.brightestgames.com/game/cs2-surf-with-knives"
-                        title="CS2 Surf With Knives"
-                        class="absolute inset-0 w-full h-full border-0"
-                        loading="eager"
-                        allow="autoplay; fullscreen; gamepad; pointer-lock"
-                        allowfullscreen>
-                    </iframe>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="bg-csdark-800 border border-gray-800 rounded-xl p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-csorange mb-2">Steuerung</div>
-                    <div class="text-sm text-gray-300">WASD bewegen • Maus lenken • Space springen/surfen</div>
-                </div>
-                <div class="bg-csdark-800 border border-gray-800 rounded-xl p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-csorange mb-2">Spiel</div>
-                    <div class="text-sm text-gray-300">Mehrere Surf-Maps, Rampen und WebGL-Physik direkt im Browser.</div>
-                </div>
-                <div class="bg-csdark-800 border border-gray-800 rounded-xl p-4">
-                    <div class="text-xs font-black uppercase tracking-widest text-csorange mb-2">Hinweis</div>
-                    <div class="text-sm text-gray-300">Das Spiel ist ein eigenständiger Browser-Titel und keine echte CS2-Engine.</div>
-                </div>
-            </div>
-        </div>
-
-</main>
+        </main>
 
     <!-- Footer -->
     <footer class="bg-csdark-800 border-t border-gray-800 py-4 mt-auto text-center text-xs text-gray-500">
@@ -1197,23 +1145,6 @@
                 selectedSecondary: 0,
                 selectedGear: 1000,
                 selectedNades: [],
-                
-                surfRunning: false,
-                surfTime: 0,
-                surfBestTime: Number(localStorage.getItem('cs2toolkit_surf_best') || '0'),
-                surfSpeed: 250,
-                surfCheckpoint: 0,
-                surfTotalCheckpoints: 8,
-                surfCombo: 0,
-                surfSide: 'LEFT',
-                surfPlayerX: 22,
-                surfPlayerY: 84,
-                surfKeys: {a:false,d:false},
-                surfTimer: null,
-                surfCheckpoints: [
-                    {id:1,x:22,y:84},{id:2,x:72,y:70},{id:3,x:25,y:56},{id:4,x:76,y:43},
-                    {id:5,x:28,y:31},{id:6,x:70,y:22},{id:7,x:40,y:13},{id:8,x:50,y:5}
-                ],
 
                 surfFormatTime(value) {
                     const ms=Math.max(0,Number(value)||0);
