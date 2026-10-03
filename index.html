@@ -94,6 +94,22 @@
         }
         .overlay-click-through .overlay-settings { pointer-events: none; }
         .overlay-click-through .overlay-gear { pointer-events: auto; }
+        .esports-mini-player {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: min(390px, calc(100vw - 36px));
+            z-index: 9998;
+            background: rgba(7,7,7,.96);
+            border: 1px solid rgba(255,85,0,.45);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .esports-mini-player.is-minimized { width: auto; }
+        .esports-mini-player .mini-video { aspect-ratio: 16/9; }
         .bomb-wave-ring {
             transform-box: fill-box;
             transform-origin: center;
@@ -230,6 +246,35 @@
         </section>
     </div>
 
+    <!-- GLOBAL ESPORTS MINI PLAYER -->
+    <div x-show="esportsMiniVisible && activeTab !== 'esports'" x-cloak class="esports-mini-player" :class="esportsMiniMinimized ? 'is-minimized' : ''">
+        <div class="px-3 py-2 bg-csdark-800 border-b border-gray-800 flex items-center justify-between gap-2">
+            <button @click="esportsMiniMinimized=!esportsMiniMinimized" class="min-w-0 flex items-center gap-2 text-left" :title="esportsMiniMinimized ? 'Mini-Player öffnen' : 'Mini-Player minimieren'">
+                <span class="w-7 h-7 rounded-lg bg-csorange text-black flex items-center justify-center"><i class="fa-solid fa-trophy"></i></span>
+                <span x-show="!esportsMiniMinimized" class="min-w-0">
+                    <span class="block text-[10px] uppercase tracking-widest text-csorange font-black">Esports Live</span>
+                    <span class="block text-xs font-bold text-white truncate" x-text="esportsStream === 'iem' ? 'IEM / ESL' : (esportsStream === 'blast' ? 'BLAST Premier' : 'DACH CS Masters')"></span>
+                </span>
+            </button>
+            <div class="flex items-center gap-1">
+                <button @click="esportsMiniMinimized=!esportsMiniMinimized" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" :title="esportsMiniMinimized ? 'Öffnen' : 'Minimieren'">
+                    <i class="fa-solid" :class="esportsMiniMinimized ? 'fa-expand' : 'fa-minus'"></i>
+                </button>
+                <button @click="popoutEsports()" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" title="Popout öffnen">
+                    <i class="fa-solid fa-up-right-from-square"></i>
+                </button>
+                <button @click="esportsMiniVisible=false" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-red-900/50 text-gray-400 hover:text-white" title="Mini-Player schließen">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+        <div x-show="!esportsMiniMinimized" class="mini-video bg-black">
+            <iframe x-show="esportsStream === 'iem'" class="w-full h-full" src="https://player.twitch.tv/?channel=eslcs&parent=thebiggi161.github.io&parent=localhost" title="IEM / ESL Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
+            <iframe x-show="esportsStream === 'blast'" class="w-full h-full" src="https://player.twitch.tv/?channel=blastpremier&parent=thebiggi161.github.io&parent=localhost" title="BLAST Premier Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
+            <iframe x-show="esportsStream === 'dach'" class="w-full h-full" src="https://player.twitch.tv/?channel=dachcs&parent=thebiggi161.github.io&parent=localhost" title="DACH CS Masters Live" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
@@ -239,48 +284,37 @@
             <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                 <div>
                     <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">CS2 Competitive</div>
-                    <h2 class="text-2xl font-black text-white mt-1">Esports Live</h2>
-                    <p class="text-gray-400 text-sm mt-1">Offizielle bzw. ligaeigene CS2-Übertragungen direkt im Toolkit.</p>
+                    <h2 class="text-2xl font-black text-white mt-1">Esports Player</h2>
+                    <p class="text-gray-400 text-sm mt-1">Wähle einen Stream und blende ihn als Mini-Player auf der gesamten Seite ein.</p>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-gray-500">
-                    <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Live-Player</span>
-                    <span>•</span><span>Desktop & Mobile</span>
-                </div>
+                <button @click="esportsMiniVisible=true; esportsMiniMinimized=false" class="bg-csorange hover:bg-csorange-hover text-black font-bold text-sm px-4 py-2 rounded-lg">
+                    <i class="fa-solid fa-play mr-1"></i> Mini-Player aktivieren
+                </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-[210px_minmax(0,1fr)] gap-4">
-                <aside class="bg-csdark-800 border border-gray-800 rounded-2xl p-2 h-fit">
-                    <div class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">Streams</div>
-                    <button @click="esportsStream='iem'" :class="esportsStream === 'iem' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="w-full text-left px-3 py-3 rounded-xl transition flex items-center gap-3">
-                        <i class="fa-solid fa-globe"></i><span><span class="block font-bold text-sm">IEM</span><span class="block text-[10px] opacity-70">ESL Counter-Strike</span></span>
-                    </button>
-                    <button @click="esportsStream='blast'" :class="esportsStream === 'blast' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="w-full text-left px-3 py-3 rounded-xl transition flex items-center gap-3">
-                        <i class="fa-solid fa-bolt"></i><span><span class="block font-bold text-sm">BLAST</span><span class="block text-[10px] opacity-70">BLAST Premier</span></span>
-                    </button>
-                    <button @click="esportsStream='dach'" :class="esportsStream === 'dach' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="w-full text-left px-3 py-3 rounded-xl transition flex items-center gap-3">
-                        <i class="fa-solid fa-flag"></i><span><span class="block font-bold text-sm">DACH CS Masters</span><span class="block text-[10px] opacity-70">DACH CS</span></span>
-                    </button>
-                </aside>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <button @click="esportsStream='iem'; esportsMiniVisible=true" :class="esportsStream === 'iem' ? 'border-csorange bg-csorange/10' : 'border-gray-800 bg-csdark-800 hover:bg-csdark-700'" class="rounded-2xl border p-5 text-left transition">
+                    <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-csdark-700 flex items-center justify-center text-csorange"><i class="fa-solid fa-globe"></i></span><div><div class="font-black text-white">IEM</div><div class="text-xs text-gray-500">ESL Counter-Strike</div></div></div>
+                </button>
+                <button @click="esportsStream='blast'; esportsMiniVisible=true" :class="esportsStream === 'blast' ? 'border-csorange bg-csorange/10' : 'border-gray-800 bg-csdark-800 hover:bg-csdark-700'" class="rounded-2xl border p-5 text-left transition">
+                    <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-csdark-700 flex items-center justify-center text-csorange"><i class="fa-solid fa-bolt"></i></span><div><div class="font-black text-white">BLAST</div><div class="text-xs text-gray-500">BLAST Premier</div></div></div>
+                </button>
+                <button @click="esportsStream='dach'; esportsMiniVisible=true" :class="esportsStream === 'dach' ? 'border-csorange bg-csorange/10' : 'border-gray-800 bg-csdark-700/50'" class="rounded-2xl border p-5 text-left transition">
+                    <div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-csdark-700 flex items-center justify-center text-csorange"><i class="fa-solid fa-flag"></i></span><div><div class="font-black text-white">DACH CS Masters</div><div class="text-xs text-gray-500">DACH CS</div></div></div>
+                </button>
+            </div>
 
-                <section class="bg-black border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
-                    <div class="px-4 py-3 bg-csdark-800 border-b border-gray-800 flex items-center justify-between">
-                        <div>
-                            <div class="text-[10px] uppercase tracking-[0.2em] text-csorange font-black" x-text="esportsStream === 'iem' ? 'IEM / ESL' : (esportsStream === 'blast' ? 'BLAST Premier' : 'DACH CS Masters')"></div>
-                            <div class="text-sm font-bold text-white mt-0.5" x-text="esportsStream === 'iem' ? 'Counter-Strike Broadcast' : (esportsStream === 'blast' ? 'Counter-Strike Broadcast' : 'DACH CS Broadcast')"></div>
-                        </div>
-                        <a x-show="esportsStream === 'iem'" href="https://www.twitch.tv/eslcs" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-400 hover:text-csorange">Extern öffnen ↗</a>
-                        <a x-show="esportsStream === 'blast'" href="https://www.twitch.tv/blastpremier" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-400 hover:text-csorange">Extern öffnen ↗</a>
-                        <a x-show="esportsStream === 'dach'" href="https://www.twitch.tv/dachcs" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-400 hover:text-csorange">Extern öffnen ↗</a>
+            <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-widest text-csorange font-black">Aktiver Stream</div>
+                        <div class="text-lg font-black text-white mt-1" x-text="esportsStream === 'iem' ? 'IEM / ESL' : (esportsStream === 'blast' ? 'BLAST Premier' : 'DACH CS Masters')"></div>
                     </div>
-                    <div class="aspect-video bg-black">
-                        <iframe x-show="esportsStream === 'iem'" class="w-full h-full" src="https://player.twitch.tv/?channel=eslcs&parent=thebiggi161.github.io&parent=localhost" title="IEM / ESL Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
-                        <iframe x-show="esportsStream === 'blast'" class="w-full h-full" src="https://player.twitch.tv/?channel=blastpremier&parent=thebiggi161.github.io&parent=localhost" title="BLAST Premier Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
-                        <iframe x-show="esportsStream === 'dach'" class="w-full h-full" src="https://player.twitch.tv/?channel=dachcs&parent=thebiggi161.github.io&parent=localhost" title="DACH CS Masters Live" frameborder="0" allowfullscreen></iframe>
+                    <div class="flex gap-2">
+                        <button @click="esportsMiniVisible=true; esportsMiniMinimized=false" class="bg-csorange text-black font-bold text-xs px-3 py-2 rounded-lg"><i class="fa-solid fa-window-minimize mr-1"></i> Mini anzeigen</button>
+                        <button @click="popoutEsports()" class="bg-csdark-700 hover:bg-csdark-600 text-gray-200 font-bold text-xs px-3 py-2 rounded-lg"><i class="fa-solid fa-up-right-from-square mr-1"></i> Popout</button>
                     </div>
-                    <div class="px-4 py-3 bg-csdark-800 border-t border-gray-800 text-xs text-gray-500">
-                        Wenn aktuell kein Match läuft, zeigt der Player den jeweiligen Kanal bzw. eine Offline-Ansicht.
-                    </div>
-                </section>
+                </div>
             </div>
         </div>
 
@@ -1277,6 +1311,8 @@
                 weaponCategory: 'all',
                 weaponSide: 'all',
                 esportsStream: 'iem',
+                esportsMiniVisible: true,
+                esportsMiniMinimized: false,
                 weaponCompare: [null, null, null],
                 weaponData: [
                     {id:'ak47',name:'AK-47',weapon:'Rifle',category:'rifle',side:'T',price:2700,damage:36,armor:77,mag:30,rpm:600,speed:215,reload:'2.43s',reward:300},
