@@ -733,7 +733,7 @@
                 <div x-show="activeMapPanel === 'lineups'" x-cloak class="space-y-5 mb-6">
                     <div class="bg-csdark-900 border border-csorange/30 rounded-2xl p-5">
                         <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
-                            <div><div class="text-[10px] uppercase tracking-[0.2em] text-csorange font-black">Utility Library</div><h3 class="text-xl font-black text-white mt-1">Lineups lernen statt nur speichern</h3><p class="text-xs text-gray-500 mt-1">Komplett neu aufgebaut: 10 Maps · Smokes · Flashes · Molotovs · HE · Retakes. Jede Karte erklärt Position, Ziel-Callout, Throw und den Zweck der Utility. Die Vorschau ist eine echte Browser-Animation und benötigt keine externe GIF-Datei.</p></div>
+                            <div><div class="text-[10px] uppercase tracking-[0.2em] text-csorange font-black">Utility Library</div><h3 class="text-xl font-black text-white mt-1">Lineups lernen statt nur speichern</h3><p class="text-xs text-gray-500 mt-1">56 Setups · <span class="text-white font-bold" x-text="lineupExactCount()"></span> mit konkret zugeordneter Einzel-Lineup-Quelle und Demo-Seite. Die Radar-Linie dient nur als Orientierung; die externe Lineup-Seite ist die Referenz für Position, Aim-Punkt und Throw.</p></div>
                             <div class="flex flex-wrap gap-2 text-[10px]"><span class="px-2.5 py-1.5 rounded-lg bg-csdark-800 border border-gray-700 text-gray-400"><span class="text-white font-bold" x-text="filteredLineupDatabase().length"></span> Setups</span><span class="px-2.5 py-1.5 rounded-lg bg-csdark-800 border border-gray-700 text-gray-400">Demo-Quellen</span><button type="button" @click="lineupMode='retake'" :class="lineupMode==='retake' ? 'bg-csorange text-black font-bold' : 'bg-csdark-800 text-gray-400'" class="px-2.5 py-1.5 rounded-lg border border-gray-700">Nur Retakes</button></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-2 mt-4">
@@ -1952,7 +1952,7 @@
                                 fromX, fromY, toX, toY, description, steps,
                                 throw: techniqueMap[type] || 'Normalwurf',
                                 calloutDescription: target + ' ist der Ziel-Callout. Position, Aim-Punkt und Throw-Mechanik werden über die verlinkte Lineup-Quelle dokumentiert.',
-                                gifLabel: exact ? 'ECHTER DEMO-CLIP' : 'QUELLEN-GUIDE',
+                                gifLabel: exact ? 'DEMO-QUELLE' : 'GUIDE-QUELLE',
                                 sourceUrl,
                                 sourceLabel: exact ? 'Lineup-Demo öffnen' : 'Map-Guide öffnen',
                                 sourceStatus: exact ? 'exact' : 'guide',
