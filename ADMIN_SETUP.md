@@ -12,6 +12,8 @@ Der TestLab-Admin läuft über serverseitige Vercel Functions. Dadurch liegen Pa
    - `ADMIN_SESSION_SECRET` – mindestens 32 zufällige Zeichen
    - `OPENAI_API_KEY` – dein OpenAI API-Key
    - `OPENAI_MODEL` – optional; falls leer, wird `gpt-5-mini` verwendet
+   - `GOOGLE_CLIENT_ID` – Google OAuth Web-Client-ID für die Anmeldung
+   - `FRONTEND_ORIGIN` – optional; standardmäßig `https://thebiggi161.github.io`
 4. Neu deployen.
 5. Im Test-Reiter mit den gesetzten Zugangsdaten anmelden.
 
@@ -26,3 +28,17 @@ Der TestLab-Admin läuft über serverseitige Vercel Functions. Dadurch liegen Pa
 
 Die vorhandene Struktur ist bewusst so vorbereitet, dass anschließend ein bestätigungspflichtiger GitHub-Änderungsworkflow ergänzt werden kann:
 **Anfrage → Analyse → Diff/Vorschau → Admin bestätigt → GitHub-Commit.**
+
+
+## Google-Anmeldung
+
+Die Seite verwendet **Google Identity Services** für den Login. Das Google-Credential wird serverseitig geprüft und anschließend als HttpOnly-Session-Cookie gespeichert.
+
+Für Google Cloud:
+1. Einen OAuth-Client vom Typ **Webanwendung** anlegen.
+2. Als autorisierte JavaScript-Quelle die GitHub-Pages-Adresse `https://thebiggi161.github.io` eintragen.
+3. Die Client-ID als `GOOGLE_CLIENT_ID` in Vercel hinterlegen.
+4. Im YouTube-Bereich der Website dieselbe Client-ID unter **Google Client-ID (für Login)** eintragen und speichern.
+5. Falls das Backend auf einer anderen Domain als GitHub Pages läuft, `CS2_GOOGLE_AUTH_API_URL` auf die Backend-Adresse setzen, z. B. `https://dein-projekt.vercel.app/api/google-login`.
+
+Die Client-ID ist keine geheime Information. Das Client-Secret gehört dagegen niemals in `index.html`.
