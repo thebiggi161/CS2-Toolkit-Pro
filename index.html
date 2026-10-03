@@ -214,6 +214,9 @@
             
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
+                <button @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-flask"></i> Test
+                </button>
                 <button @click="activeTab = 'maps-nades'" :class="activeTab === 'maps-nades' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-map"></i> Maps & Nades
                 </button>
@@ -330,6 +333,69 @@
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
+
+        <!-- TAB: TEST LAB -->
+        <div x-show="activeTab === 'test'" x-cloak class="space-y-6">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-2xl p-6 shadow-lg">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">CS2 Toolkit Pro</div>
+                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-flask text-csorange"></i> TestLab
+                        </h2>
+                        <p class="text-gray-400 text-sm mt-1">Spielwiese für neue Funktionen. Alles hier darf getestet, verändert und wieder verworfen werden.</p>
+                    </div>
+                    <div class="inline-flex items-center gap-2 bg-csorange/10 border border-csorange/30 rounded-lg px-3 py-2 text-xs text-csorange font-bold">
+                        <span class="w-2 h-2 rounded-full bg-csorange animate-pulse"></span>
+                        TESTBEREICH
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
+                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
+                        <i class="fa-solid fa-vial"></i>
+                    </div>
+                    <h3 class="font-bold text-white">Funktions-Test</h3>
+                    <p class="text-xs text-gray-500 mt-2">Platzhalter für neue UI-Elemente, Interaktionen und Experimente.</p>
+                    <button @click="testLabCounter++" class="mt-4 w-full bg-csdark-700 hover:bg-csdark-600 border border-gray-700 rounded-lg py-2.5 text-xs font-bold text-gray-200 transition">
+                        <i class="fa-solid fa-play mr-1 text-csorange"></i> Test ausführen
+                    </button>
+                    <div class="text-center text-xs text-gray-500 mt-3">Ausführungen: <span class="text-csorange font-mono font-bold" x-text="testLabCounter"></span></div>
+                </section>
+
+                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
+                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
+                        <i class="fa-solid fa-toggle-on"></i>
+                    </div>
+                    <h3 class="font-bold text-white">UI Playground</h3>
+                    <p class="text-xs text-gray-500 mt-2">Kleiner Bereich zum Testen von Zuständen und Komponenten.</p>
+                    <button @click="testLabEnabled=!testLabEnabled" :class="testLabEnabled ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="mt-4 w-full border border-gray-700 rounded-lg py-2.5 text-xs font-bold transition">
+                        <i class="fa-solid" :class="testLabEnabled ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                        <span x-text="testLabEnabled ? 'Aktiv' : 'Inaktiv'"></span>
+                    </button>
+                </section>
+
+                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
+                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="font-bold text-white">Experiment-Status</h3>
+                    <p class="text-xs text-gray-500 mt-2">Hier können wir später neue Prototypen unabhängig vom Hauptbereich testen.</p>
+                    <div class="mt-4 bg-csdark-900 border border-gray-800 rounded-lg p-3 text-xs">
+                        <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="font-bold" :class="testLabEnabled ? 'text-green-400' : 'text-gray-400'" x-text="testLabEnabled ? 'Experiment aktiv' : 'Bereit'"></span></div>
+                        <div class="flex justify-between mt-2"><span class="text-gray-500">Testläufe</span><span class="text-csorange font-mono" x-text="testLabCounter"></span></div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="bg-csdark-800 border border-dashed border-csorange/30 rounded-2xl p-8 text-center">
+                <i class="fa-solid fa-flask text-3xl text-csorange mb-3"></i>
+                <h3 class="text-lg font-bold text-white">Hier bauen wir neue Sachen zuerst</h3>
+                <p class="text-sm text-gray-500 mt-1">Der Test-Reiter ist bewusst getrennt vom produktiven Bereich.</p>
+            </div>
+        </div>
 
         <!-- TAB: ESPORTS -->
         <div x-show="activeTab === 'esports'" x-cloak class="space-y-5">
@@ -1344,6 +1410,8 @@
                 },
 
                 activeTab: 'maps-nades',
+                testLabCounter: 0,
+                testLabEnabled: false,
                 crosshairPanel: 'builder',
                 playerMoney: 4500,
                 lossStreak: 1,
