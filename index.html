@@ -31,6 +31,7 @@
     </script>
     <!-- Alpine.js für Interaktivität -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- FontAwesome für Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -1348,7 +1349,7 @@
                     </div>
 
                     <div class="xl:col-span-3 bg-csdark-900 p-4 rounded-lg border border-gray-800">
-                        <div class="flex items-center justify-between gap-3 mb-3 shisha-drag-handle" @pointerdown.stop="shishaStartDrag($event)">
+                        <div class="flex items-center justify-between gap-3 mb-3 shisha-drag-handle" @pointerdown="shishaStartDrag($event)">
                             <div>
                                 <div class="text-sm font-semibold text-white" x-text="maps[selectedMap].label + ' – Callouts'"></div>
                                 <div class="text-[11px] text-gray-500">Die Callout-Namen sind bereits direkt auf der Radar-Map beschriftet. Nuke besitzt getrennte Upper-/Lower-Ebenen.</div>
@@ -1576,7 +1577,9 @@
                     <div class="text-[11px] text-gray-500">Deine Session im Blick</div>
                 </div>
             </div>
-            <button @click="shishaCounterMinimized = true" class="w-8 h-8 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-400 hover:text-white transition" title="Minimieren">
+            <button @pointerdown.stop @click="shishaCounterMinimized = true" class="w-8 h-8 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-400 hover:text-white transition" title="Minimieren">
+                <i class="fa-solid fa-xmark"></i>
+            <button @pointerdown.stop @click="shishaClose()" class="w-8 h-8 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-400 hover:text-red-400 transition" title="Counter schließen">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -1671,7 +1674,7 @@
                     localStorage.setItem('cs2toolkit_overlay_clickthrough', JSON.stringify(this.clickThrough));
                 },
 
-                activeTab: 'maps-nades',
+                activeTab: 'youtube',
                 testLabCounter: 0,
                 testLabEnabled: false,
                 suggestionText: '',
@@ -1690,6 +1693,8 @@
                 youtubeSearchLoading: false,
                 youtubeSubscriptions: [],
                 youtubeConnected: false,
+                youtubeOAuthToken: '',
+                youtubeTokenClient: null,
 
                 shishaCounterOpen: true,
                 shishaCounterMinimized: false,
@@ -2456,11 +2461,43 @@
                         alert('Bitte zuerst eine Google OAuth Client-ID in der YouTube-Konfiguration hinterlegen.');
                         return;
                     }
-                    alert('OAuth für den persönlichen Abo-Feed benötigt eine Google-Cloud-Konfiguration (OAuth-Client + erlaubte Origin). Die UI ist vorbereitet.');
+                    if (!window.google?.accounts?.oauth2) {
+                        alert('Google-Anmeldung wird noch geladen. Bitte kurz warten und erneut versuchen.');
+                        return;
+                    }
+                    this.youtubeTokenClient = window.google.accounts.oauth2.initTokenClient({
+                        client_id: this.youtubeOAuthClientId.trim(),
+                        scope: 'https://www.googleapis.com/auth/youtube.readonly',
+                        callback: async (response) => {
+                            if (response.error) {
+                                alert('YouTube-Anmeldung wurde nicht abgeschlossen.');
+                                return;
+                            }
+                            this.youtubeOAuthToken = response.access_token;
+                            this.youtubeConnected = true;
+                            await this.youtubeLoadSubscriptions();
+                        }
+                    });
+                    this.youtubeTokenClient.requestAccessToken({ prompt: 'consent' });
                 },
 
                 async youtubeLoadSubscriptions() {
-                    if (!this.youtubeConnected) return;
+                    if (!this.youtubeOAuthToken) return;
+                    try {
+                        const url = 'https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=50';
+                        const response = await fetch(url, { headers: { Authorization: 'Bearer ' + this.youtubeOAuthToken } });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error?.message || 'Abo-Feed konnte nicht geladen werden.');
+                        this.youtubeSubscriptions = (data.items || []).map(item => ({
+                            id: item.snippet.resourceId.channelId,
+                            title: item.snippet.title,
+                            thumb: item.snippet.thumbnails?.default?.url || item.snippet.thumbnails?.medium?.url || ''
+                        }));
+                    } catch (error) {
+                        this.youtubeConnected = false;
+                        this.youtubeOAuthToken = '';
+                        alert(error.message);
+                    }
                 },
 
                 youtubeOpenChannel(channelId) {
