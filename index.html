@@ -749,10 +749,18 @@
                                 <div class="grid grid-cols-1 md:grid-cols-5">
                                     <div class="md:col-span-2 p-3">
                                         <div class="lineup-gif-preview aspect-video rounded-xl border border-gray-800" :style="'--from-x:'+lineup.fromX+'%;--from-y:'+lineup.fromY+'%;--to-x:'+lineup.toX+'%;--to-y:'+lineup.toY+'%;'">
-                                            <img :src="maps[lineup.map].radar" :alt="lineup.title + ' Radar'" class="absolute inset-0 w-full h-full object-contain opacity-65" draggable="false">
+                                            <img :src="maps[lineup.map].radar" :alt="lineup.title + ' Radar'" class="absolute inset-0 w-full h-full object-contain opacity-55" draggable="false">
                                             <div class="lineup-gif-line" :style="lineStyleForDatabase(lineup)"></div>
                                             <div class="lineup-gif-impact" :style="'left:'+lineup.toX+'%;top:'+lineup.toY+'%;'"></div>
                                             <div class="lineup-gif-grenade" :style="'--from-x:'+lineup.fromX+'%;--from-y:'+lineup.fromY+'%;--to-x:'+lineup.toX+'%;--to-y:'+lineup.toY+'%;'"><i class="fa-solid fa-bomb"></i></div>
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <button x-show="lineup.sourceStatus === 'exact'" type="button" @click="lineupMediaOpenId=lineup.id" class="bg-black/85 hover:bg-csorange hover:text-black border border-csorange/60 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-xl transition">
+                                                    <i class="fa-solid fa-play mr-1"></i> Echtes Demo-Video
+                                                </button>
+                                                <a x-show="lineup.sourceStatus !== 'exact'" :href="lineup.sourceUrl" target="_blank" rel="noopener noreferrer" class="bg-black/85 hover:bg-csorange hover:text-black border border-gray-600 hover:border-csorange text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-xl transition">
+                                                    <i class="fa-solid fa-book-open mr-1"></i> Guide öffnen
+                                                </a>
+                                            </div>
                                             <div class="absolute left-2 bottom-2 px-2 py-1 rounded-md bg-black/80 text-[9px] text-white font-bold tracking-wide"><i class="fa-solid fa-film text-csorange mr-1"></i> <span x-text="lineup.gifLabel"></span></div>
                                         </div>
                                     </div>
@@ -765,7 +773,28 @@
                                 </div>
                             </article>
                         </template>
-                        <div x-show="filteredLineupDatabase().length === 0" class="lg:col-span-2 border border-dashed border-gray-700 rounded-2xl p-10 text-center text-sm text-gray-500">Keine Lineups für diesen Filter.</div>
+                        <div x-show="lineupMediaOpenId" x-cloak class="fixed inset-0 z-[10050] bg-black/85 backdrop-blur-sm p-4 flex items-center justify-center" @keydown.escape.window="lineupMediaOpenId=null">
+                    <div class="w-full max-w-5xl bg-csdark-900 border border-csorange/40 rounded-2xl overflow-hidden shadow-2xl">
+                        <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-gray-800">
+                            <div>
+                                <div class="text-[10px] uppercase tracking-widest text-csorange font-black">Echtes Lineup-Demo</div>
+                                <div class="text-sm font-bold text-white" x-text="lineupDatabase.find(l => l.id === lineupMediaOpenId)?.title || ''"></div>
+                            </div>
+                            <button type="button" @click="lineupMediaOpenId=null" class="w-9 h-9 rounded-lg bg-csdark-700 hover:bg-red-900/50 text-gray-300"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="aspect-video bg-black">
+                            <template x-if="lineupMediaOpenId">
+                                <iframe class="w-full h-full border-0" :src="lineupDatabase.find(l => l.id === lineupMediaOpenId)?.sourceUrl || 'about:blank'" title="CS2 Lineup Demo" loading="lazy" allow="fullscreen; autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            </template>
+                        </div>
+                        <div class="px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-400">
+                            <span>Quelle: CSNADES.gg · Position, Throw-Technik und Flugzeit stehen auf der Originalseite.</span>
+                            <a :href="lineupDatabase.find(l => l.id === lineupMediaOpenId)?.sourceUrl || '#'" target="_blank" rel="noopener noreferrer" class="text-csorange font-bold">Originalseite öffnen <i class="fa-solid fa-up-right-from-square ml-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="filteredLineupDatabase().length === 0" class="lg:col-span-2 border border-dashed border-gray-700 rounded-2xl p-10 text-center text-sm text-gray-500">Keine Lineups für diesen Filter.</div>
                     </div>
                 </div>
 
@@ -1087,14 +1116,27 @@
                         </div>
 
                         <div class="relative w-full aspect-square max-h-[760px] mx-auto overflow-hidden rounded-xl border border-gray-700 bg-black">
-                            <img :src="maps[selectedMap].radar"
+                            <img :src="calloutRadarImage()"
                                 :alt="maps[selectedMap].label + ' Callout Radar'"
-                                class="absolute inset-0 w-full h-full object-cover"
+                                class="absolute inset-0 w-full h-full object-contain"
                                 draggable="false">
 
-                            <div class="absolute left-3 bottom-3 z-20 bg-black/80 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300">
+                            <template x-for="callout in visibleCallouts()" :key="'radar-'+callout.id">
+                                <button type="button"
+                                    @click="selectCallout(callout.id)"
+                                    class="absolute z-10 -translate-x-1/2 -translate-y-1/2 group"
+                                    :style="pointStyle(callout.x, callout.y)"
+                                    :title="callout.name">
+                                    <span class="block w-4 h-4 rounded-full border-2 border-white bg-csorange shadow-lg shadow-black/80 transition group-hover:scale-125"
+                                          :class="selectedCalloutId === callout.id ? 'ring-4 ring-csorange/30 scale-125' : ''"></span>
+                                    <span class="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-black/90 border border-gray-700 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-lg"
+                                          x-text="callout.name"></span>
+                                </button>
+                            </template>
+
+                            <div class="absolute left-3 bottom-3 z-20 bg-black/85 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300">
                                 <i class="fa-solid fa-location-dot text-csorange mr-1"></i>
-                                Beschriftete Radar-Map – Callout-Namen direkt an den Map-Bereichen
+                                Punkt anklicken = Callout auswählen · Suche filtert die Marker
                             </div>
                         </div>
 
@@ -1795,6 +1837,7 @@
                 lineupMode: 'all',
                 lineupMap: 'all',
                 lineupFavorites: JSON.parse(localStorage.getItem('cs2toolkit_lineup_favorites') || '[]'),
+                lineupMediaOpenId: null,
 
                 buildLineupDatabase() {
                     const packs = {
