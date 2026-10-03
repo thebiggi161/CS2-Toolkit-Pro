@@ -340,61 +340,62 @@
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
                         <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">CS2 Toolkit Pro</div>
-                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
-                            <i class="fa-solid fa-flask text-csorange"></i> TestLab
-                        </h2>
-                        <p class="text-gray-400 text-sm mt-1">Spielwiese für neue Funktionen. Alles hier darf getestet, verändert und wieder verworfen werden.</p>
+                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2"><i class="fa-solid fa-flask text-csorange"></i> TestLab</h2>
+                        <p class="text-gray-400 text-sm mt-1">Admin-Bereich für neue Funktionen, Änderungsanfragen und spätere GitHub-Deployments.</p>
                     </div>
-                    <div class="inline-flex items-center gap-2 bg-csorange/10 border border-csorange/30 rounded-lg px-3 py-2 text-xs text-csorange font-bold">
-                        <span class="w-2 h-2 rounded-full bg-csorange animate-pulse"></span>
-                        TESTBEREICH
-                    </div>
+                    <div class="inline-flex items-center gap-2 bg-csorange/10 border border-csorange/30 rounded-lg px-3 py-2 text-xs text-csorange font-bold"><span class="w-2 h-2 rounded-full bg-csorange animate-pulse"></span> ADMIN TESTBEREICH</div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
-                        <i class="fa-solid fa-vial"></i>
-                    </div>
-                    <h3 class="font-bold text-white">Funktions-Test</h3>
-                    <p class="text-xs text-gray-500 mt-2">Platzhalter für neue UI-Elemente, Interaktionen und Experimente.</p>
-                    <button @click="testLabCounter++" class="mt-4 w-full bg-csdark-700 hover:bg-csdark-600 border border-gray-700 rounded-lg py-2.5 text-xs font-bold text-gray-200 transition">
-                        <i class="fa-solid fa-play mr-1 text-csorange"></i> Test ausführen
-                    </button>
-                    <div class="text-center text-xs text-gray-500 mt-3">Ausführungen: <span class="text-csorange font-mono font-bold" x-text="testLabCounter"></span></div>
-                </section>
+            <section x-show="!adminAuthenticated" class="max-w-xl mx-auto bg-csdark-800 border border-csorange/30 rounded-2xl p-6 shadow-2xl">
+                <div class="text-center mb-6">
+                    <div class="mx-auto w-14 h-14 rounded-2xl bg-csorange/10 border border-csorange/30 flex items-center justify-center text-csorange text-xl"><i class="fa-solid fa-lock"></i></div>
+                    <h3 class="text-xl font-black text-white mt-4">Admin Login</h3>
+                    <p class="text-xs text-gray-500 mt-1">Nur angemeldete Admins können den TestLab-Assistenten verwenden.</p>
+                </div>
+                <form @submit.prevent="adminLogin()" class="space-y-4">
+                    <label class="block"><span class="text-xs text-gray-400">Benutzername</span><input x-model="adminUsername" autocomplete="username" required class="mt-1 w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-xl px-4 py-3 text-sm text-white outline-none" placeholder="Admin-Benutzername"></label>
+                    <label class="block"><span class="text-xs text-gray-400">Passwort</span><input x-model="adminPassword" type="password" autocomplete="current-password" required class="mt-1 w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-xl px-4 py-3 text-sm text-white outline-none" placeholder="Admin-Passwort"></label>
+                    <div x-show="adminError" x-cloak class="bg-red-500/10 border border-red-500/30 text-red-300 rounded-lg px-3 py-2 text-xs" x-text="adminError"></div>
+                    <button type="submit" :disabled="adminBusy" class="w-full bg-csorange hover:bg-csorange-hover disabled:opacity-50 text-black font-black rounded-xl py-3 text-sm transition"><i class="fa-solid fa-right-to-bracket mr-1"></i><span x-text="adminBusy ? 'Anmeldung läuft …' : 'Als Admin anmelden'"></span></button>
+                </form>
+                <div class="mt-5 pt-4 border-t border-gray-800 text-[10px] text-gray-600 text-center">Der Login wird serverseitig geprüft. Zugangsdaten werden nicht im Frontend gespeichert.</div>
+            </section>
 
-                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
-                        <i class="fa-solid fa-toggle-on"></i>
-                    </div>
-                    <h3 class="font-bold text-white">UI Playground</h3>
-                    <p class="text-xs text-gray-500 mt-2">Kleiner Bereich zum Testen von Zuständen und Komponenten.</p>
-                    <button @click="testLabEnabled=!testLabEnabled" :class="testLabEnabled ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="mt-4 w-full border border-gray-700 rounded-lg py-2.5 text-xs font-bold transition">
-                        <i class="fa-solid" :class="testLabEnabled ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
-                        <span x-text="testLabEnabled ? 'Aktiv' : 'Inaktiv'"></span>
-                    </button>
-                </section>
+            <section x-show="adminAuthenticated" x-cloak class="space-y-4">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-csdark-800 border border-green-500/20 rounded-2xl p-4">
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400"><i class="fa-solid fa-shield-halved"></i></div><div><div class="text-[10px] uppercase tracking-widest text-green-400 font-black">Admin aktiv</div><div class="text-sm font-bold text-white" x-text="adminUsername || 'Admin'"></div></div></div>
+                    <div class="flex gap-2"><span class="px-3 py-2 rounded-lg bg-csdark-900 border border-gray-800 text-[10px] text-gray-500"><i class="fa-solid fa-server text-csorange mr-1"></i> Backend-Session</span><button @click="adminLogout()" class="bg-csdark-700 hover:bg-red-900/40 border border-gray-700 hover:border-red-500/40 text-gray-300 hover:text-red-300 px-3 py-2 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</button></div>
+                </div>
 
-                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
-                        <i class="fa-solid fa-code"></i>
-                    </div>
-                    <h3 class="font-bold text-white">Experiment-Status</h3>
-                    <p class="text-xs text-gray-500 mt-2">Hier können wir später neue Prototypen unabhängig vom Hauptbereich testen.</p>
-                    <div class="mt-4 bg-csdark-900 border border-gray-800 rounded-lg p-3 text-xs">
-                        <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="font-bold" :class="testLabEnabled ? 'text-green-400' : 'text-gray-400'" x-text="testLabEnabled ? 'Experiment aktiv' : 'Bereit'"></span></div>
-                        <div class="flex justify-between mt-2"><span class="text-gray-500">Testläufe</span><span class="text-csorange font-mono" x-text="testLabCounter"></span></div>
-                    </div>
-                </section>
-            </div>
+                <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
+                    <section class="bg-csdark-800 border border-csorange/30 rounded-2xl overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-800 flex items-center justify-between gap-3"><div><div class="text-[10px] uppercase tracking-widest text-csorange font-black">CS2 Toolkit AI</div><h3 class="text-lg font-black text-white mt-1">Admin-Assistent</h3></div><button @click="adminMessages=[]" class="text-xs text-gray-500 hover:text-white transition"><i class="fa-solid fa-eraser mr-1"></i> Chat leeren</button></div>
+                        <div class="h-[430px] overflow-y-auto p-4 space-y-3 bg-csdark-900/40">
+                            <div x-show="adminMessages.length===0" class="h-full flex items-center justify-center text-center"><div class="max-w-md"><i class="fa-solid fa-robot text-3xl text-csorange mb-3"></i><div class="font-bold text-white">Bereit für Änderungsanfragen</div><p class="text-xs text-gray-500 mt-2">Zum Beispiel: „Prüfe die TestLab-Navigation“ oder „Plane eine Änderung an der Weapons Database“.</p></div></div>
+                            <template x-for="(message,index) in adminMessages" :key="'admin-msg-'+index"><div class="flex" :class="message.role==='user' ? 'justify-end' : 'justify-start'"><div class="max-w-[88%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap" :class="message.role==='user' ? 'bg-csorange text-black rounded-br-md' : 'bg-csdark-700 border border-gray-700 text-gray-200 rounded-bl-md'" x-text="message.content"></div></div></template>
+                            <div x-show="adminChatBusy" class="flex justify-start"><div class="bg-csdark-700 border border-gray-700 text-gray-400 rounded-2xl rounded-bl-md px-4 py-3 text-sm"><i class="fa-solid fa-spinner fa-spin text-csorange mr-2"></i> Assistent denkt …</div></div>
+                        </div>
+                        <form @submit.prevent="sendAdminMessage()" class="p-4 border-t border-gray-800">
+                            <div class="flex gap-2"><textarea x-model="adminDraft" @keydown.enter.ctrl.prevent="sendAdminMessage()" rows="3" class="flex-1 bg-csdark-900 border border-gray-700 focus:border-csorange rounded-xl px-4 py-3 text-sm text-white outline-none resize-none" placeholder="Beschreibe die gewünschte Änderung …"></textarea><button type="submit" :disabled="adminChatBusy || !adminDraft.trim()" class="self-end bg-csorange hover:bg-csorange-hover disabled:opacity-40 text-black font-black rounded-xl px-4 py-3 transition" title="Senden"><i class="fa-solid fa-paper-plane"></i></button></div>
+                            <div class="text-[10px] text-gray-600 mt-2">Strg + Enter zum Senden · Änderungen werden in dieser Version noch nicht automatisch committed.</div>
+                        </form>
+                    </section>
 
-            <div class="bg-csdark-800 border border-dashed border-csorange/30 rounded-2xl p-8 text-center">
-                <i class="fa-solid fa-flask text-3xl text-csorange mb-3"></i>
-                <h3 class="text-lg font-bold text-white">Hier bauen wir neue Sachen zuerst</h3>
-                <p class="text-sm text-gray-500 mt-1">Der Test-Reiter ist bewusst getrennt vom produktiven Bereich.</p>
-            </div>
+                    <aside class="space-y-4">
+                        <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                            <div class="flex items-center gap-2 text-csorange font-black text-sm"><i class="fa-solid fa-code-branch"></i> Workflow</div>
+                            <div class="mt-4 space-y-3 text-xs">
+                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csorange text-black font-black flex items-center justify-center">1</span><div><div class="font-bold text-white">Anfrage</div><div class="text-gray-500">Du beschreibst die gewünschte Änderung.</div></div></div>
+                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csdark-700 border border-gray-700 text-gray-300 font-black flex items-center justify-center">2</span><div><div class="font-bold text-white">Analyse</div><div class="text-gray-500">Der Assistent erklärt betroffene Dateien und Vorgehen.</div></div></div>
+                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csdark-700 border border-gray-700 text-gray-300 font-black flex items-center justify-center">3</span><div><div class="font-bold text-white">Vorschau</div><div class="text-gray-500">Als nächstes kommt eine Diff-Vorschau.</div></div></div>
+                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csdark-700 border border-gray-700 text-gray-300 font-black flex items-center justify-center">4</span><div><div class="font-bold text-white">Bestätigen</div><div class="text-gray-500">Erst nach deiner Bestätigung wird später GitHub geändert.</div></div></div>
+                            </div>
+                        </div>
+                        <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5"><div class="text-[10px] uppercase tracking-widest text-csorange font-black">Backend Status</div><div class="mt-3 flex items-center gap-2 text-sm"><span class="w-2 h-2 rounded-full" :class="adminBackendAvailable ? 'bg-green-400' : 'bg-yellow-400'"></span><span x-text="adminBackendAvailable ? 'Verbunden' : 'Auf Vercel deployen'"></span></div><p class="text-[10px] text-gray-600 mt-2">GitHub Pages kann die serverseitigen Admin-Funktionen nicht ausführen.</p></div>
+                    </aside>
+                </div>
+            </section>
         </div>
 
         <!-- TAB: ESPORTS -->
@@ -1409,9 +1410,96 @@
                     localStorage.setItem('cs2toolkit_overlay_clickthrough', JSON.stringify(this.clickThrough));
                 },
 
+                init() {
+                    this.checkAdminSession();
+                },
+
+                async checkAdminSession() {
+                    try {
+                        const response = await fetch('/api/session', { credentials: 'include' });
+                        this.adminBackendAvailable = response.status !== 404;
+                        if (!response.ok) {
+                            this.adminAuthenticated = false;
+                            return;
+                        }
+                        const data = await response.json();
+                        this.adminAuthenticated = !!data.authenticated;
+                        if (data.username) this.adminUsername = data.username;
+                    } catch (error) {
+                        this.adminBackendAvailable = false;
+                        this.adminAuthenticated = false;
+                    }
+                },
+
+                async adminLogin() {
+                    this.adminBusy = true;
+                    this.adminError = '';
+                    try {
+                        const response = await fetch('/api/login', {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: this.adminUsername, password: this.adminPassword })
+                        });
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) throw new Error(data.error || 'Login fehlgeschlagen.');
+                        this.adminAuthenticated = true;
+                        this.adminPassword = '';
+                        await this.checkAdminSession();
+                    } catch (error) {
+                        this.adminAuthenticated = false;
+                        this.adminError = error.message || 'Login fehlgeschlagen.';
+                    } finally {
+                        this.adminBusy = false;
+                    }
+                },
+
+                async adminLogout() {
+                    await fetch('/api/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+                    this.adminAuthenticated = false;
+                    this.adminUsername = '';
+                    this.adminMessages = [];
+                },
+
+                async sendAdminMessage() {
+                    const content = this.adminDraft.trim();
+                    if (!content || this.adminChatBusy || !this.adminAuthenticated) return;
+                    this.adminDraft = '';
+                    this.adminMessages.push({ role: 'user', content });
+                    this.adminChatBusy = true;
+                    try {
+                        const response = await fetch('/api/chat', {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ messages: this.adminMessages })
+                        });
+                        const data = await response.json().catch(() => ({}));
+                        if (response.status === 401) {
+                            this.adminAuthenticated = false;
+                            throw new Error('Session abgelaufen. Bitte erneut anmelden.');
+                        }
+                        if (!response.ok) throw new Error(data.error || 'Chat-Anfrage fehlgeschlagen.');
+                        this.adminMessages.push({ role: 'assistant', content: data.reply || 'Keine Antwort erhalten.' });
+                    } catch (error) {
+                        this.adminMessages.push({ role: 'assistant', content: 'Fehler: ' + (error.message || 'Unbekannter Fehler.') });
+                    } finally {
+                        this.adminChatBusy = false;
+                    }
+                },
+
                 activeTab: 'maps-nades',
                 testLabCounter: 0,
                 testLabEnabled: false,
+                adminAuthenticated: false,
+                adminBackendAvailable: false,
+                adminUsername: '',
+                adminPassword: '',
+                adminError: '',
+                adminBusy: false,
+                adminDraft: '',
+                adminMessages: [],
+                adminChatBusy: false,
                 crosshairPanel: 'builder',
                 playerMoney: 4500,
                 lossStreak: 1,
@@ -1998,742 +2086,3 @@
                         dust2: {
                             'Xbox Smoke':'https://csnades.gg/dust2/smokes/xbox-from-t-spawn',
                             'A Default Molotov':'https://csnades.gg/dust2/molotovs/back-plat-from-upper-tunnels'
-                        },
-                        anubis: {
-                            'A Execute Smoke':'https://csnades.gg/anubis/smokes/temple-from-t-spawn',
-                            'B Site Smoke':'https://csnades.gg/anubis/smokes/b-site-from-ruins-d',
-                            'A Site Entry Flash':'https://csnades.gg/anubis/flashbangs/a-site-from-water',
-                            'Backsite Molotov':'https://csnades.gg/anubis/molotovs/backsite-from-ebox-b',
-                            'Fountain HE':'https://csnades.gg/anubis/hegrenades/fountain-from-a-main',
-                            'A Retake Utility':'https://csnades.gg/anubis/smokes/a-main-from-ct-spawn',
-                            'B Retake Utility':'https://csnades.gg/anubis/molotovs/backsite-from-temple'
-                        },
-                        cache: {
-                            'A Main Smoke':'https://csnades.gg/cache/smokes/a-main-from-ct-spawn',
-                            'Heaven Smoke':'https://csnades.gg/cache/smokes/a-main-from-quad',
-                            'Forklift Molotov':'https://csnades.gg/cache/molotovs/forklift-from-a-main'
-                        }
-                    };
-                    const guideSources = {
-                        mirage:'https://csnades.gg/guides/mirage',
-                        inferno:'https://csnades.gg/guides/inferno',
-                        nuke:'https://csnades.gg/guides/nuke',
-                        ancient:'https://csnades.gg/guides/ancient',
-                        dust2:'https://csnades.gg/guides/dust2',
-                        anubis:'https://csnades.gg/guides/anubis',
-                        cache:'https://csnades.gg/cache'
-                    };
-
-                    const techniqueMap = {
-                        'Smoke':'Jump + Left Click',
-                        'Flash':'Left Click / Timing',
-                        'Molotov':'Left Click',
-                        'HE':'Left Click',
-                        'Retake':'Team Utility / Timing'
-                    };
-
-                    const result = [];
-                    Object.entries(packs).forEach(([map, items]) => {
-                        items.forEach((item, index) => {
-                            const [type, side, bombsite, position, target, title, description, steps] = item;
-                            const sourceUrl = exactSources[map]?.[title] || guideSources[map];
-                            const exact = !!exactSources[map]?.[title];
-                            const seed = (map.length * 13 + index * 17) % 37;
-                            const fromX = 12 + seed;
-                            const fromY = side === 'CT' ? 72 - (index % 3) * 8 : 78 - (index % 4) * 9;
-                            const toX = 26 + ((seed * 3) % 58);
-                            const toY = 20 + ((seed * 5) % 58);
-                            result.push({
-                                id: map + '-' + type.toLowerCase() + '-' + index,
-                                map, title, type, side, bombsite, position, target,
-                                difficulty: index % 3 === 0 ? 'Einfach' : index % 3 === 1 ? 'Mittel' : 'Schwer',
-                                fromX, fromY, toX, toY, description, steps,
-                                throw: techniqueMap[type] || 'Normalwurf',
-                                calloutDescription: target + ' ist der Ziel-Callout. Position, Aim-Punkt und Throw-Mechanik werden über die verlinkte Lineup-Quelle dokumentiert.',
-                                gifLabel: exact ? 'DEMO-QUELLE' : 'GUIDE-QUELLE',
-                                sourceUrl,
-                                sourceLabel: exact ? 'Lineup-Demo öffnen' : 'Map-Guide öffnen',
-                                sourceStatus: exact ? 'exact' : 'guide',
-                                verified: exact
-                            });
-                        });
-                    });
-                    return result;
-                },
-
-                lineupExactCount() {
-                    return this.lineupDatabase.filter(lineup => lineup.sourceStatus === 'exact').length;
-                },
-
-                filteredLineupDatabase() {
-                    const q = this.lineupSearch.trim().toLowerCase();
-                    return this.lineupDatabase.filter(lineup => {
-                        const hay = [lineup.map, this.maps[lineup.map]?.label || '', lineup.title, lineup.type, lineup.side, lineup.bombsite, lineup.position, lineup.target, lineup.description, lineup.calloutDescription].join(' ').toLowerCase();
-                        return (!q || hay.includes(q))
-                            && (this.lineupType === 'all' || lineup.type === this.lineupType)
-                            && (this.lineupSide === 'all' || lineup.side === this.lineupSide)
-                            && (this.lineupBombsite === 'all' || lineup.bombsite === this.lineupBombsite)
-                            && (this.lineupMap === 'all' || lineup.map === this.lineupMap)
-                            && (this.lineupMode === 'all' || (this.lineupMode === 'retake' ? lineup.type === 'Retake' : lineup.type !== 'Retake'));
-                    });
-                },
-
-                isLineupFavorite(id) {
-                    return this.lineupFavorites.includes(id);
-                },
-
-                toggleLineupFavorite(id) {
-                    const i = this.lineupFavorites.indexOf(id);
-                    if (i >= 0) this.lineupFavorites.splice(i, 1);
-                    else this.lineupFavorites.push(id);
-                    localStorage.setItem('cs2toolkit_lineup_favorites', JSON.stringify(this.lineupFavorites));
-                },
-
-                resetLineupFilters() {
-                    this.lineupSearch = '';
-                    this.lineupType = 'all';
-                    this.lineupSide = 'all';
-                    this.lineupBombsite = 'all';
-                    this.lineupMode = 'all';
-                    this.lineupMap = 'all';
-                },
-
-                selectedMap: 'mirage',
-                activeMapPanel: 'smokes',
-                placedSmokes: [],
-                selectedLineupId: null,
-                lineupProgress: 0,
-                lineupPlaying: false,
-                lineupSpeed: 1,
-                lineupTimer: null,
-
-                init() {
-                    this.lineupDatabase = this.buildLineupDatabase();
-                    this.selectedLineupId = this.lineupDatabase[0]?.id ?? null;
-                    this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
-                    this.overlayOpacity = Number(localStorage.getItem('cs2toolkit_overlay_opacity') || '0.72');
-                    this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
-                },
-                smokeId: 0,
-                bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
-                maps: {
-                    mirage: {
-                        label: 'Mirage',
-                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_mirage_radar_psd.png',
-                        description: 'Mid-Control und Utility auf A/B stehen im Mittelpunkt.',
-                        tips: ['A-Palace frühzeitig kontrollieren.', 'Mid-Control öffnet beide Bombenpunkte.', 'Connector und Jungle sind wichtige Info-Zonen.'],
-                        smokeSpots: [
-                            {id:'m1',name:'Mid',x:50,y:46},{id:'m2',name:'Window',x:49,y:38},{id:'m3',name:'Connector',x:60,y:43},
-                            {id:'m4',name:'A Site',x:72,y:30},{id:'m5',name:'Jungle',x:66,y:35},{id:'m6',name:'B Site',x:29,y:65},{id:'m7',name:'Short',x:42,y:58}
-                        ],
-bombSites: [{id:'A',name:'A',label:'Bombsite A',x:52,y:28},{id:'B',name:'B',label:'Bombsite B',x:42,y:72}],
-                        lineups: [
-                            {id:'m-line-1',title:'Window Smoke',description:'Visuelle Richtung T-Seite → Window.',fromX:27,fromY:82,toX:49,toY:38},
-                            {id:'m-line-2',title:'Connector Smoke',description:'Visuelle Richtung T-Seite → Connector.',fromX:34,fromY:76,toX:60,toY:43},
-                            {id:'m-line-3',title:'Jungle Smoke',description:'Visuelle Richtung Mid/Tetris → Jungle.',fromX:52,fromY:55,toX:66,toY:35}
-                        ],
-                                                nades: [
-                            {title:'A-Site Window Smoke',type:'Smoke',throwFrom:'T-Seite',target:'Window'},
-                            {title:'Connector Smoke',type:'Smoke',throwFrom:'T-Seite',target:'Connector'}
-                        ]
-                    },
-                    inferno: {
-                        label: 'Inferno',
-                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_inferno_radar_psd.png',
-                        description: 'Enge Wege und starke Utility-Kontrolle prägen die Map.',
-                        tips: ['Banana-Control ist zentral für den B-Split.', 'Second Mid ermöglicht schnelle Rotationen.', 'Utility für CT/Library beim B-Retake bereithalten.'],
-                        smokeSpots: [
-                            {id:'i1',name:'Banana',x:28,y:64},{id:'i2',name:'Coffins',x:26,y:54},{id:'i3',name:'CT',x:45,y:48},
-                            {id:'i4',name:'Arch',x:55,y:36},{id:'i5',name:'Short',x:70,y:34},{id:'i6',name:'A Site',x:72,y:22},{id:'i7',name:'Apartments',x:79,y:52}
-                        ],
-bombSites: [
-                            {id:'A',name:'A',label:'Bombsite A',x:76,y:22},{id:'B',name:'B',label:'Bombsite B',x:27,y:58}
-                        ],
-                        lineups: [
-                            {id:'i-line-1',title:'CT/Coffins Smoke',description:'Visuelle Richtung Banana → CT/Coffins.',fromX:18,fromY:75,toX:26,toY:54},
-                            {id:'i-line-2',title:'Arch Smoke',description:'Visuelle Richtung T-Seite → Arch.',fromX:76,fromY:76,toX:55,toY:36}
-                        ],
-                                                nades: [{title:'Banana Smoke',type:'Smoke',throwFrom:'T-Seite',target:'CT/Coffins'}]
-                    },
-                    nuke: {
-                        label: 'Nuke',
-                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_radar_psd.png',
-                        radarLower: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_nuke_lower_radar_psd.png',
-                        description: 'Vertikale Map mit Outside-Control und schnellen Rotationen.',
-                        tips: ['Outside-Control eröffnet mehrere Zugänge.', 'Vents verbinden die Ebenen.', 'Utility für Heaven/Rafters erleichtert A-Hits.'],
-                        smokeSpots: [
-                            {id:'n1',name:'Outside',x:46,y:65},{id:'n2',name:'Garage',x:57,y:59},{id:'n3',name:'Secret',x:45,y:51},
-                            {id:'n4',name:'A Site',x:70,y:26},{id:'n5',name:'Heaven',x:70,y:16},{id:'n6',name:'Ramp',x:30,y:42},{id:'n7',name:'B Site',x:67,y:70}
-                        ],
-bombSites: [
-                            {id:'A',name:'A',label:'Bombsite A',x:70,y:27},{id:'B',name:'B',label:'Bombsite B',x:67,y:70}
-                        ],
-                        lineups: [
-                            {id:'n-line-1',title:'Garage/Yard Smoke',description:'Visuelle Richtung T-Outside → Garage.',fromX:44,fromY:78,toX:57,toY:59},
-                            {id:'n-line-2',title:'Heaven Smoke',description:'Visuelle Richtung Outside/Ramp → Heaven.',fromX:30,fromY:52,toX:70,toY:16}
-                        ],
-                                                nades: [{title:'Yard Smoke',type:'Smoke',throwFrom:'T-Spawn',target:'Garage/Outside'}]
-                    },
-                    ancient: {
-                        label: 'Ancient',
-                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_ancient_radar_psd.png',
-                        description: 'Mid-Control und enge Übergänge entscheiden viele Runden.',
-                        tips: ['Mid-Control verbindet die wichtigsten Angriffswege.', 'Donut ist ein zentraler Rotationspunkt.', 'B-Hall und Cave mit Utility absichern.'],
-                        smokeSpots: [
-                            {id:'a1',name:'Mid',x:52,y:48},{id:'a2',name:'Donut',x:67,y:40},{id:'a3',name:'A Site',x:77,y:25},
-                            {id:'a4',name:'Temple',x:65,y:28},{id:'a5',name:'B Site',x:25,y:67},{id:'a6',name:'Cave',x:18,y:56},{id:'a7',name:'CT',x:49,y:76}
-                        ],
-bombSites: [{id:'A',name:'A',label:'Bombsite A',x:52,y:28},{id:'B',name:'B',label:'Bombsite B',x:55,y:72}],
-                        lineups: [
-                            {id:'a-line-1',title:'A-Main Smoke',description:'Visuelle Richtung T-Seite → A-Main.',fromX:91,fromY:52,toX:77,toY:39},
-                            {id:'a-line-2',title:'Donut Smoke',description:'Visuelle Richtung Mid → Donut.',fromX:49,fromY:51,toX:67,toY:40}
-                        ],
-                                                nades: [{title:'A-Main Smoke',type:'Smoke',throwFrom:'T-Seite',target:'A-Main'}]
-                    },
-                    dust2: {
-                        label: 'Dust II',
-                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_dust2_radar_psd.png',
-                        description: 'Klassische Long-, Short- und Mid-Kontrolle mit klaren Rotationen.',
-                        tips: ['Xbox/Mid-Smokes eröffnen Short und B-Rotationen.', 'Long-Duelle mit Flashbangs unterstützen.', 'CT/Spawn-Smokes helfen bei A-Ausführungen.'],
-                        smokeSpots: [
-                            {id:'d1',name:'Mid',x:51,y:45},{id:'d2',name:'Xbox',x:47,y:39},{id:'d3',name:'Short',x:61,y:35},
-                            {id:'d4',name:'A Cross',x:79,y:28},{id:'d5',name:'A Site',x:86,y:19},{id:'d6',name:'Long',x:65,y:73},{id:'d7',name:'B Site',x:24,y:35}
-                        ],
-bombSites: [
-                            {id:'A',name:'A',label:'Bombsite A',x:85,y:20},{id:'B',name:'B',label:'Bombsite B',x:24,y:35}
-                        ],
-                        lineups: [
-                            {id:'d-line-1',title:'Xbox Smoke',description:'Visuelle Richtung T-Spawn → Xbox.',fromX:55,fromY:84,toX:47,toY:39},
-                            {id:'d-line-2',title:'A-Cross Smoke',description:'Visuelle Richtung Long → A-Cross.',fromX:66,fromY:73,toX:79,toY:28}
-                        ],
-                                                nades: [{title:'Xbox Smoke',type:'Smoke',throwFrom:'T-Spawn',target:'Mid/Xbox'}]
-                    },
-                    anubis: {
-                        label: 'Anubis',
-                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_anubis_radar_psd.png',
-                        description: 'Viele Übergänge und Wasserwege machen Utility besonders wertvoll.',
-                        tips: ['Mid-Cycles mit Smokes kontrollieren.', 'Canal und Connector für Rotationen beobachten.', 'A-Main/B-Main mit frühen Flashes öffnen.'],
-                        smokeSpots: [
-                            {id:'u1',name:'Mid',x:52,y:48},{id:'u2',name:'Connector',x:62,y:44},{id:'u3',name:'A Site',x:76,y:24},
-                            {id:'u4',name:'Temple',x:68,y:25},{id:'u5',name:'B Site',x:23,y:70},{id:'u6',name:'Water',x:41,y:67},{id:'u7',name:'Canal',x:35,y:52}
-                        ],
-bombSites: [{id:'A',name:'A',label:'Bombsite A',x:74.4,y:26.9},{id:'B',name:'B',label:'Bombsite B',x:32.7,y:49.5}],
-                        lineups: [
-                            {id:'u-line-1',title:'A-Main Smoke',description:'Visuelle Richtung T-Seite → A-Main.',fromX:92,fromY:54,toX:76,toY:43},
-                            {id:'u-line-2',title:'Connector Smoke',description:'Visuelle Richtung Mid → Connector.',fromX:52,fromY:52,toX:62,toY:44}
-                        ],
-                                                nades: [{title:'A-Main Smoke',type:'Smoke',throwFrom:'T-Seite',target:'A-Entry'}]
-                    },
-                    cache: {
-                        label: 'Cache',
-                        radar: 'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/radars/de_cache_radar_psd.png',
-                        description: 'Vertikale Mid-Control und die schnellen A/B-Rotationen stehen im Vordergrund.',
-                        tips: ['Mid nimmt der CT-Seite Rotationswege.', 'A-Main und B-Main mit Utility vorbereiten.', 'Heaven/Truck bei A und Checkers bei B beachten.'],
-                        smokeSpots: [
-                            {id:'c1',name:'Mid',x:51,y:47},{id:'c2',name:'Heaven',x:68,y:20},{id:'c3',name:'A Site',x:78,y:32},
-                            {id:'c4',name:'A Main',x:88,y:42},{id:'c5',name:'Checkers',x:38,y:65},{id:'c6',name:'B Site',x:24,y:76},{id:'c7',name:'B Main',x:18,y:56}
-                        ],
-bombSites: [
-                            {id:'A',name:'A',label:'Bombsite A',x:79,y:32},{id:'B',name:'B',label:'Bombsite B',x:24,y:76}
-                        ],
-                        lineups: [
-                            {id:'c-line-1',title:'Mid Smoke',description:'Visuelle Richtung T-Seite → Mid.',fromX:51,fromY:83,toX:51,toY:47},
-                            {id:'c-line-2',title:'Heaven Smoke',description:'Visuelle Richtung A-Main → Heaven.',fromX:88,fromY:47,toX:68,toY:20}
-                        ],
-                                                nades: [{title:'Mid Smoke',type:'Smoke',throwFrom:'T-Seite',target:'Mid'}]
-                    }
-                },
-
-                calloutSearch: '',
-                selectedCalloutId: null,
-                nukeCalloutLevel: 'upper',
-                calloutsByMap: {
-                    mirage: [
-                        {id:'mirage-tspawn',name:'T Spawn',x:84.0,y:35.0},
-                        {id:'mirage-mid',name:'Mid',x:54.0,y:45.0},
-                        {id:'mirage-topmid',name:'Top Mid',x:63.0,y:40.0},
-                        {id:'mirage-window',name:'Window',x:38.0,y:51.0},
-                        {id:'mirage-aramp',name:'A Ramp',x:65.0,y:59.0},
-                        {id:'mirage-palace',name:'Palace',x:64.0,y:76.0},
-                        {id:'mirage-asite',name:'A Site',x:52.0,y:73.0},
-                        {id:'mirage-ct',name:'CT Spawn',x:25.0,y:74.0},
-                        {id:'mirage-short',name:'Short',x:47.0,y:35.0},
-                        {id:'mirage-jungle',name:'Jungle',x:41.0,y:61.0},
-                        {id:'mirage-apps',name:'B Apartments',x:37.0,y:18.0},
-                        {id:'mirage-bshort',name:'B Short',x:44.0,y:29.0},
-                        {id:'mirage-bsite',name:'B Site',x:22.0,y:34.0},
-                        {id:'mirage-van',name:'Van',x:23.0,y:21.0}
-                    ],
-                    inferno: [
-                        {id:'inferno-tspawn',name:'T Spawn',x:17.0,y:65.0},
-                        {id:'inferno-apps',name:'Apartments',x:59.0,y:77.0},
-                        {id:'inferno-balcony',name:'Balcony',x:68.0,y:75.0},
-                        {id:'inferno-asite',name:'A Site',x:81.0,y:65.0},
-                        {id:'inferno-arch',name:'Arch',x:82.0,y:53.0},
-                        {id:'inferno-library',name:'Library',x:89.0,y:50.0},
-                        {id:'inferno-pit',name:'Pit',x:89.0,y:77.0},
-                        {id:'inferno-ct',name:'CT Spawn',x:82.0,y:35.0},
-                        {id:'inferno-mid',name:'Mid',x:59.0,y:64.0},
-                        {id:'inferno-banana',name:'Banana',x:55.0,y:46.0},
-                        {id:'inferno-bsite',name:'B Site',x:53.0,y:29.0},
-                        {id:'inferno-construction',name:'Construction',x:62.0,y:22.0}
-                    ],
-                    nuke: [
-                        {id:'nuke-tspawn',name:'T Spawn',x:17.0,y:60.0,layer:'upper'},
-                        {id:'nuke-outside',name:'Outside',x:55.0,y:66.0,layer:'upper'},
-                        {id:'nuke-silo',name:'Silo',x:47.0,y:68.0,layer:'upper'},
-                        {id:'nuke-ramp',name:'Ramp',x:59.0,y:29.0,layer:'upper'},
-                        {id:'nuke-lobby',name:'Lobby',x:47.0,y:48.0,layer:'upper'},
-                        {id:'nuke-asite',name:'A Site',x:57.0,y:51.0,layer:'upper'},
-                        {id:'nuke-heaven',name:'Heaven',x:64.0,y:30.0,layer:'upper'},
-                        {id:'nuke-ct',name:'CT Spawn',x:84.0,y:32.0,layer:'upper'},
-                        {id:'nuke-secret',name:'Secret',x:73.0,y:82.0,layer:'lower'},
-                        {id:'nuke-bsite',name:'B Site',x:21.0,y:24.0,layer:'lower'},
-                        {id:'nuke-squeaky',name:'Squeaky',x:50.0,y:43.0,layer:'upper'}
-                    ],
-                    ancient: [
-                        {id:'ancient-tspawn',name:'T Spawn',x:50.0,y:86.0},
-                        {id:'ancient-mid',name:'Mid',x:50.0,y:57.0},
-                        {id:'ancient-cave',name:'Cave',x:61.0,y:34.0},
-                        {id:'ancient-temple',name:'Temple',x:31.0,y:15.0},
-                        {id:'ancient-asite',name:'A Site',x:31.0,y:29.0},
-                        {id:'ancient-steps',name:'Steps',x:46.0,y:26.0},
-                        {id:'ancient-ct',name:'CT Spawn',x:51.0,y:17.0},
-                        {id:'ancient-bsite',name:'B Site',x:61.0,y:33.0},
-                        {id:'ancient-ruins',name:'Ruins',x:32.0,y:68.0},
-                        {id:'ancient-river',name:'Water',x:36.0,y:70.0}
-                    ],
-                    dust2: [
-                        {id:'dust2-tspawn',name:'T Spawn',x:50.0,y:87.0},
-                        {id:'dust2-longa',name:'Long A',x:83.0,y:41.0},
-                        {id:'dust2-longdoors',name:'Long Doors',x:67.0,y:48.0},
-                        {id:'dust2-asite',name:'A Site',x:78.0,y:25.0},
-                        {id:'dust2-ct',name:'CT Spawn',x:58.0,y:25.0},
-                        {id:'dust2-short',name:'Short',x:59.0,y:33.0},
-                        {id:'dust2-cat',name:'Catwalk',x:56.0,y:43.0},
-                        {id:'dust2-mid',name:'Mid',x:49.0,y:51.0},
-                        {id:'dust2-bsite',name:'B Site',x:22.0,y:23.0},
-                        {id:'dust2-bdoors',name:'B Doors',x:35.0,y:26.0},
-                        {id:'dust2-upper',name:'Upper Tunnels',x:19.0,y:43.0},
-                        {id:'dust2-lower',name:'Lower Tunnels',x:29.0,y:44.0}
-                    ],
-                    anubis: [
-                        {id:'anubis-tspawn',name:'T Spawn',x:51.0,y:87.0},
-                        {id:'anubis-canal',name:'Canal',x:48.0,y:60.0},
-                        {id:'anubis-mid',name:'Mid',x:54.0,y:49.0},
-                        {id:'anubis-palace',name:'Palace',x:39.0,y:44.0},
-                        {id:'anubis-asite',name:'A Site',x:69.0,y:26.0},
-                        {id:'anubis-flower',name:'Fountain',x:78.0,y:23.0},
-                        {id:'anubis-ct',name:'CT Spawn',x:50.0,y:20.0},
-                        {id:'anubis-bsite',name:'B Site',x:27.0,y:49.0},
-                        {id:'anubis-connector',name:'Connector',x:48.0,y:50.0},
-                        {id:'anubis-alley',name:'Alley',x:67.0,y:72.0}
-                    ],
-                    cache: [
-                        {id:'cache-tspawn',name:'T Spawn',x:82.0,y:58.0},
-                        {id:'cache-mid',name:'Mid',x:52.0,y:51.0},
-                        {id:'cache-halls',name:'A Main',x:37.0,y:20.0},
-                        {id:'cache-asite',name:'A Site',x:31.0,y:24.0},
-                        {id:'cache-heaven',name:'Heaven',x:18.0,y:61.0},
-                        {id:'cache-ct',name:'CT Spawn',x:9.0,y:57.0},
-                        {id:'cache-checkers',name:'Checkers',x:27.0,y:65.0},
-                        {id:'cache-bsite',name:'B Site',x:32.0,y:82.0},
-                        {id:'cache-bmain',name:'B Main',x:64.0,y:79.0}
-                    ]
-                },
-
-                calloutRadarImages: {
-                    mirage: 'https://files.bo3.gg/uploads/image/64780/image/webp-884969c928be112efae6a43965569d1c.webp',
-                    inferno: 'https://files.bo3.gg/uploads/image/72688/image/webp-342fc7111a0c20751b2ad5e530fb0fcc.webp',
-                    nuke: 'https://images.steamusercontent.com/ugc/11726073136044731436/0B59200BCA3857D828D07CE689898B462E8E5D4B/',
-                    ancient: 'https://cdn.stavka.tv/static/bk/froala/bb7/e58/df28dd6bf745aa6f3995ef09033d7933fe.webp',
-                    dust2: 'https://static.stavka.tv/static/bk/froala/fd2/1fd/8422ade764d68123f97bb0468bb70e7030.png',
-                    anubis: 'https://steamuserimages-a.akamaihd.net/ugc/1732217195757336482/4A141D9F2B30854F8B3081419280963D74881186/',
-                    cache: 'https://images.steamusercontent.com/ugc/2012595138552722104/75F2670D972603FDD587ADF5F1C519001299185A/'
-                },
-
-                calloutRadarImage() {
-                    return this.calloutRadarImages[this.selectedMap] || this.maps[this.selectedMap].radar;
-                },
-
-                visibleCallouts() {
-                    let list = this.calloutsByMap[this.selectedMap] || [];
-                    if (this.selectedMap === 'nuke') {
-                        list = list.filter(callout => (callout.layer || 'upper') === this.nukeCalloutLevel);
-                    }
-                    const query = this.calloutSearch.trim().toLowerCase();
-                    if (!query) return list;
-                    return list.filter(callout => callout.name.toLowerCase().includes(query));
-                },
-
-                calloutRadar() {
-                    if (this.selectedMap === 'nuke' && this.nukeCalloutLevel === 'lower') {
-                        return this.maps.nuke.radarLower;
-                    }
-                    return this.maps[this.selectedMap].radar;
-                },
-
-                selectNukeCalloutLevel(level) {
-                    this.nukeCalloutLevel = level === 'lower' ? 'lower' : 'upper';
-                    this.calloutSearch = '';
-                    const first = this.visibleCallouts()[0];
-                    this.selectedCalloutId = first ? first.id : null;
-                },
-
-                selectedCallout() {
-                    const list = this.calloutsByMap[this.selectedMap] || [];
-                    return list.find(callout => callout.id === this.selectedCalloutId) || null;
-                },
-
-                calloutDescription(callout) {
-                    if (!callout) return '';
-                    const name = String(callout.name || '');
-                    const lower = name.toLowerCase();
-                    if (lower.includes('spawn')) return 'Spawn-Bereich der jeweiligen Seite. Von hier aus werden die ersten Default-Routen und Utility-Timings gestartet.';
-                    if (lower.includes('site')) return 'Bombsite bzw. Plant-Zone. Der Callout wird für Plants, Holds, Retakes und Post-Plant-Positionen verwendet.';
-                    if (lower.includes('connector') || lower === 'con') return 'Verbindungsweg zwischen zwei Map-Bereichen. Häufig wichtig für Rotationen, Splits und Flank-Informationen.';
-                    if (lower.includes('mid')) return 'Zentraler Kontrollbereich der Map. Mid-Control eröffnet mehrere Routen und liefert Informationen über Rotationen.';
-                    if (lower.includes('short') || lower.includes('long')) return 'Angriffsroute mit klarer Richtung zum jeweiligen Bombsite. Der genaue Zusatz im Call beschreibt die Seite oder den Abschnitt.';
-                    if (lower.includes('heaven') || lower.includes('rafters')) return 'Erhöhter Winkel mit Übersicht auf den Bombsite. Utility wird häufig eingesetzt, um diesen Hold vor Entry oder Retake zu entfernen.';
-                    if (lower.includes('default')) return 'Typische Standard-Plant- oder Hold-Position. Beim Retake sollte dieser Bereich früh mit Utility kontrolliert werden.';
-                    return 'Benannter Bereich auf dem CS2-Radar. Der Callout dient dazu, Positionen eindeutig anzusagen und Utility sowie Trades darauf abzustimmen.';
-                },
-
-                selectCallout(id) {
-                    this.selectedCalloutId = id;
-                },
-
-                resetCalloutSelection() {
-                    this.calloutSearch = '';
-                    const first = (this.calloutsByMap[this.selectedMap] || [])[0];
-                    this.selectedCalloutId = first ? first.id : null;
-                },
-
-                selectMap(mapName) {
-                    if (this.selectedMap === mapName) return;
-                    this.pauseLineupAnimation();
-                    this.selectedMap = mapName;
-                    this.lineupMap = mapName;
-                    const firstLineup = this.lineupDatabase.find(lineup => lineup.map === mapName);
-                    this.selectedLineupId = firstLineup?.id ?? this.maps[mapName].lineups?.[0]?.id ?? null;
-                    this.lineupProgress = 0;
-                    this.calloutSearch = '';
-                    this.flashSearch = '';
-                    this.flashSide = 'all';
-                    this.nukeCalloutLevel = 'upper';
-                    const firstCallout = (mapName === 'nuke'
-                        ? (this.calloutsByMap[mapName] || []).filter(callout => (callout.layer || 'upper') === this.nukeCalloutLevel)
-                        : (this.calloutsByMap[mapName] || []))[0];
-                    this.selectedCalloutId = firstCallout ? firstCallout.id : null;
-                    this.clearMapOverlays();
-                },
-
-                selectLineup(lineupId) {
-                    if (this.selectedLineupId === lineupId) return;
-                    this.pauseLineupAnimation();
-                    this.selectedLineupId = lineupId;
-                    this.lineupProgress = 0;
-                },
-
-                pointStyle(x, y) {
-                    return `left:${x}%; top:${y}%; transform:translate(-50%,-50%);`;
-                },
-
-                lineStyle(line) {
-                    const dx = line.toX - line.fromX;
-                    const dy = line.toY - line.fromY;
-                    const length = Math.sqrt(dx * dx + dy * dy);
-                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-                    const selected = this.selectedLineupId === line.id;
-                    return `left:${line.fromX}%; top:${line.fromY}%; width:${length}%; transform-origin:left center; transform:translateY(-50%) rotate(${angle}deg); opacity:${selected ? 1 : .55}; height:${selected ? 3 : 2}px;`;
-                },
-
-                activeLineup() {
-                    const list = this.maps[this.selectedMap]?.lineups || [];
-                    return list.find(line => line.id === this.selectedLineupId) || list[0] || null;
-                },
-
-                lineupPositionX() {
-                    const line = this.activeLineup();
-                    if (!line) return 0;
-                    const p = Math.max(0, Math.min(100, Number(this.lineupProgress) || 0)) / 100;
-                    return line.fromX + (line.toX - line.fromX) * p;
-                },
-
-                lineupPositionY() {
-                    const line = this.activeLineup();
-                    if (!line) return 0;
-                    const p = Math.max(0, Math.min(100, Number(this.lineupProgress) || 0)) / 100;
-                    return line.fromY + (line.toY - line.fromY) * p;
-                },
-
-                toggleLineupAnimation() {
-                    if (this.lineupPlaying) {
-                        this.pauseLineupAnimation();
-                        return;
-                    }
-
-                    if (this.lineupProgress >= 100) {
-                        this.lineupProgress = 0;
-                    }
-
-                    this.lineupPlaying = true;
-                    this.lineupTimer = window.setInterval(() => {
-                        this.lineupProgress = Math.min(100, this.lineupProgress + (0.9 * this.lineupSpeed));
-
-                        if (this.lineupProgress >= 100) {
-                            this.lineupProgress = 100;
-                            this.pauseLineupAnimation();
-                        }
-                    }, 40);
-                },
-
-                pauseLineupAnimation() {
-                    this.lineupPlaying = false;
-                    if (this.lineupTimer !== null) {
-                        window.clearInterval(this.lineupTimer);
-                        this.lineupTimer = null;
-                    }
-                },
-
-                resetLineupAnimation() {
-                    this.pauseLineupAnimation();
-                    this.lineupProgress = 0;
-                },
-
-                clearSmokes() {
-                    this.placedSmokes = [];
-                },
-
-                clearBombWave() {
-                    this.bombWave.active = false;
-                    this.bombWave.inspectActive = false;
-                },
-
-                selectBombSite(siteId) {
-                    this.bombWave.site = siteId;
-                    const site = this.maps[this.selectedMap].bombSites.find(s => s.id === siteId);
-                    if (site) {
-                        this.bombWave.x = site.x;
-                        this.bombWave.y = site.y;
-                        this.bombWave.inspectX = site.x;
-                        this.bombWave.inspectY = site.y;
-                        this.bombWave.inspectActive = true;
-                        this.bombWave.active = true;
-                    }
-                },
-
-                clearMapOverlays() {
-                    this.clearSmokes();
-                    this.clearBombWave();
-                    this.resetLineupAnimation();
-                },
-
-                handleMapPointer(event) {
-                    if (this.activeMapPanel === 'bombwave') {
-                        this.setBombWave(event);
-                    } else {
-                        this.placeSmoke(event);
-                    }
-                },
-
-                getMapPoint(event) {
-                    const rect = event.currentTarget.getBoundingClientRect();
-                    if (!rect.width || !rect.height) return null;
-
-                    const x = ((event.clientX - rect.left) / rect.width) * 100;
-                    const y = ((event.clientY - rect.top) / rect.height) * 100;
-                    if (x < 0 || x > 100 || y < 0 || y > 100) return null;
-                    return { x: Number(x.toFixed(3)), y: Number(y.toFixed(3)) };
-                },
-
-                placeSmoke(event) {
-                    const point = this.getMapPoint(event);
-                    if (!point) return;
-                    this.placedSmokes.push({ id: ++this.smokeId, x: point.x, y: point.y });
-                },
-
-                setBombWave(event) {
-                    const point = this.getMapPoint(event);
-                    if (!point) return;
-
-                    // Valve-style model: the explosion originates at the selected
-                    // bombsite. The map click is only the point being inspected.
-                    const site = this.maps[this.selectedMap].bombSites.find(s => s.id === this.bombWave.site);
-                    if (!site) return;
-
-                    this.bombWave.x = site.x;
-                    this.bombWave.y = site.y;
-                    this.bombWave.inspectX = point.x;
-                    this.bombWave.inspectY = point.y;
-                    this.bombWave.inspectActive = true;
-                    this.bombWave.active = true;
-                },
-
-                removeSmoke(index) {
-                    this.placedSmokes.splice(index, 1);
-                },
-
-                chSize: 3,
-                chGap: -2,
-                chThickness: 1,
-                chColor: '#ff5500',
-                chDot: false,
-                chOutline: true,
-
-                crosshairPresets: [
-                    { id: 'classic-orange', name: 'Classic Orange', description: 'Ausgewogen für Rifle / Allround', size: 3, gap: -2, thickness: 1, color: '#ff5500', dot: false, outline: true },
-                    { id: 'clean-white', name: 'Clean White', description: 'Klein und klar', size: 2, gap: -3, thickness: 1, color: '#ffffff', dot: false, outline: true },
-                    { id: 'small-green', name: 'Small Green', description: 'Kompakt mit starkem Kontrast', size: 2, gap: -4, thickness: 1, color: '#00ff00', dot: false, outline: true },
-                    { id: 'dot-cyan', name: 'Dot Cyan', description: 'Präziser Mittelpunkt', size: 1, gap: -3, thickness: 1, color: '#00ffff', dot: true, outline: false },
-                    { id: 'rifle-yellow', name: 'Rifle Yellow', description: 'Gut sichtbar auf dunklen Flächen', size: 3, gap: -3, thickness: 1, color: '#ffff00', dot: false, outline: true },
-                    { id: 'awp-white', name: 'AWP White', description: 'Mehr Sichtbarkeit für AWP-Peeks', size: 4, gap: -1, thickness: 1, color: '#ffffff', dot: false, outline: true },
-                    { id: 'entry-pink', name: 'Entry Pink', description: 'Deutliches Fadenkreuz für schnelle Duelle', size: 3, gap: -2, thickness: 2, color: '#ff00ff', dot: false, outline: true },
-                    { id: 'minimal-cyan', name: 'Minimal Cyan', description: 'Sehr klein und minimalistisch', size: 2, gap: -5, thickness: 1, color: '#00ffff', dot: false, outline: false }
-                ],
-
-                crosshairPreviewStyle(side) {
-                    const size = Math.max(1, Number(this.chSize) || 1);
-                    const gap = Number(this.chGap) || 0;
-                    const thickness = Math.max(1, Number(this.chThickness) || 1);
-                    const length = size * 5;
-                    const color = this.chColor;
-                    const shadow = this.chOutline ? '0 0 0 1px #000000' : 'none';
-
-                    if (side === 'left') {
-                        return `width:${length}px;height:${thickness}px;background:${color};box-shadow:${shadow};transform:translateX(calc(-100% - ${gap}px)) translateY(-50%);`;
-                    }
-                    if (side === 'right') {
-                        return `width:${length}px;height:${thickness}px;background:${color};box-shadow:${shadow};transform:translateX(${gap}px) translateY(-50%);`;
-                    }
-                    if (side === 'top') {
-                        return `width:${thickness}px;height:${length}px;background:${color};box-shadow:${shadow};transform:translateY(calc(-100% - ${gap}px)) translateX(-50%);`;
-                    }
-                    return `width:${thickness}px;height:${length}px;background:${color};box-shadow:${shadow};transform:translateY(${gap}px) translateX(-50%);`;
-                },
-
-                resetCrosshair() {
-                    this.chSize = 3;
-                    this.chGap = -2;
-                    this.chThickness = 1;
-                    this.chColor = '#ff5500';
-                    this.chDot = false;
-                    this.chOutline = true;
-                    this.crosshairPanel = 'builder';
-                },
-
-                applyCrosshairPreset(preset) {
-                    if (!preset) return;
-                    this.chSize = preset.size;
-                    this.chGap = preset.gap;
-                    this.chThickness = preset.thickness;
-                    this.chColor = preset.color;
-                    this.chDot = !!preset.dot;
-                    this.chOutline = !!preset.outline;
-                    this.crosshairPanel = 'builder';
-                },
-
-                crosshairPresetPreviewStyle(preset, side) {
-                    const size = Math.max(1, Number(preset.size) || 1);
-                    const gap = Number(preset.gap) || 0;
-                    const thickness = Math.max(1, Number(preset.thickness) || 1);
-                    const length = size * 5;
-                    const color = preset.color || '#ffffff';
-                    const shadow = preset.outline ? '0 0 0 1px #000000' : 'none';
-                    if (side === 'left') return 'width:' + length + 'px;height:' + thickness + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateX(calc(-100% - ' + gap + 'px)) translateY(-50%);';
-                    if (side === 'right') return 'width:' + length + 'px;height:' + thickness + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateX(' + gap + 'px) translateY(-50%);';
-                    if (side === 'top') return 'width:' + thickness + 'px;height:' + length + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateY(calc(-100% - ' + gap + 'px)) translateX(-50%);';
-                    return 'width:' + thickness + 'px;height:' + length + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateY(' + gap + 'px) translateX(-50%);';
-                },
-
-                hexToRgb(hex) {
-                    const clean = String(hex || '').replace('#', '');
-                    const bigint = parseInt(clean || '000000', 16);
-                    return {
-                        r: (bigint >> 16) & 255,
-                        g: (bigint >> 8) & 255,
-                        b: bigint & 255
-                    };
-                },
-
-                generateCrosshairCode() {
-                    const rgb = this.hexToRgb(this.chColor);
-                    return [
-                        `cl_crosshairsize ${this.chSize}`,
-                        `cl_crosshairgap ${this.chGap}`,
-                        `cl_crosshairthickness ${this.chThickness}`,
-                        'cl_crosshaircolor 5',
-                        `cl_crosshaircolor_r ${rgb.r}`,
-                        `cl_crosshaircolor_g ${rgb.g}`,
-                        `cl_crosshaircolor_b ${rgb.b}`,
-                        `cl_crosshairdot ${this.chDot ? 1 : 0}`,
-                        `cl_crosshair_drawoutline ${this.chOutline ? 1 : 0}`
-                    ].join('; ') + ';';
-                },
-
-                async copyCrosshair() {
-                    const code = this.generateCrosshairCode();
-                    try {
-                        if (navigator.clipboard && window.isSecureContext) {
-                            await navigator.clipboard.writeText(code);
-                        } else {
-                            const area = document.createElement('textarea');
-                            area.value = code;
-                            area.style.position = 'fixed';
-                            area.style.opacity = '0';
-                            document.body.appendChild(area);
-                            area.focus();
-                            area.select();
-                            document.execCommand('copy');
-                            area.remove();
-                        }
-                        alert('Crosshair-Code kopiert!');
-                    } catch (error) {
-                        alert('Kopieren nicht möglich. Bitte den Code markieren und manuell kopieren.');
-                    }
-                },
-
-                commandSearch: '',
-                commands: [
-                    { command: 'fps_max 0', desc: 'Entfernt das FPS-Limit.' },
-                    { command: 'cl_showfps 1', desc: 'Zeigt die aktuellen FPS im Spiel an.' },
-                    { command: 'cl_hud_telemetry_frametime_show 2', desc: 'Zeigt Frame-Time/FPS-Telemetrie im HUD.' },
-                    { command: 'cl_hud_telemetry_ping_show 2', desc: 'Zeigt Ping-Telemetrie im HUD.' },
-                    { command: 'cl_hud_telemetry_net_misdelivery_show 2', desc: 'Zeigt Netzwerk-/Packet-Misdelivery-Telemetrie.' },
-                    { command: 'cl_radar_scale 0.4', desc: 'Stellt den Zoom der Radar-Karte ein.' },
-                    { command: 'cl_radar_always_centered 0', desc: 'Lässt das Radar nicht permanent auf den Spieler zentriert.' },
-                    { command: 'cl_hud_radar_scale 1.15', desc: 'Ändert die Größe des Radar-HUDs.' },
-                    { command: 'cl_radar_rotate 1', desc: 'Lässt das Radar mit der Blickrichtung drehen.' },
-                    { command: 'cl_radar_icon_scale_min 0.6', desc: 'Ändert die minimale Größe der Radar-Icons.' },
-                    { command: 'cl_radar_square_with_scoreboard 1', desc: 'Zeigt beim Scoreboard ein quadratisches Radar.' },
-                    { command: 'cl_teamid_overhead_mode 2', desc: 'Steuert die Anzeige von Teaminformationen über Mitspielern.' },
-                    { command: 'cl_autowepswitch 0', desc: 'Verhindert automatisches Wechseln auf aufgenommene Waffen.' },
-                    { command: 'cl_autohelp 0', desc: 'Deaktiviert automatische Gameplay-Hinweise.' },
-                    { command: 'gameinstructor_enable 0', desc: 'Deaktiviert den Game Instructor.' },
-                    { command: 'cl_use_opens_buy_menu 0', desc: 'Verhindert, dass die Benutzung der Use-Taste das Buy-Menü öffnet.' },
-                    { command: 'cl_mute_enemy_team 0', desc: 'Steuert das Stummschalten des gegnerischen Teams.' },
-                    { command: 'cl_mute_all_but_friends_and_party 0', desc: 'Stummschaltet alle außer Freunden und Party-Mitgliedern.' },
-                    { command: 'viewmodel_fov 68', desc: 'Passt das Sichtfeld des Waffen-Viewmodels an.' },
-                    { command: 'viewmodel_offset_x 2.5', desc: 'Verschiebt das Viewmodel horizontal.' },
-                    { command: 'viewmodel_offset_y 0', desc: 'Verschiebt das Viewmodel auf der Tiefenachse.' },
-                    { command: 'viewmodel_offset_z -1.5', desc: 'Verschiebt das Viewmodel vertikal.' },
-                    { command: 'viewmodel_presetpos 3', desc: 'Wählt eine Viewmodel-Voreinstellung.' },
-                    { command: 'cl_righthand 1', desc: 'Stellt die Waffe auf die rechte Hand.' },
-                    { command: 'sensitivity 1', desc: 'Setzt die Maus-Sensitivität.' },
-                    { command: 'zoom_sensitivity_ratio 1', desc: 'Passt die Sensitivität beim Zoomen an.' },
-                    { command: 'm_rawinput 1', desc: 'Steuert die Verwendung der rohen Mauseingabe, sofern vom Build unterstützt.' },
-                    { command: 'volume 0.5', desc: 'Setzt die allgemeine Spiel-Lautstärke.' },
-                    { command: 'voice_scale 0.5', desc: 'Regelt die Lautstärke des Voice-Chats.' },
-                    { command: 'r_cleardecals', desc: 'Entfernt Blutflecken und Einschusslöcher, sofern der Befehl im aktuellen Build verfügbar ist.' },
-                    { command: 'bind "mwheeldown" "+jump"', desc: 'Bindet Springen an das Mausrad.' }
-                ],
-
-                get filteredCommands() {
-                    if (!this.commandSearch) return this.commands;
-                    return this.commands.filter(c => c.command.toLowerCase().includes(this.commandSearch.toLowerCase()) || c.desc.toLowerCase().includes(this.commandSearch.toLowerCase()));
-                }
-            }
-        }
-    </script>
-</body>
-</html>
