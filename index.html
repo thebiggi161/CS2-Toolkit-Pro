@@ -106,9 +106,13 @@
             overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,.65);
             backdrop-filter: blur(12px);
+            cursor: grab;
+            user-select: none;
             -webkit-backdrop-filter: blur(12px);
         }
         .esports-mini-player.is-minimized { width: auto; }
+        .esports-mini-player:active { cursor: grabbing; }
+        .esports-mini-player button, .esports-mini-player iframe { cursor: default; }
         .esports-mini-player .mini-video { aspect-ratio: 16/9; }
         .bomb-wave-ring {
             transform-box: fill-box;
@@ -247,7 +251,12 @@
     </div>
 
     <!-- GLOBAL ESPORTS MINI PLAYER -->
-    <div x-show="esportsMiniVisible && activeTab !== 'esports'" x-cloak class="esports-mini-player" :class="esportsMiniMinimized ? 'is-minimized' : ''">
+    <div x-show="esportsMiniVisible && activeTab !== 'esports'" x-cloak class="esports-mini-player"
+         :class="esportsMiniMinimized ? 'is-minimized' : ''"
+         :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto;`"
+         @mousedown="startEsportsDrag($event)"
+         @touchstart.passive="startEsportsDrag($event)">
+
         <div class="px-3 py-2 bg-csdark-800 border-b border-gray-800 flex items-center justify-between gap-2">
             <button @click="esportsMiniMinimized=!esportsMiniMinimized" class="min-w-0 flex items-center gap-2 text-left" :title="esportsMiniMinimized ? 'Mini-Player öffnen' : 'Mini-Player minimieren'">
                 <span class="w-7 h-7 rounded-lg bg-csorange text-black flex items-center justify-center"><i class="fa-solid fa-trophy"></i></span>
@@ -1313,6 +1322,11 @@
                 esportsStream: 'iem',
                 esportsMiniVisible: true,
                 esportsMiniMinimized: false,
+                esportsMiniX: Math.max(12, window.innerWidth - 408),
+                esportsMiniY: Math.max(12, window.innerHeight - 310),
+                esportsDragging: false,
+                esportsDragOffsetX: 0,
+                esportsDragOffsetY: 0,
                 weaponCompare: [null, null, null],
                 weaponData: [
                     {id:'ak47',name:'AK-47',weapon:'Rifle',category:'rifle',side:'T',price:2700,damage:36,armor:77,mag:30,rpm:600,speed:215,reload:'2.43s',reward:300},
