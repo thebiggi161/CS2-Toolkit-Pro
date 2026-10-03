@@ -12,15 +12,16 @@ function sign(payload) {
   return crypto.createHmac('sha256', getSecret()).update(payload).digest('base64url');
 }
 
-function createSession(username) {
-  const payload = JSON.stringify({ u: username, exp: Date.now() + 8 * 60 * 60 * 1000 });
+function createSession(username, extra = {}) {
+  const payload = JSON.stringify({ u: username, ...extra, exp: Date.now() + 8 * 60 * 60 * 1000 });
   const encoded = base64url(payload);
   return encoded + '.' + sign(encoded);
 }
 
-function verifySession(req) {
+function verifySession(req, cookieName = 'cs2_admin_session') {
   const header = req.headers.cookie || '';
-  const match = header.match(/(?:^|;\s*)cs2_admin_session=([^;]+)/);
+  const pattern = cookieName === 'cs2_google_session' ? /(?:^|;\s*)cs2_google_session=([^;]+)/ : /(?:^|;\s*)cs2_admin_session=([^;]+)/;
+  const match = header.match(pattern);
   if (!match || !getSecret()) return null;
 
   const token = match[1];
@@ -41,16 +42,24 @@ function verifySession(req) {
   }
 }
 
-function setSessionCookie(res, token) {
+function setSessionCookie(res, token, cookieName = 'cs2_admin_session') {
   res.setHeader('Set-Cookie', [
-    'cs2_admin_session=' + token + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800'
+    cookieName + '=' + token + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800'
   ]);
 }
 
-function clearSessionCookie(res) {
+function clearSessionCookie(res, cookieName = 'cs2_admin_session') {
   res.setHeader('Set-Cookie', [
-    'cs2_admin_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0'
+    cookieName + '=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0'
   ]);
 }
 
-module.exports = { createSession, verifySession, setSessionCookie, clearSessionCookie };
+function setGoogleSessionCookie(res, token) {
+  setSessionCookie(res, token, 'cs2_google_session');
+}
+
+function clearGoogleSessionCookie(res) {
+  clearSessionCookie(res, 'cs2_google_session');
+}
+
+module.exports = { createSession, verifySession, setSessionCookie, clearSessionCookie, setGoogleSessionCookie, clearGoogleSessionCookie };
