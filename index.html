@@ -738,7 +738,7 @@
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-2 mt-4">
                             <input x-model="lineupSearch" type="search" placeholder="Lineup suchen …" class="xl:col-span-2 bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-csorange">
-                            <select x-model="lineupType" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">Alle Utility</option><option value="Smoke">Smoke</option><option value="Flash">Flash</option><option value="Molotov">Molotov</option><option value="HE">HE</option><option value="Retake">Retake</option></select>
+                            <select x-model="lineupMap" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">Alle Maps</option><template x-for="(mapData,mapName) in maps" :key="'lineup-map-'+mapName"><option :value="mapName" x-text="mapData.label"></option></template></select><select x-model="lineupType" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">Alle Utility</option><option value="Smoke">Smoke</option><option value="Flash">Flash</option><option value="Molotov">Molotov</option><option value="HE">HE</option><option value="Retake">Retake</option></select>
                             <select x-model="lineupSide" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">T + CT</option><option value="T">T Side</option><option value="CT">CT Side</option></select>
                             <select x-model="lineupBombsite" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">A + B + Mid</option><option value="A">Bombsite A</option><option value="B">Bombsite B</option><option value="Mid">Mid / Control</option></select>
                         </div>
@@ -1799,6 +1799,7 @@
                 lineupBombsite: 'all',
                 lineupSearch: '',
                 lineupMode: 'all',
+                lineupMap: 'all',
                 lineupFavorites: JSON.parse(localStorage.getItem('cs2toolkit_lineup_favorites') || '[]'),
 
                 buildLineupDatabase() {
@@ -1937,6 +1938,7 @@
                             && (this.lineupType === 'all' || lineup.type === this.lineupType)
                             && (this.lineupSide === 'all' || lineup.side === this.lineupSide)
                             && (this.lineupBombsite === 'all' || lineup.bombsite === this.lineupBombsite)
+                            && (this.lineupMap === 'all' || lineup.map === this.lineupMap)
                             && (this.lineupMode === 'all' || (this.lineupMode === 'retake' ? lineup.type === 'Retake' : lineup.type !== 'Retake'));
                     });
                 },
@@ -1958,6 +1960,7 @@
                     this.lineupSide = 'all';
                     this.lineupBombsite = 'all';
                     this.lineupMode = 'all';
+                    this.lineupMap = 'all';
                 },
 
                 selectedMap: 'mirage',
@@ -2261,7 +2264,9 @@ bombSites: [
                     if (this.selectedMap === mapName) return;
                     this.pauseLineupAnimation();
                     this.selectedMap = mapName;
-                    this.selectedLineupId = this.maps[mapName].lineups?.[0]?.id ?? null;
+                    this.lineupMap = mapName;
+                    const firstLineup = this.lineupDatabase.find(lineup => lineup.map === mapName);
+                    this.selectedLineupId = firstLineup?.id ?? this.maps[mapName].lineups?.[0]?.id ?? null;
                     this.lineupProgress = 0;
                     this.calloutSearch = '';
                     this.flashSearch = '';
