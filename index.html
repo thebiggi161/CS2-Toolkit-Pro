@@ -94,29 +94,7 @@
         }
         .overlay-click-through .overlay-settings { pointer-events: none; }
         .overlay-click-through .overlay-gear { pointer-events: auto; }
-        .esports-mini-player {
-            position: fixed;
-            right: 18px;
-            bottom: 18px;
-            width: min(390px, calc(100vw - 36px));
-            z-index: 9998;
-            background: rgba(7,7,7,.96);
-            border: 1px solid rgba(255,85,0,.45);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,.65);
-            backdrop-filter: blur(12px);
-            cursor: grab;
-            user-select: none;
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .esports-mini-player.is-minimized { width: auto; }
-        .esports-mini-player:active { cursor: default; }
-        .esports-mini-drag-handle { cursor: grab; touch-action: none; }
-        .esports-mini-drag-handle:active { cursor: grabbing; }
-        .esports-mini-player button, .esports-mini-player iframe { cursor: default; }
-        .esports-mini-player .mini-video { aspect-ratio: 16/9; }
-        .bomb-wave-ring {
+                .bomb-wave-ring {
             transform-box: fill-box;
             transform-origin: center;
             animation: bombWavePulse 1.8s ease-out infinite;
@@ -255,7 +233,7 @@
     <!-- GLOBAL ESPORTS MINI PLAYER -->
     <div x-show="esportsMiniVisible && activeTab !== 'esports'" x-cloak class="esports-mini-player"
          :class="esportsMiniMinimized ? 'is-minimized' : ''"
-         :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto;`"
+         :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto; background:rgba(7,7,7,${overlayOpacity});`"
          >
 
         <div class="esports-mini-drag-handle px-3 py-2 bg-csdark-800 border-b border-gray-800 flex items-center justify-between gap-2"
@@ -271,7 +249,10 @@
                 <button @click="esportsMiniMinimized=!esportsMiniMinimized" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" :title="esportsMiniMinimized ? 'Öffnen' : 'Minimieren'">
                     <i class="fa-solid" :class="esportsMiniMinimized ? 'fa-expand' : 'fa-minus'"></i>
                 </button>
-                <button @click="popoutEsports()" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" title="Popout öffnen">
+                <button @click.stop="esportsMiniChat=!esportsMiniChat" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" :class="esportsMiniChat ? 'text-csorange' : ''" :title="esportsMiniChat ? 'Chat schließen' : 'Chat öffnen'">
+                    <i class="fa-solid fa-comments"></i>
+                </button>
+                <button @click.stop="popoutEsports()" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" title="Popout öffnen">
                     <i class="fa-solid fa-up-right-from-square"></i>
                 </button>
                 <button @click="esportsMiniVisible=false" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-red-900/50 text-gray-400 hover:text-white" title="Mini-Player schließen">
@@ -279,10 +260,15 @@
                 </button>
             </div>
         </div>
-        <div x-show="!esportsMiniMinimized" class="mini-video bg-black">
+        <div x-show="!esportsMiniMinimized" class="mini-video bg-black rounded-b-2xl overflow-hidden">
             <template x-if="esportsMiniVisible && !esportsMiniMinimized">
                 <iframe class="w-full h-full" :src="esportsStreamUrl()" :title="esportsStreamLabel() + ' Counter-Strike Live'" frameborder="0" allowfullscreen></iframe>
             </template>
+            <span class="esports-resize-hint"></span>
+        </div>
+        <div x-show="esportsMiniChat && !esportsMiniMinimized" x-cloak class="esports-mini-chat"
+             :style="`background:rgba(7,7,7,${overlayOpacity});`">
+            <iframe :src="esportsChatUrl()" :title="esportsStreamLabel() + ' Twitch Chat'" frameborder="0"></iframe>
         </div>
     </div>
 
@@ -1324,6 +1310,7 @@
                 esportsStream: 'iem',
                 esportsMiniVisible: true,
                 esportsMiniMinimized: false,
+                esportsMiniChat: false,
                 esportsMiniX: Math.max(12, window.innerWidth - 408),
                 esportsMiniY: Math.max(12, window.innerHeight - 310),
                 esportsDragging: false,
@@ -1338,6 +1325,11 @@
 
                 esportsStreamLabel() {
                     return this.esportsStream === 'blast' ? 'BLAST Premier' : (this.esportsStream === 'dach' ? 'DACH CS Masters' : 'IEM / ESL');
+                },
+
+                esportsChatUrl() {
+                    const channel = this.esportsStream === 'blast' ? 'blastpremier' : (this.esportsStream === 'dach' ? 'dachcs' : 'eslcs');
+                    return 'https://www.twitch.tv/embed/' + channel + '/chat?parent=thebiggi161.github.io&parent=localhost&darkpopout';
                 },
 
                 startEsportsDrag(event) {
