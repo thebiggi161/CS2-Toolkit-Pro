@@ -1877,22 +1877,16 @@
                             'A Ramp Entry Flash':'https://csnades.gg/mirage/flashbangs/a-ramp-from-a-ramp',
                             'B Apps Entry Flash':'https://csnades.gg/mirage/flashbangs/b-site-from-apts',
                             'Ticket Molotov':'https://csnades.gg/mirage/molotovs/default-a-from-ramp',
-                            'A Retake Flash':'https://csnades.gg/mirage/flashbangs/jungle-from-ct',
                             'B Retake Smoke + Flash':'https://csnades.gg/mirage/smokes/market-window-from-back-alley'
                         },
                         inferno: {
                             'Banana Execute Smoke':'https://csnades.gg/inferno/smokes/coffins-from-banana',
                             'CT Banana Smoke':'https://csnades.gg/inferno/smokes/bottom-mid-from-ct-spawn-1',
-                            'Banana Popflash':'https://csnades.gg/inferno/flashbangs/coffins-from-banana',
-                            'A Retake Flash':'https://csnades.gg/inferno/flashbangs/a-site-from-arch',
-                            'Coffins Molotov':'https://csnades.gg/inferno/molotovs/coffins-from-banana',
-                            'Banana HE':'https://csnades.gg/inferno/hegrenades/banana-from-ct'
+                            'Coffins Molotov':'https://csnades.gg/inferno/molotovs/new-box-from-ct'
                         },
                         nuke: {
                             'Outside Garage Smoke':'https://csnades.gg/nuke/smokes/garage-from-outside-t-spawn',
                             'Heaven Smoke':'https://csnades.gg/nuke/smokes/heaven-from-silo',
-                            'Outside Entry Flash':'https://csnades.gg/nuke/flashbangs/a-site-from-t-roof-b',
-                            'Ramp Popflash':'https://csnades.gg/nuke/flashbangs/a-site-from-t-roof-b',
                             'Heaven Molotov':'https://csnades.gg/nuke/molotovs/a-site-from-t-roof',
                             'A Retake Utility':'https://csnades.gg/nuke/flashbangs/a-site-from-heaven'
                         },
@@ -1901,20 +1895,16 @@
                             'B Alley Smoke':'https://csnades.gg/ancient/smokes/b-alley-from-ruins',
                             'A Site Entry Flash':'https://csnades.gg/ancient/flashbangs/a-site-from-a-main',
                             'B Site Flash':'https://csnades.gg/ancient/flashbangs/b-site-from-ruins-box',
-                            'A Default Molotov':'https://csnades.gg/ancient/molotovs/a-default-from-a-main',
-                            'B Retake Utility':'https://csnades.gg/ancient/flashbangs/b-ramp-from-cave'
+                            'A Default Molotov':'https://csnades.gg/ancient/molotovs/a-default-from-a-main'
                         },
                         dust2: {
                             'Xbox Smoke':'https://csnades.gg/dust2/smokes/xbox-from-t-spawn',
-                            'A CT Smoke':'https://csnades.gg/dust2/smokes/ct-spawn-from-xbox',
-                            'B Tunnels Flash':'https://csnades.gg/dust2/flashbangs/b-site-from-upper-tunnels',
                             'A Default Molotov':'https://csnades.gg/dust2/molotovs/back-plat-from-upper-tunnels'
                         },
                         anubis: {
                             'A Execute Smoke':'https://csnades.gg/anubis/smokes/temple-from-t-spawn',
                             'B Site Smoke':'https://csnades.gg/anubis/smokes/b-site-from-ruins-d',
                             'A Site Entry Flash':'https://csnades.gg/anubis/flashbangs/a-site-from-water',
-                            'Water Flash':'https://csnades.gg/anubis/flashbangs/a-main-from-connector',
                             'Backsite Molotov':'https://csnades.gg/anubis/molotovs/backsite-from-ebox-b',
                             'Fountain HE':'https://csnades.gg/anubis/hegrenades/fountain-from-a-main',
                             'A Retake Utility':'https://csnades.gg/anubis/smokes/a-main-from-ct-spawn',
@@ -1923,9 +1913,7 @@
                         cache: {
                             'A Main Smoke':'https://csnades.gg/cache/smokes/a-main-from-ct-spawn',
                             'Heaven Smoke':'https://csnades.gg/cache/smokes/a-main-from-quad',
-                            'B Main Popflash':'https://csnades.gg/cache/flashbangs/b-site-from-b-main',
-                            'Forklift Molotov':'https://csnades.gg/cache/molotovs/forklift-from-a-main',
-                            'B Retake Utility':'https://csnades.gg/cache/smokes/b-halls-from-heaven'
+                            'Forklift Molotov':'https://csnades.gg/cache/molotovs/forklift-from-a-main'
                         }
                     };
                     const guideSources = {
@@ -1973,6 +1961,10 @@
                         });
                     });
                     return result;
+                },
+
+                lineupExactCount() {
+                    return this.lineupDatabase.filter(lineup => lineup.sourceStatus === 'exact').length;
                 },
 
                 filteredLineupDatabase() {
