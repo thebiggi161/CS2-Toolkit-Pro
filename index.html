@@ -197,9 +197,13 @@
         }
             .shisha-counter-window {
             position: fixed;
-            right: 18px;
-            bottom: 18px;
-            width: min(340px, calc(100vw - 36px));
+            left: var(--shisha-x, auto);
+            top: var(--shisha-y, auto);
+            right: var(--shisha-right, 18px);
+            bottom: var(--shisha-bottom, 18px);
+            width: min(var(--shisha-width, 340px), calc(100vw - 36px));
+            min-width: 280px;
+            min-height: 0;
             z-index: 120;
             border: 1px solid rgba(255,85,0,.38);
             border-radius: 18px;
@@ -214,6 +218,9 @@
             bottom: 18px;
             z-index: 120;
         }
+        .shisha-drag-handle { cursor: grab; user-select: none; touch-action: none; }
+        .shisha-drag-handle:active { cursor: grabbing; }
+        .shisha-resize-handle { position:absolute; right:4px; bottom:4px; width:18px; height:18px; cursor:nwse-resize; border-right:2px solid rgba(255,255,255,.45); border-bottom:2px solid rgba(255,255,255,.45); }
         .shisha-counter-progress {
             height: 5px;
             border-radius: 999px;
@@ -244,6 +251,9 @@
             
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
+                <button @click="activeTab = 'youtube'; youtubeLoadSaved()" :class="activeTab === 'youtube' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-brands fa-youtube"></i> YouTube
+                </button>
                 <button @click="activeTab = 'suggestions'; loadSuggestions()" :class="activeTab === 'suggestions' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-comments"></i> Vorschläge
                 </button>
@@ -366,6 +376,93 @@
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
+
+        <!-- TAB: YOUTUBE HOME -->
+        <div x-show="activeTab === 'youtube'" x-cloak class="space-y-6">
+            <section class="bg-csdark-800 border border-red-500/20 rounded-2xl p-5 shadow-lg">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.25em] text-red-400 uppercase">YouTube Hub</div>
+                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
+                            <i class="fa-brands fa-youtube text-red-500"></i> YouTube Startseite
+                        </h2>
+                        <p class="text-gray-400 text-sm mt-1">Suche Videos und verwalte deinen persönlichen Abo-Feed.</p>
+                    </div>
+                    <div class="flex gap-2 w-full lg:w-auto">
+                        <input x-model="youtubeSearch" @keydown.enter="youtubeSearchVideos()" type="search" placeholder="YouTube durchsuchen..." class="w-full lg:w-72 bg-csdark-900 border border-gray-700 focus:border-red-500 rounded-xl px-4 py-2.5 text-sm text-white outline-none">
+                        <button @click="youtubeSearchVideos()" class="px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold transition"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                <section class="xl:col-span-2 bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-white"><i class="fa-solid fa-play mr-2 text-red-500"></i>Player</h3>
+                        <a x-show="youtubeActiveVideo" :href="youtubeActiveVideo ? 'https://www.youtube.com/watch?v=' + youtubeActiveVideo : '#'" target="_blank" rel="noopener" class="text-xs text-gray-400 hover:text-white">Extern öffnen ↗</a>
+                    </div>
+                    <div class="aspect-video rounded-xl overflow-hidden bg-black border border-gray-800">
+                        <iframe x-show="youtubeActiveVideo" :src="youtubeEmbedUrl()" class="w-full h-full" title="YouTube Player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        <div x-show="!youtubeActiveVideo" class="h-full flex flex-col items-center justify-center text-gray-500 gap-2">
+                            <i class="fa-brands fa-youtube text-4xl"></i>
+                            <span>Suche ein Video oder wähle eines aus.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-white"><i class="fa-solid fa-bell mr-2 text-csorange"></i>Deine Abos</h3>
+                        <button @click="youtubeLoadSubscriptions()" class="text-xs px-2.5 py-1.5 rounded-lg bg-csdark-700 hover:bg-csdark-600 border border-gray-700 text-gray-300">Aktualisieren</button>
+                    </div>
+                    <div x-show="!youtubeConnected" class="rounded-xl bg-csdark-900 border border-gray-800 p-4 text-sm text-gray-400">
+                        <div class="font-semibold text-white mb-1">Abo-Feed verbinden</div>
+                        <p class="text-xs leading-5 mb-3">Für deinen persönlichen YouTube-Abo-Feed benötigt YouTube eine Google-Anmeldung. Die Verbindung läuft direkt über Google.</p>
+                        <button @click="youtubeConnect()" class="w-full py-2.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold transition">
+                            <i class="fa-brands fa-google mr-1"></i> Mit YouTube verbinden
+                        </button>
+                        <p class="text-[10px] text-gray-600 mt-2">Benötigt eine konfigurierte Google/YouTube OAuth-Client-ID für diese Website.</p>
+                    </div>
+                    <div x-show="youtubeConnected" class="space-y-2 max-h-[430px] overflow-auto pr-1">
+                        <template x-for="sub in youtubeSubscriptions" :key="sub.id">
+                            <button @click="youtubeOpenChannel(sub.id)" class="w-full text-left flex items-center gap-3 p-2 rounded-xl hover:bg-csdark-700 transition">
+                                <img :src="sub.thumb" class="w-10 h-10 rounded-full object-cover bg-csdark-900" alt="">
+                                <span class="min-w-0"><span class="block text-sm font-semibold text-white truncate" x-text="sub.title"></span><span class="block text-xs text-gray-500">Abo</span></span>
+                            </button>
+                        </template>
+                        <div x-show="youtubeSubscriptions.length === 0" class="text-xs text-gray-500 py-6 text-center">Noch keine Abos geladen.</div>
+                    </div>
+                </section>
+            </div>
+
+            <section x-show="youtubeSearchLoading || youtubeSearchResults.length" class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-white">Suchergebnisse</h3>
+                    <span x-show="youtubeSearchLoading" class="text-xs text-gray-500">Suche läuft...</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <template x-for="video in youtubeSearchResults" :key="video.id">
+                        <button @click="youtubeActiveVideo = video.id" class="text-left bg-csdark-900 border border-gray-800 hover:border-csorange/50 rounded-xl overflow-hidden transition">
+                            <img :src="video.thumb" class="w-full aspect-video object-cover" alt="">
+                            <div class="p-3"><div class="font-semibold text-sm text-white line-clamp-2" x-text="video.title"></div><div class="text-xs text-gray-500 mt-1 truncate" x-text="video.channel"></div></div>
+                        </button>
+                    </template>
+                </div>
+            </section>
+
+            <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-bold text-white">YouTube API</h3>
+                    <span class="text-[10px] text-gray-600">lokal im Browser gespeichert</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    <input x-model="youtubeApiKey" type="password" placeholder="YouTube Data API Key (für Suche)" class="bg-csdark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none">
+                    <input x-model="youtubeOAuthClientId" type="text" placeholder="Google OAuth Client-ID (für Abos)" class="bg-csdark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none">
+                </div>
+                <button @click="youtubeSaveConfig()" class="mt-3 px-4 py-2 rounded-lg bg-csdark-700 hover:bg-csdark-600 border border-gray-700 text-sm text-gray-200">Konfiguration speichern</button>
+                <p class="text-[10px] text-gray-600 mt-2">Die Schlüssel werden nur lokal gespeichert. Eine persönliche Abo-Liste kann erst nach OAuth-Konfiguration von Google geladen werden.</p>
+            </section>
+        </div>
 
         <!-- TAB: TEST LAB -->
         <div x-show="activeTab === 'test'" x-cloak class="space-y-6">
@@ -1251,7 +1348,7 @@
                     </div>
 
                     <div class="xl:col-span-3 bg-csdark-900 p-4 rounded-lg border border-gray-800">
-                        <div class="flex items-center justify-between gap-3 mb-3">
+                        <div class="flex items-center justify-between gap-3 mb-3 shisha-drag-handle" @pointerdown.stop="shishaStartDrag($event)">
                             <div>
                                 <div class="text-sm font-semibold text-white" x-text="maps[selectedMap].label + ' – Callouts'"></div>
                                 <div class="text-[11px] text-gray-500">Die Callout-Namen sind bereits direkt auf der Radar-Map beschriftet. Nuke besitzt getrennte Upper-/Lower-Ebenen.</div>
@@ -1465,7 +1562,10 @@
         </main>
 
     <!-- Shisha Counter Mini-Fenster -->
-    <div x-show="shishaCounterOpen" x-cloak class="shisha-counter-window p-4">
+    <div x-show="shishaCounterOpen && !shishaCounterMinimized" x-cloak class="shisha-counter-window p-4"
+         :style="'--shisha-x:' + (shishaX === null ? 'auto' : shishaX + 'px') + ';--shisha-y:' + (shishaY === null ? 'auto' : shishaY + 'px') + ';--shisha-right:' + (shishaX === null ? '18px' : 'auto') + ';--shisha-bottom:' + (shishaY === null ? '18px' : 'auto') + ';--shisha-width:' + shishaWidth + 'px'"
+         @pointerdown.self="shishaStartDrag($event)">
+        <span class="shisha-resize-handle" @pointerdown.stop="shishaStartResize($event)"></span>
         <div class="flex items-center justify-between gap-3 mb-3">
             <div class="flex items-center gap-2">
                 <div class="w-9 h-9 rounded-xl bg-csorange/15 border border-csorange/30 flex items-center justify-center text-csorange">
@@ -1476,7 +1576,7 @@
                     <div class="text-[11px] text-gray-500">Deine Session im Blick</div>
                 </div>
             </div>
-            <button @click="shishaClose()" class="w-8 h-8 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-400 hover:text-white transition" title="Counter schließen">
+            <button @click="shishaCounterMinimized = true" class="w-8 h-8 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-400 hover:text-white transition" title="Minimieren">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -1529,6 +1629,15 @@
         </div>
     </div>
 
+    <div x-show="shishaCounterOpen && shishaCounterMinimized" x-cloak class="shisha-counter-closed">
+        <button @click="shishaCounterMinimized = false" class="flex items-center gap-2 px-3 py-2.5 rounded-full bg-csdark-800 border border-csorange/40 text-white shadow-xl shadow-black/40 hover:border-csorange transition" title="Shisha-Counter maximieren">
+            <i class="fa-solid fa-cloud text-csorange"></i>
+            <span class="text-xs font-semibold">Shisha</span>
+            <span class="font-black tabular-nums text-sm" x-text="shishaFormatTime(shishaSecondsLeft)"></span>
+            <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-gray-500"></i>
+        </button>
+    </div>
+
     <div x-show="!shishaCounterOpen" x-cloak class="shisha-counter-closed">
         <button @click="shishaOpen()" class="flex items-center gap-2 px-3 py-2.5 rounded-full bg-csdark-800 border border-csorange/40 text-white shadow-xl shadow-black/40 hover:border-csorange hover:shadow-csorange/10 transition" title="Shisha-Counter öffnen">
             <i class="fa-solid fa-cloud text-csorange"></i>
@@ -1573,7 +1682,23 @@
                 suggestionNotice: '',
                 suggestionApiUrl: window.CS2_SUGGESTIONS_API_URL || '/api/suggestions',
 
+                youtubeSearch: '',
+                youtubeApiKey: localStorage.getItem('cs2toolkit_youtube_api_key') || '',
+                youtubeOAuthClientId: localStorage.getItem('cs2toolkit_youtube_oauth_client_id') || '',
+                youtubeActiveVideo: '',
+                youtubeSearchResults: [],
+                youtubeSearchLoading: false,
+                youtubeSubscriptions: [],
+                youtubeConnected: false,
+
                 shishaCounterOpen: true,
+                shishaCounterMinimized: false,
+                shishaDragging: false,
+                shishaResizing: false,
+                shishaX: null,
+                shishaY: null,
+                shishaWidth: 340,
+                shishaHeight: null,
                 shishaRunning: false,
                 shishaPaused: false,
                 shishaDurationMinutes: 60,
@@ -2287,6 +2412,61 @@
                     this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
                 },
 
+                youtubeSaveConfig() {
+                    localStorage.setItem('cs2toolkit_youtube_api_key', this.youtubeApiKey.trim());
+                    localStorage.setItem('cs2toolkit_youtube_oauth_client_id', this.youtubeOAuthClientId.trim());
+                    this.suggestionNotice = '';
+                },
+
+                youtubeLoadSaved() {
+                    this.youtubeApiKey = localStorage.getItem('cs2toolkit_youtube_api_key') || this.youtubeApiKey || '';
+                    this.youtubeOAuthClientId = localStorage.getItem('cs2toolkit_youtube_oauth_client_id') || this.youtubeOAuthClientId || '';
+                },
+
+                async youtubeSearchVideos() {
+                    const q = String(this.youtubeSearch || '').trim();
+                    if (!q || !this.youtubeApiKey) return;
+                    this.youtubeSearchLoading = true;
+                    try {
+                        const url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=12&q=' + encodeURIComponent(q) + '&key=' + encodeURIComponent(this.youtubeApiKey);
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error?.message || 'YouTube-Suche fehlgeschlagen.');
+                        this.youtubeSearchResults = (data.items || []).map(item => ({
+                            id: item.id.videoId,
+                            title: item.snippet.title,
+                            channel: item.snippet.channelTitle,
+                            thumb: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url || ''
+                        })).filter(v => v.id);
+                        if (this.youtubeSearchResults[0]) this.youtubeActiveVideo = this.youtubeSearchResults[0].id;
+                    } catch (error) {
+                        this.youtubeSearchResults = [];
+                        alert(error.message);
+                    } finally {
+                        this.youtubeSearchLoading = false;
+                    }
+                },
+
+                youtubeEmbedUrl() {
+                    return this.youtubeActiveVideo ? 'https://www.youtube.com/embed/' + encodeURIComponent(this.youtubeActiveVideo) + '?autoplay=1&rel=0' : 'about:blank';
+                },
+
+                youtubeConnect() {
+                    if (!this.youtubeOAuthClientId) {
+                        alert('Bitte zuerst eine Google OAuth Client-ID in der YouTube-Konfiguration hinterlegen.');
+                        return;
+                    }
+                    alert('OAuth für den persönlichen Abo-Feed benötigt eine Google-Cloud-Konfiguration (OAuth-Client + erlaubte Origin). Die UI ist vorbereitet.');
+                },
+
+                async youtubeLoadSubscriptions() {
+                    if (!this.youtubeConnected) return;
+                },
+
+                youtubeOpenChannel(channelId) {
+                    window.open('https://www.youtube.com/channel/' + encodeURIComponent(channelId), '_blank', 'noopener');
+                },
+
                 shishaFormatTime(seconds) {
                     const total = Math.max(0, Math.floor(Number(seconds) || 0));
                     const h = Math.floor(total / 3600);
@@ -2361,6 +2541,39 @@
                     if ('Notification' in window && Notification.permission === 'default') {
                         Notification.requestPermission().catch(() => {});
                     }
+                },
+
+                shishaStartDrag(event) {
+                    if (event.button !== 0) return;
+                    this.shishaDragging = true;
+                    const startX = event.clientX, startY = event.clientY;
+                    const startLeft = this.shishaX === null ? Math.max(12, window.innerWidth - this.shishaWidth - 18) : this.shishaX;
+                    const startTop = this.shishaY === null ? Math.max(12, window.innerHeight - 430) : this.shishaY;
+                    const move = (e) => {
+                        this.shishaX = Math.max(8, Math.min(window.innerWidth - this.shishaWidth - 8, startLeft + e.clientX - startX));
+                        this.shishaY = Math.max(8, Math.min(window.innerHeight - 80, startTop + e.clientY - startY));
+                    };
+                    const up = () => {
+                        this.shishaDragging = false;
+                        window.removeEventListener('pointermove', move);
+                        window.removeEventListener('pointerup', up);
+                    };
+                    window.addEventListener('pointermove', move);
+                    window.addEventListener('pointerup', up);
+                },
+
+                shishaStartResize(event) {
+                    if (event.button !== 0) return;
+                    const startX = event.clientX, startWidth = this.shishaWidth;
+                    const move = (e) => {
+                        this.shishaWidth = Math.max(280, Math.min(window.innerWidth - 16, startWidth + e.clientX - startX));
+                    };
+                    const up = () => {
+                        window.removeEventListener('pointermove', move);
+                        window.removeEventListener('pointerup', up);
+                    };
+                    window.addEventListener('pointermove', move);
+                    window.addEventListener('pointerup', up);
                 },
 
                 shishaClose() {
