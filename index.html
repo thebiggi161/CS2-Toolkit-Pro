@@ -390,6 +390,55 @@
                 </section>
             </div>
 
+            <section class="bg-csdark-800 border border-csorange/30 rounded-2xl p-5">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-widest text-csorange font-black">Spieler-Feedback</div>
+                        <h3 class="text-xl font-black text-white mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb text-csorange"></i> Verbesserungsvorschlag
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">Hilf dabei, das Toolkit besser zu machen. Pro Tag sind 5 Vorschläge möglich.</p>
+                    </div>
+                    <div class="bg-csdark-900 border border-gray-800 rounded-xl px-4 py-3 text-center min-w-[110px]">
+                        <div class="text-[10px] uppercase tracking-widest text-gray-500">Heute übrig</div>
+                        <div class="text-xl font-black text-csorange mt-1" x-text="Math.max(0, improvementDailyLimit - improvementMessages.length)"></div>
+                        <div class="text-[10px] text-gray-600">von 5</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto] gap-3">
+                    <input x-model="improvementPlayer" maxlength="40" type="text" placeholder="Spielername (optional)"
+                        class="w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-lg px-3 py-2.5 text-sm text-white outline-none">
+                    <div>
+                        <textarea x-model="improvementText" maxlength="150" rows="3" placeholder="Was sollten wir verbessern? (max. 150 Zeichen)"
+                            class="w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-lg px-3 py-2.5 text-sm text-white outline-none resize-none"></textarea>
+                        <div class="flex justify-between mt-1 text-[10px] text-gray-600">
+                            <span x-text="improvementNotice"></span>
+                            <span><span x-text="improvementText.length"></span>/150</span>
+                        </div>
+                    </div>
+                    <button @click="submitImprovement()" :disabled="improvementMessages.length >= improvementDailyLimit"
+                        class="bg-csorange hover:bg-csorange-hover disabled:opacity-40 disabled:cursor-not-allowed text-black font-black text-sm px-5 py-2.5 rounded-lg self-start">
+                        <i class="fa-solid fa-paper-plane mr-1"></i> Absenden
+                    </button>
+                </div>
+
+                <div x-show="improvementMessages.length" x-cloak class="mt-5 border-t border-gray-800 pt-4">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-500 font-black mb-2">Deine heutigen Vorschläge</div>
+                    <div class="space-y-2 max-h-52 overflow-auto">
+                        <template x-for="(item, index) in improvementMessages" :key="index">
+                            <div class="bg-csdark-900 border border-gray-800 rounded-lg px-3 py-2.5 flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="text-sm text-gray-200 break-words" x-text="item.text"></div>
+                                    <div class="text-[10px] text-gray-600 mt-1" x-text="item.player + ' · ' + item.time"></div>
+                                </div>
+                                <span class="text-[10px] text-gray-600 shrink-0" x-text="'#' + (index + 1)"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
             <div class="bg-csdark-800 border border-dashed border-csorange/30 rounded-2xl p-8 text-center">
                 <i class="fa-solid fa-flask text-3xl text-csorange mb-3"></i>
                 <h3 class="text-lg font-bold text-white">Hier bauen wir neue Sachen zuerst</h3>
@@ -1412,6 +1461,13 @@
                 activeTab: 'maps-nades',
                 testLabCounter: 0,
                 testLabEnabled: false,
+                improvementText: '',
+                improvementPlayer: '',
+                improvementMessages: [],
+                improvementDailyLimit: 5,
+                improvementMaxLength: 150,
+                improvementTodayKey: '',
+                improvementNotice: '',
                 crosshairPanel: 'builder',
                 playerMoney: 4500,
                 lossStreak: 1,
@@ -2113,6 +2169,54 @@
                     this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
                     this.overlayOpacity = Number(localStorage.getItem('cs2toolkit_overlay_opacity') || '0.72');
                     this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
+                    this.loadImprovementSuggestions();
+                },
+
+                improvementDateKey() {
+                    const d = new Date();
+                    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+                },
+
+                loadImprovementSuggestions() {
+                    const today = this.improvementDateKey();
+                    const saved = JSON.parse(localStorage.getItem('cs2toolkit_improvement_suggestions') || '{"date":"","items":[]}');
+                    if (saved.date !== today) {
+                        this.improvementMessages = [];
+                        this.improvementTodayKey = today;
+                        localStorage.setItem('cs2toolkit_improvement_suggestions', JSON.stringify({date: today, items: []}));
+                    } else {
+                        this.improvementMessages = Array.isArray(saved.items) ? saved.items : [];
+                        this.improvementTodayKey = today;
+                    }
+                },
+
+                submitImprovement() {
+                    const text = String(this.improvementText || '').trim();
+                    const player = String(this.improvementPlayer || '').trim().slice(0, 40);
+                    if (!text) {
+                        this.improvementNotice = 'Bitte zuerst einen Verbesserungsvorschlag eingeben.';
+                        return;
+                    }
+                    if (text.length > this.improvementMaxLength) {
+                        this.improvementNotice = 'Maximal 150 Zeichen pro Nachricht.';
+                        return;
+                    }
+                    this.loadImprovementSuggestions();
+                    if (this.improvementMessages.length >= this.improvementDailyLimit) {
+                        this.improvementNotice = 'Tageslimit erreicht. Morgen kannst du wieder 5 Vorschläge senden.';
+                        return;
+                    }
+                    this.improvementMessages.push({
+                        text,
+                        player: player || 'Anonym',
+                        time: new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'})
+                    });
+                    localStorage.setItem('cs2toolkit_improvement_suggestions', JSON.stringify({
+                        date: this.improvementTodayKey,
+                        items: this.improvementMessages
+                    }));
+                    this.improvementText = '';
+                    this.improvementNotice = 'Vorschlag gespeichert. Danke für dein Feedback!';
                 },
                 smokeId: 0,
                 bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
