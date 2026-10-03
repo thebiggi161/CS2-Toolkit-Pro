@@ -111,7 +111,9 @@
             -webkit-backdrop-filter: blur(12px);
         }
         .esports-mini-player.is-minimized { width: auto; }
-        .esports-mini-player:active { cursor: grabbing; }
+        .esports-mini-player:active { cursor: default; }
+        .esports-mini-drag-handle { cursor: grab; touch-action: none; }
+        .esports-mini-drag-handle:active { cursor: grabbing; }
         .esports-mini-player button, .esports-mini-player iframe { cursor: default; }
         .esports-mini-player .mini-video { aspect-ratio: 16/9; }
         .bomb-wave-ring {
@@ -254,10 +256,10 @@
     <div x-show="esportsMiniVisible && activeTab !== 'esports'" x-cloak class="esports-mini-player"
          :class="esportsMiniMinimized ? 'is-minimized' : ''"
          :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto;`"
-         @mousedown="startEsportsDrag($event)"
-         @touchstart.passive="startEsportsDrag($event)">
+         >
 
-        <div class="px-3 py-2 bg-csdark-800 border-b border-gray-800 flex items-center justify-between gap-2">
+        <div class="esports-mini-drag-handle px-3 py-2 bg-csdark-800 border-b border-gray-800 flex items-center justify-between gap-2"
+             @mousedown="startEsportsDrag($event)" @touchstart.prevent="startEsportsDrag($event)">
             <button @click="esportsMiniMinimized=!esportsMiniMinimized" class="min-w-0 flex items-center gap-2 text-left" :title="esportsMiniMinimized ? 'Mini-Player öffnen' : 'Mini-Player minimieren'">
                 <span class="w-7 h-7 rounded-lg bg-csorange text-black flex items-center justify-center"><i class="fa-solid fa-trophy"></i></span>
                 <span x-show="!esportsMiniMinimized" class="min-w-0">
@@ -278,9 +280,9 @@
             </div>
         </div>
         <div x-show="!esportsMiniMinimized" class="mini-video bg-black">
-            <iframe x-show="esportsStream === 'iem'" class="w-full h-full" src="https://player.twitch.tv/?channel=eslcs&parent=thebiggi161.github.io&parent=localhost" title="IEM / ESL Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
-            <iframe x-show="esportsStream === 'blast'" class="w-full h-full" src="https://player.twitch.tv/?channel=blastpremier&parent=thebiggi161.github.io&parent=localhost" title="BLAST Premier Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
-            <iframe x-show="esportsStream === 'dach'" class="w-full h-full" src="https://player.twitch.tv/?channel=dachcs&parent=thebiggi161.github.io&parent=localhost" title="DACH CS Masters Live" frameborder="0" allowfullscreen></iframe>
+            <template x-if="esportsMiniVisible && !esportsMiniMinimized">
+                <iframe class="w-full h-full" :src="esportsStreamUrl()" :title="esportsStreamLabel() + ' Counter-Strike Live'" frameborder="0" allowfullscreen></iframe>
+            </template>
         </div>
     </div>
 
@@ -1327,6 +1329,62 @@
                 esportsDragging: false,
                 esportsDragOffsetX: 0,
                 esportsDragOffsetY: 0,
+                esportsDragMoveHandler: null,
+                esportsDragStopHandler: null,
+                esportsStreamUrl() {
+                    const channel = this.esportsStream === 'blast' ? 'blastpremier' : (this.esportsStream === 'dach' ? 'dachcs' : 'eslcs');
+                    return 'https://player.twitch.tv/?channel=' + channel + '&parent=thebiggi161.github.io&parent=localhost';
+                },
+
+                esportsStreamLabel() {
+                    return this.esportsStream === 'blast' ? 'BLAST Premier' : (this.esportsStream === 'dach' ? 'DACH CS Masters' : 'IEM / ESL');
+                },
+
+                startEsportsDrag(event) {
+                    if (event.button !== undefined && event.button !== 0) return;
+                    if (event.target && event.target.closest && event.target.closest('button')) return;
+                    const e = event.touches ? event.touches[0] : event;
+                    this.esportsDragging = true;
+                    this.esportsDragOffsetX = e.clientX - this.esportsMiniX;
+                    this.esportsDragOffsetY = e.clientY - this.esportsMiniY;
+                    this.esportsDragMoveHandler = (moveEvent) => this.moveEsportsDrag(moveEvent);
+                    this.esportsDragStopHandler = () => this.stopEsportsDrag();
+                    window.addEventListener('mousemove', this.esportsDragMoveHandler);
+                    window.addEventListener('mouseup', this.esportsDragStopHandler);
+                    window.addEventListener('touchmove', this.esportsDragMoveHandler, { passive: false });
+                    window.addEventListener('touchend', this.esportsDragStopHandler);
+                },
+
+                moveEsportsDrag(event) {
+                    if (!this.esportsDragging) return;
+                    const e = event.touches ? event.touches[0] : event;
+                    if (event.cancelable) event.preventDefault();
+                    const width = this.esportsMiniMinimized ? 210 : Math.min(390, Math.max(220, window.innerWidth - 36));
+                    const height = this.esportsMiniMinimized ? 54 : 260;
+                    this.esportsMiniX = Math.max(0, Math.min(Math.max(0, window.innerWidth - width), e.clientX - this.esportsDragOffsetX));
+                    this.esportsMiniY = Math.max(0, Math.min(Math.max(0, window.innerHeight - height), e.clientY - this.esportsDragOffsetY));
+                },
+
+                stopEsportsDrag() {
+                    this.esportsDragging = false;
+                    if (this.esportsDragMoveHandler) {
+                        window.removeEventListener('mousemove', this.esportsDragMoveHandler);
+                        window.removeEventListener('touchmove', this.esportsDragMoveHandler);
+                        this.esportsDragMoveHandler = null;
+                    }
+                    if (this.esportsDragStopHandler) {
+                        window.removeEventListener('mouseup', this.esportsDragStopHandler);
+                        window.removeEventListener('touchend', this.esportsDragStopHandler);
+                        this.esportsDragStopHandler = null;
+                    }
+                },
+
+                popoutEsports() {
+                    const stream = this.esportsStream === 'blast' ? 'blastpremier' : (this.esportsStream === 'dach' ? 'dachcs' : 'eslcs');
+                    const popup = window.open('https://www.twitch.tv/' + stream, 'cs2_esports_popout', 'width=960,height=620,resizable=yes,scrollbars=yes');
+                    if (!popup) alert('Popout wurde vom Browser blockiert. Bitte Popups für diese Seite erlauben.');
+                },
+
                 weaponCompare: [null, null, null],
                 weaponData: [
                     {id:'ak47',name:'AK-47',weapon:'Rifle',category:'rifle',side:'T',price:2700,damage:36,armor:77,mag:30,rpm:600,speed:215,reload:'2.43s',reward:300},
