@@ -1580,6 +1580,7 @@
                 shishaSecondsLeft: 3600,
                 shishaTimer: null,
                 shishaStartedAt: null,
+                shishaEndAt: null,
                 shishaTotalSeconds: 3600,
 
                 crosshairPanel: 'builder',
@@ -2303,6 +2304,7 @@
                     this.shishaSecondsLeft = this.shishaTotalSeconds;
                     this.shishaRunning = false;
                     this.shishaPaused = false;
+                    this.shishaEndAt = null;
                     if (this.shishaTimer) {
                         clearInterval(this.shishaTimer);
                         this.shishaTimer = null;
@@ -2315,19 +2317,18 @@
                     this.shishaRunning = true;
                     this.shishaPaused = false;
                     this.shishaStartedAt = Date.now();
+                    this.shishaEndAt = Date.now() + (this.shishaSecondsLeft * 1000);
                     if (this.shishaTimer) clearInterval(this.shishaTimer);
                     this.shishaTimer = setInterval(() => {
                         if (!this.shishaRunning) return;
-                        const elapsed = Math.floor((Date.now() - this.shishaStartedAt) / 1000);
-                        this.shishaSecondsLeft = Math.max(0, this.shishaTotalSeconds - elapsed);
+                        this.shishaSecondsLeft = Math.max(0, Math.ceil((this.shishaEndAt - Date.now()) / 1000));
                         if (this.shishaSecondsLeft <= 0) this.shishaFinish();
                     }, 250);
                 },
 
                 shishaPause() {
                     if (!this.shishaRunning) return;
-                    const elapsed = Math.floor((Date.now() - this.shishaStartedAt) / 1000);
-                    this.shishaSecondsLeft = Math.max(0, this.shishaSecondsLeft - elapsed);
+                    this.shishaSecondsLeft = Math.max(0, Math.ceil((this.shishaEndAt - Date.now()) / 1000));
                     this.shishaRunning = false;
                     this.shishaPaused = true;
                     if (this.shishaTimer) {
@@ -2344,6 +2345,7 @@
                     this.shishaRunning = false;
                     this.shishaPaused = false;
                     this.shishaSecondsLeft = 0;
+                    this.shishaEndAt = null;
                     if (this.shishaTimer) {
                         clearInterval(this.shishaTimer);
                         this.shishaTimer = null;
