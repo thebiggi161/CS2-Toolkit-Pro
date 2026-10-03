@@ -31,6 +31,7 @@
     </script>
     <!-- Alpine.js für Interaktivität -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     
     <!-- FontAwesome für Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -2415,7 +2416,7 @@
                     this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
                     this.overlayOpacity = Number(localStorage.getItem('cs2toolkit_overlay_opacity') || '0.72');
                     this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
-                    this.googleClientId = localStorage.getItem('cs2toolkit_google_client_id') || this.youtubeOAuthClientId || '';
+                    this.googleClientId = localStorage.getItem('cs2toolkit_google_client_id') || this.googleClientId || '';
                     this.googleInit();
                     this.googleLoadSession();
                 },
