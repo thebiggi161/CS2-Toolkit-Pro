@@ -1101,7 +1101,7 @@
                         <div x-show="selectedCallout()" class="mt-4 bg-csdark-800 border border-csorange/30 rounded-lg p-4">
                             <div class="text-xs text-gray-400 uppercase tracking-wider">Ausgewählter Callout</div>
                             <div class="text-lg font-bold text-white mt-1" x-text="selectedCallout()?.name || ''"></div>
-                            <div class="text-xs text-gray-500 mt-2">Der Name ist direkt auf der beschrifteten Radar-Map eingezeichnet.</div>
+                            <div class="text-xs text-gray-500 mt-2" x-text="calloutDescription(selectedCallout())"></div>
                         </div>
                     </div>
                 </div>
@@ -2212,6 +2212,20 @@ bombSites: [
                 selectedCallout() {
                     const list = this.calloutsByMap[this.selectedMap] || [];
                     return list.find(callout => callout.id === this.selectedCalloutId) || null;
+                },
+
+                calloutDescription(callout) {
+                    if (!callout) return '';
+                    const name = String(callout.name || '');
+                    const lower = name.toLowerCase();
+                    if (lower.includes('spawn')) return 'Spawn-Bereich der jeweiligen Seite. Von hier aus werden die ersten Default-Routen und Utility-Timings gestartet.';
+                    if (lower.includes('site')) return 'Bombsite bzw. Plant-Zone. Der Callout wird für Plants, Holds, Retakes und Post-Plant-Positionen verwendet.';
+                    if (lower.includes('connector') || lower === 'con') return 'Verbindungsweg zwischen zwei Map-Bereichen. Häufig wichtig für Rotationen, Splits und Flank-Informationen.';
+                    if (lower.includes('mid')) return 'Zentraler Kontrollbereich der Map. Mid-Control eröffnet mehrere Routen und liefert Informationen über Rotationen.';
+                    if (lower.includes('short') || lower.includes('long')) return 'Angriffsroute mit klarer Richtung zum jeweiligen Bombsite. Der genaue Zusatz im Call beschreibt die Seite oder den Abschnitt.';
+                    if (lower.includes('heaven') || lower.includes('rafters')) return 'Erhöhter Winkel mit Übersicht auf den Bombsite. Utility wird häufig eingesetzt, um diesen Hold vor Entry oder Retake zu entfernen.';
+                    if (lower.includes('default')) return 'Typische Standard-Plant- oder Hold-Position. Beim Retake sollte dieser Bereich früh mit Utility kontrolliert werden.';
+                    return 'Benannter Bereich auf dem CS2-Radar. Der Callout dient dazu, Positionen eindeutig anzusagen und Utility sowie Trades darauf abzustimmen.';
                 },
 
                 selectCallout(id) {
