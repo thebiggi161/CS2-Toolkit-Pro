@@ -258,24 +258,7 @@
                 <template x-for="(selectedId, slotIndex) in weaponCompare" :key="'slot-' + slotIndex">
                     <section class="bg-csdark-800 border rounded-xl overflow-hidden" :class="selectedId ? 'border-csorange/40' : 'border-gray-800'">
                         <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between"><div><div class="text-[10px] uppercase tracking-widest text-csorange font-black" x-text="'Vergleich ' + (slotIndex + 1)"></div><div class="font-bold text-white mt-0.5" x-text="selectedId ? weaponById(selectedId)?.name : 'Keine Waffe ausgewählt'"></div></div><button x-show="selectedId" @click="removeWeaponFromCompare(slotIndex)" class="w-7 h-7 rounded bg-csdark-700 hover:bg-csdark-600 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button></div>
-                        <div x-show="selectedId" class="p-4"><table class="w-full text-xs"><tbody><template x-for="row in                 selectWeaponForCompare(id) {
-                    const existingIndex = this.weaponCompare.indexOf(id);
-                    if (existingIndex !== -1) {
-                        this.weaponCompare[existingIndex] = null;
-                    } else {
-                        const emptySlot = this.weaponCompare.findIndex(item => !item);
-                        if (emptySlot !== -1) this.weaponCompare[emptySlot] = id;
-                    }
-                    this.weaponCompare = [...this.weaponCompare];
-                },
-
-                removeWeaponFromCompare(slotIndex) {
-                    if (slotIndex < 0 || slotIndex > 2) return;
-                    this.weaponCompare[slotIndex] = null;
-                    this.weaponCompare = [...this.weaponCompare];
-                },
-
-weaponCompareRows" :key="'slot-row-' + slotIndex + '-' + row.key"><tr class="border-b border-gray-800/70"><td class="py-2 text-gray-500" x-text="row.label"></td><td class="py-2 text-right text-gray-200 font-mono" x-text="weaponById(selectedId)?.[row.key]"></td></tr></template></tbody></table></div>
+                        <div x-show="selectedId" class="p-4"><table class="w-full text-xs"><tbody><template x-for="row in weaponCompareRows" :key="'slot-row-' + slotIndex + '-' + row.key"><tr class="border-b border-gray-800/70"><td class="py-2 text-gray-500" x-text="row.label"></td><td class="py-2 text-right text-gray-200 font-mono" x-text="weaponById(selectedId)?.[row.key]"></td></tr></template></tbody></table></div>
                         <div x-show="!selectedId" class="p-8 text-center text-gray-600 text-sm"><i class="fa-solid fa-gun text-2xl mb-2"></i><div>Checkbox oben auswählen</div></div>
                     </section>
                 </template>
@@ -1214,6 +1197,44 @@ weaponCompareRows" :key="'slot-row-' + slotIndex + '-' + row.key"><tr class="bor
                 selectedGear: 1000,
                 selectedNades: [],
                 
+                weaponSearch: '',
+                weaponCategory: 'all',
+                weaponSide: 'all',
+                weaponCompare: [null, null, null],
+                weaponData: [
+                    {id:'ak47',name:'AK-47',weapon:'Rifle',category:'rifle',side:'T',price:2700,damage:36,armor:77,mag:30,rpm:600,speed:215,reload:'2.43s',reward:300},
+                    {id:'m4a4',name:'M4A4',weapon:'Rifle',category:'rifle',side:'CT',price:3100,damage:33,armor:70,mag:30,rpm:666,speed:225,reload:'3.10s',reward:300},
+                    {id:'m4a1s',name:'M4A1-S',weapon:'Rifle',category:'rifle',side:'CT',price:2900,damage:38,armor:79,mag:20,rpm:600,speed:225,reload:'3.07s',reward:300},
+                    {id:'galil',name:'Galil AR',weapon:'Rifle',category:'rifle',side:'T',price:1800,damage:30,armor:78,mag:35,rpm:666,speed:215,reload:'2.45s',reward:300},
+                    {id:'famas',name:'FAMAS',weapon:'Rifle',category:'rifle',side:'CT',price:1950,damage:30,armor:70,mag:25,rpm:666,speed:220,reload:'3.30s',reward:300},
+                    {id:'aug',name:'AUG',weapon:'Rifle',category:'rifle',side:'CT',price:3300,damage:28,armor:80,mag:30,rpm:600,speed:220,reload:'3.80s',reward:300},
+                    {id:'sg553',name:'SG 553',weapon:'Rifle',category:'rifle',side:'T',price:3000,damage:30,armor:85,mag:30,rpm:666,speed:210,reload:'2.77s',reward:300},
+                    {id:'ssg08',name:'SSG 08',weapon:'Sniper',category:'sniper',side:'both',price:1700,damage:88,armor:100,mag:10,rpm:48,speed:230,reload:'3.70s',reward:300},
+                    {id:'awp',name:'AWP',weapon:'Sniper',category:'sniper',side:'both',price:4750,damage:115,armor:100,mag:5,rpm:41,speed:200,reload:'3.67s',reward:100},
+                    {id:'g3sg1',name:'G3SG1',weapon:'Sniper',category:'sniper',side:'T',price:5000,damage:80,armor:100,mag:20,rpm:240,speed:215,reload:'4.55s',reward:300},
+                    {id:'scar20',name:'SCAR-20',weapon:'Sniper',category:'sniper',side:'CT',price:5000,damage:80,armor:100,mag:20,rpm:240,speed:215,reload:'3.10s',reward:300},
+                    {id:'mp9',name:'MP9',weapon:'SMG',category:'smg',side:'CT',price:1250,damage:26,armor:70,mag:30,rpm:857,speed:240,reload:'2.10s',reward:600},
+                    {id:'mac10',name:'MAC-10',weapon:'SMG',category:'smg',side:'T',price:1050,damage:29,armor:64,mag:30,rpm:800,speed:240,reload:'2.60s',reward:600},
+                    {id:'mp5sd',name:'MP5-SD',weapon:'SMG',category:'smg',side:'both',price:1500,damage:27,armor:68,mag:30,rpm:800,speed:235,reload:'2.90s',reward:600},
+                    {id:'mp7',name:'MP7',weapon:'SMG',category:'smg',side:'both',price:1500,damage:29,armor:77,mag:30,rpm:800,speed:220,reload:'3.10s',reward:600},
+                    {id:'ump45',name:'UMP-45',weapon:'SMG',category:'smg',side:'both',price:1200,damage:35,armor:75,mag:25,rpm:666,speed:230,reload:'3.10s',reward:600},
+                    {id:'p90',name:'P90',weapon:'SMG',category:'smg',side:'both',price:2350,damage:26,armor:69,mag:50,rpm:857,speed:230,reload:'3.40s',reward:300},
+                    {id:'bizon',name:'PP-Bizon',weapon:'SMG',category:'smg',side:'both',price:1400,damage:27,armor:57,mag:64,rpm:750,speed:240,reload:'2.50s',reward:600},
+                    {id:'glock',name:'Glock-18',weapon:'Pistol',category:'pistol',side:'T',price:0,damage:30,armor:48,mag:20,rpm:400,speed:240,reload:'2.27s',reward:300},
+                    {id:'usp',name:'USP-S',weapon:'Pistol',category:'pistol',side:'CT',price:0,damage:35,armor:50,mag:12,rpm:352,speed:240,reload:'2.20s',reward:300},
+                    {id:'p2000',name:'P2000',weapon:'Pistol',category:'pistol',side:'CT',price:0,damage:35,armor:50,mag:13,rpm:352,speed:240,reload:'2.20s',reward:300},
+                    {id:'p250',name:'P250',weapon:'Pistol',category:'pistol',side:'both',price:300,damage:38,armor:64,mag:13,rpm:400,speed:240,reload:'2.20s',reward:300},
+                    {id:'deagle',name:'Desert Eagle',weapon:'Pistol',category:'pistol',side:'both',price:700,damage:53,armor:93,mag:7,rpm:267,speed:230,reload:'2.20s',reward:300},
+                    {id:'fiveseven',name:'Five-SeveN',weapon:'Pistol',category:'pistol',side:'CT',price:500,damage:32,armor:78,mag:20,rpm:400,speed:240,reload:'2.20s',reward:300},
+                    {id:'tec9',name:'Tec-9',weapon:'Pistol',category:'pistol',side:'T',price:500,damage:33,armor:90,mag:18,rpm:500,speed:240,reload:'2.50s',reward:300},
+                    {id:'p90x',name:'P90',weapon:'SMG',category:'smg',side:'both',price:2350,damage:26,armor:69,mag:50,rpm:857,speed:230,reload:'3.40s',reward:300},
+                    {id:'nova',name:'Nova',weapon:'Heavy',category:'heavy',side:'both',price:1050,damage:26,armor:84,mag:8,rpm:68,speed:220,reload:'2.20s',reward:900},
+                    {id:'xm1014',name:'XM1014',weapon:'Heavy',category:'heavy',side:'both',price:2000,damage:20,armor:80,mag:7,rpm:171,speed:215,reload:'2.20s',reward:900},
+                    {id:'mag7',name:'MAG-7',weapon:'Heavy',category:'heavy',side:'CT',price:1300,damage:30,armor:80,mag:5,rpm:71,speed:225,reload:'2.30s',reward:900},
+                    {id:'m249',name:'M249',weapon:'Heavy',category:'heavy',side:'both',price:5200,damage:32,armor:80,mag:100,rpm:750,speed:195,reload:'5.70s',reward:300},
+                    {id:'negev',name:'Negev',weapon:'Heavy',category:'heavy',side:'both',price:1700,damage:35,armor:75,mag:150,rpm:800,speed:195,reload:'5.70s',reward:300}
+                ],
+
                 weapons: {
                     primary: [
                         { name: 'AK-47 (T)', price: 2700 },
@@ -1243,6 +1264,45 @@ weaponCompareRows" :key="'slot-row-' + slotIndex + '-' + row.key"><tr class="bor
                         { name: 'Decoy', price: 50 },
                         { name: 'Defuse Kit (CT)', price: 400 }
                     ]
+                },
+
+                get filteredWeapons() {
+                    const q = this.weaponSearch.trim().toLowerCase();
+                    return this.weaponData.filter(w => {
+                        const matchesSearch = !q || w.name.toLowerCase().includes(q) || w.weapon.toLowerCase().includes(q);
+                        const matchesCategory = this.weaponCategory === 'all' || w.category === this.weaponCategory;
+                        const matchesSide = this.weaponSide === 'all' || this.weaponSide === 'both' || w.side === 'both' || w.side === this.weaponSide;
+                        return matchesSearch && matchesCategory && matchesSide;
+                    });
+                },
+
+                weaponById(id) {
+                    return this.weaponData.find(w => w.id === id) || null;
+                },
+
+                get weaponCompareRows() {
+                    return [
+                        {key:'price',label:'Preis'}, {key:'damage',label:'Schaden'}, {key:'armor',label:'Schaden vs. Armor'},
+                        {key:'mag',label:'Magazin'}, {key:'rpm',label:'RPM'}, {key:'speed',label:'Bewegung'},
+                        {key:'reload',label:'Nachladen'}, {key:'reward',label:'Kill Reward'}
+                    ];
+                },
+
+                selectWeaponForCompare(id) {
+                    const existingIndex = this.weaponCompare.indexOf(id);
+                    if (existingIndex !== -1) {
+                        this.weaponCompare[existingIndex] = null;
+                    } else {
+                        const emptySlot = this.weaponCompare.findIndex(item => !item);
+                        if (emptySlot !== -1) this.weaponCompare[emptySlot] = id;
+                    }
+                    this.weaponCompare = [...this.weaponCompare];
+                },
+
+                removeWeaponFromCompare(slotIndex) {
+                    if (slotIndex < 0 || slotIndex > 2) return;
+                    this.weaponCompare[slotIndex] = null;
+                    this.weaponCompare = [...this.weaponCompare];
                 },
 
                 selectPrimary(price) {
