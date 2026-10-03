@@ -176,8 +176,8 @@
                 <button @click="activeTab = 'weapons'" :class="activeTab === 'weapons' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-gun"></i> Weapons
                 </button>
-                <button @click="activeTab = 'krunker'" :class="activeTab === 'krunker' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad"></i> Krunker.io
+                <button @click="activeTab = 'surf-trainer'" :class="activeTab === 'surf-trainer' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-water"></i> Surf Trainer
                 </button>
 
             </nav>
@@ -1104,51 +1104,87 @@
             </div>
         </div>
 
-        <!-- TAB 7: KRUNKER -->
-        <div x-show="activeTab === 'krunker'" x-cloak class="space-y-6">
-            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
-                    <div>
-                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2">
-                            <i class="fa-solid fa-gamepad"></i> Krunker.io
-                        </h2>
-                        <p class="text-sm text-gray-400 mt-1">Krunker direkt im CS2 Toolkit – als separater Browser-Tab.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="https://krunker.io/" target="_blank" rel="noopener noreferrer"
-                           class="inline-flex items-center gap-2 bg-csorange hover:bg-csorange-hover text-black font-bold px-4 py-2 rounded-lg text-xs transition">
-                            <i class="fa-solid fa-up-right-from-square"></i> Krunker extern öffnen
-                        </a>
-                        <a href="https://krunker.io/guides/" target="_blank" rel="noopener noreferrer"
-                           class="inline-flex items-center gap-2 bg-csdark-700 hover:bg-csdark-600 text-gray-200 border border-gray-700 px-4 py-2 rounded-lg text-xs transition">
-                            <i class="fa-solid fa-book"></i> Guides
-                        </a>
-                    </div>
+        <!-- TAB 7: SURF TRAINER -->
+        <div x-show="activeTab === 'surf-trainer'" x-cloak class="space-y-6">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                <div>
+                    <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">Movement Lab</div>
+                    <h2 class="text-2xl font-black text-white mt-1">CS2 Surf Trainer</h2>
+                    <p class="text-sm text-gray-400 mt-1">Trainiere A/D-Strafing, Rampenwechsel und Geschwindigkeit direkt im Browser.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button @click="surfReset()" class="px-3 py-2 rounded-lg bg-csdark-700 hover:bg-csdark-600 border border-gray-700 text-xs font-bold">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+                    </button>
+                    <button @click="surfToggle()" :class="surfRunning ? 'bg-red-500/15 text-red-300 border-red-500/30' : 'bg-csorange text-black border-csorange'" class="px-4 py-2 rounded-lg border text-xs font-black">
+                        <i class="fa-solid" :class="surfRunning ? 'fa-stop' : 'fa-play'"></i>
+                        <span x-text="surfRunning ? 'Training stoppen' : 'Training starten'"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-4"><div class="text-[10px] uppercase tracking-widest text-gray-500">Zeit</div><div class="text-2xl font-black text-white font-mono mt-1" x-text="surfFormatTime(surfTime)"></div></div>
+                <div class="bg-csdark-800 border border-gray-800 rounded-xl p-4"><div class="text-[10px] uppercase tracking-widest text-gray-500">Speed</div><div class="text-2xl font-black text-csorange font-mono mt-1" x-text="Math.round(surfSpeed) + ' u/s'"></div></div>
+                <div class="bg-csdark-800 border border-gray-800 rounded-xl p-4"><div class="text-[10px] uppercase tracking-widest text-gray-500">Checkpoint</div><div class="text-2xl font-black text-white font-mono mt-1" x-text="surfCheckpoint + ' / ' + surfTotalCheckpoints"></div></div>
+                <div class="bg-csdark-800 border border-gray-800 rounded-xl p-4"><div class="text-[10px] uppercase tracking-widest text-gray-500">Bestzeit</div><div class="text-2xl font-black text-white font-mono mt-1" x-text="surfBestTime ? surfFormatTime(surfBestTime) : '--'"></div></div>
+            </div>
+
+            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-4 shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between gap-3 mb-3 text-xs">
+                    <div class="text-gray-400"><span class="text-white font-bold">Controls:</span> A / D oder ← / → zum Surfen · Space zum Start/Stop</div>
+                    <div class="text-gray-400">Aktuelle Seite: <span class="text-csorange font-bold" x-text="surfSide"></span> · Combo: <span class="text-white font-bold" x-text="surfCombo"></span></div>
                 </div>
 
-                <div class="bg-csdark-900 border border-gray-800 rounded-xl overflow-hidden">
-                    <iframe
-                        src="https://krunker.io/"
-                        title="Krunker.io"
-                        loading="lazy"
-                        allow="fullscreen; pointer-lock; autoplay"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        class="w-full h-[800px] border-0 bg-black"></iframe>
-                </div>
+                <div tabindex="0" @keydown.prevent="surfKeydown($event)" @keyup.prevent="surfKeyup($event)"
+                     class="relative h-[520px] overflow-hidden rounded-xl border border-gray-700 bg-black outline-none focus:border-csorange/70 select-none">
+                    <div class="absolute inset-0 opacity-30" style="background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size:40px 40px;"></div>
+                    <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gray-800"></div>
 
-                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
-                        <div class="text-csorange font-bold mb-1">Direkt integriert</div>
-                        <div class="text-gray-400">Krunker wird innerhalb deines Toolkits geladen.</div>
+                    <div class="absolute -left-16 top-20 w-[48%] h-24 rotate-12 bg-csdark-700 border border-gray-600 rounded-xl"></div>
+                    <div class="absolute right-[-64px] top-52 w-[48%] h-24 -rotate-12 bg-csdark-700 border border-gray-600 rounded-xl"></div>
+                    <div class="absolute -left-16 top-84 w-[48%] h-24 rotate-12 bg-csdark-700 border border-gray-600 rounded-xl"></div>
+                    <div class="absolute right-[-64px] top-356 w-[48%] h-24 -rotate-12 bg-csdark-700 border border-gray-600 rounded-xl"></div>
+
+                    <template x-for="cp in surfCheckpoints" :key="cp.id">
+                        <div class="absolute w-3 h-3 rounded-full border-2 border-csorange bg-csorange/30 shadow-lg shadow-csorange/20"
+                             :class="cp.id <= surfCheckpoint ? 'opacity-100' : 'opacity-25'"
+                             :style="'left:' + cp.x + '%;top:' + cp.y + '%;transform:translate(-50%,-50%)'">
+                        </div>
+                    </template>
+
+                    <div class="absolute w-10 h-10 rounded-full bg-csorange/20 border-2 border-csorange shadow-[0_0_30px_rgba(255,85,0,.35)] transition-all duration-75"
+                         :style="'left:' + surfPlayerX + '%;top:' + surfPlayerY + '%;transform:translate(-50%,-50%)'">
+                        <div class="absolute inset-2 rounded-full bg-csorange"></div>
                     </div>
-                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
-                        <div class="text-csorange font-bold mb-1">Originale Seite</div>
-                        <div class="text-gray-400">Es wird die offizielle Krunker.io-Seite verwendet.</div>
+
+                    <div class="absolute left-4 top-4 rounded-lg bg-black/60 border border-gray-800 px-3 py-2 text-[11px] text-gray-400">
+                        <span class="text-csorange font-black">SURF LINE</span><br>
+                        Halte deine Position auf der Rampe und wechsle kontrolliert die Seite.
                     </div>
-                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
-                        <div class="text-csorange font-bold mb-1">Fallback</div>
-                        <div class="text-gray-400">Falls Krunker die Einbettung blockiert, kannst du es oben in einem neuen Tab öffnen.</div>
+
+                    <div x-show="!surfRunning" class="absolute inset-0 flex items-center justify-center bg-black/35">
+                        <div class="text-center">
+                            <i class="fa-solid fa-water text-4xl text-csorange mb-3"></i>
+                            <div class="text-lg font-black text-white">Bereit zum Surfen?</div>
+                            <div class="text-xs text-gray-500 mt-1">Starten und anschließend A/D benutzen.</div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="bg-csdark-900 border border-gray-800 rounded-xl p-4">
+                    <div class="text-csorange font-bold mb-2"><i class="fa-solid fa-left-right mr-1"></i> A / D</div>
+                    <div class="text-xs text-gray-500 leading-relaxed">A und D steuern deinen horizontalen Druck auf der Rampe. Nicht hektisch hin- und herwechseln.</div>
+                </div>
+                <div class="bg-csdark-900 border border-gray-800 rounded-xl p-4">
+                    <div class="text-csorange font-bold mb-2"><i class="fa-solid fa-gauge-high mr-1"></i> Speed</div>
+                    <div class="text-xs text-gray-500 leading-relaxed">Saubere Richtungswechsel erhöhen deine Geschwindigkeit. Zu starke Korrekturen bremsen dich aus.</div>
+                </div>
+                <div class="bg-csdark-900 border border-gray-800 rounded-xl p-4">
+                    <div class="text-csorange font-bold mb-2"><i class="fa-solid fa-flag-checkered mr-1"></i> Ziel</div>
+                    <div class="text-xs text-gray-500 leading-relaxed">Erreiche alle Checkpoints. Deine schnellste vollständige Runde wird lokal gespeichert.</div>
                 </div>
             </div>
         </div>
@@ -1197,6 +1233,96 @@
                 selectedGear: 1000,
                 selectedNades: [],
                 
+                surfRunning: false,
+                surfTime: 0,
+                surfBestTime: Number(localStorage.getItem('cs2toolkit_surf_best') || '0'),
+                surfSpeed: 250,
+                surfCheckpoint: 0,
+                surfTotalCheckpoints: 8,
+                surfCombo: 0,
+                surfSide: 'LEFT',
+                surfPlayerX: 22,
+                surfPlayerY: 84,
+                surfKeys: {a:false,d:false},
+                surfTimer: null,
+                surfCheckpoints: [
+                    {id:1,x:22,y:84},{id:2,x:72,y:70},{id:3,x:25,y:56},{id:4,x:76,y:43},
+                    {id:5,x:28,y:31},{id:6,x:70,y:22},{id:7,x:40,y:13},{id:8,x:50,y:5}
+                ],
+
+                surfFormatTime(value) {
+                    const ms=Math.max(0,Number(value)||0);
+                    return (ms/1000).toFixed(2)+'s';
+                },
+
+                surfToggle() {
+                    if(this.surfRunning) { this.surfStop(false); }
+                    else { this.surfStart(); }
+                },
+
+                surfStart() {
+                    this.surfReset(false);
+                    this.surfRunning=true;
+                    this.surfTimer=window.setInterval(()=>this.surfTick(),50);
+                },
+
+                surfStop(finished=false) {
+                    this.surfRunning=false;
+                    if(this.surfTimer!==null){window.clearInterval(this.surfTimer);this.surfTimer=null;}
+                    if(finished && this.surfCheckpoint>=this.surfTotalCheckpoints){
+                        if(!this.surfBestTime || this.surfTime<this.surfBestTime){
+                            this.surfBestTime=this.surfTime;
+                            localStorage.setItem('cs2toolkit_surf_best',String(this.surfBestTime));
+                        }
+                    }
+                },
+
+                surfReset(stop=true) {
+                    if(stop) this.surfStop(false);
+                    this.surfTime=0; this.surfSpeed=250; this.surfCheckpoint=0; this.surfCombo=0;
+                    this.surfSide='LEFT'; this.surfPlayerX=22; this.surfPlayerY=84;
+                    this.surfKeys={a:false,d:false};
+                },
+
+                surfKeydown(event) {
+                    if(event.code==='Space'){ this.surfToggle(); return; }
+                    if(event.code==='KeyA'||event.code==='ArrowLeft') this.surfKeys.a=true;
+                    if(event.code==='KeyD'||event.code==='ArrowRight') this.surfKeys.d=true;
+                },
+
+                surfKeyup(event) {
+                    if(event.code==='KeyA'||event.code==='ArrowLeft') this.surfKeys.a=false;
+                    if(event.code==='KeyD'||event.code==='ArrowRight') this.surfKeys.d=false;
+                },
+
+                surfTick() {
+                    if(!this.surfRunning) return;
+                    this.surfTime+=50;
+                    const left=this.surfKeys.a, right=this.surfKeys.d;
+                    if(left!==right){
+                        const dir=left?-1:1;
+                        this.surfPlayerX=Math.max(8,Math.min(92,this.surfPlayerX+dir*(1.8+this.surfSpeed/700)));
+                        this.surfCombo=Math.min(99,this.surfCombo+1);
+                        this.surfSpeed=Math.min(950,this.surfSpeed+3.2);
+                        this.surfSide=dir<0?'LEFT':'RIGHT';
+                    } else {
+                        this.surfSpeed=Math.max(160,this.surfSpeed-2.4);
+                        this.surfCombo=Math.max(0,this.surfCombo-0.35);
+                    }
+                    this.surfPlayerY=Math.max(5,84-(this.surfTime/1000)*5.2);
+
+                    const target=this.surfCheckpoints[this.surfCheckpoint];
+                    if(target){
+                        const dx=this.surfPlayerX-target.x, dy=this.surfPlayerY-target.y;
+                        if(Math.sqrt(dx*dx+dy*dy)<8){
+                            this.surfCheckpoint++;
+                            this.surfSpeed=Math.min(1000,this.surfSpeed+55);
+                            if(this.surfCheckpoint>=this.surfTotalCheckpoints) this.surfStop(true);
+                        }
+                    }
+                    if(this.surfPlayerY<=3 && this.surfCheckpoint<this.surfTotalCheckpoints) this.surfStop(false);
+                },
+
                 weaponSearch: '',
                 weaponCategory: 'all',
                 weaponSide: 'all',
