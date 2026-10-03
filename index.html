@@ -214,6 +214,9 @@
             
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
+                <button @click="activeTab = 'suggestions'; loadSuggestions()" :class="activeTab === 'suggestions' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-comments"></i> Vorschläge
+                </button>
                 <button @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-flask"></i> Test
                 </button>
@@ -390,60 +393,58 @@
                 </section>
             </div>
 
-            <section class="bg-csdark-800 border border-csorange/30 rounded-2xl p-5">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-                    <div>
-                        <div class="text-[10px] uppercase tracking-widest text-csorange font-black">Spieler-Feedback</div>
-                        <h3 class="text-xl font-black text-white mt-1 flex items-center gap-2">
-                            <i class="fa-solid fa-lightbulb text-csorange"></i> Verbesserungsvorschlag
-                        </h3>
-                        <p class="text-xs text-gray-500 mt-1">Hilf dabei, das Toolkit besser zu machen. Pro Tag sind 5 Vorschläge möglich.</p>
-                    </div>
-                    <div class="bg-csdark-900 border border-gray-800 rounded-xl px-4 py-3 text-center min-w-[110px]">
-                        <div class="text-[10px] uppercase tracking-widest text-gray-500">Heute übrig</div>
-                        <div class="text-xl font-black text-csorange mt-1" x-text="Math.max(0, improvementDailyLimit - improvementMessages.length)"></div>
-                        <div class="text-[10px] text-gray-600">von 5</div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-[180px_1fr_auto] gap-3">
-                    <input x-model="improvementPlayer" maxlength="40" type="text" placeholder="Spielername (optional)"
-                        class="w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-lg px-3 py-2.5 text-sm text-white outline-none">
-                    <div>
-                        <textarea x-model="improvementText" maxlength="150" rows="3" placeholder="Was sollten wir verbessern? (max. 150 Zeichen)"
-                            class="w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-lg px-3 py-2.5 text-sm text-white outline-none resize-none"></textarea>
-                        <div class="flex justify-between mt-1 text-[10px] text-gray-600">
-                            <span x-text="improvementNotice"></span>
-                            <span><span x-text="improvementText.length"></span>/150</span>
-                        </div>
-                    </div>
-                    <button @click="submitImprovement()" :disabled="improvementMessages.length >= improvementDailyLimit"
-                        class="bg-csorange hover:bg-csorange-hover disabled:opacity-40 disabled:cursor-not-allowed text-black font-black text-sm px-5 py-2.5 rounded-lg self-start">
-                        <i class="fa-solid fa-paper-plane mr-1"></i> Absenden
-                    </button>
-                </div>
-
-                <div x-show="improvementMessages.length" x-cloak class="mt-5 border-t border-gray-800 pt-4">
-                    <div class="text-[10px] uppercase tracking-widest text-gray-500 font-black mb-2">Deine heutigen Vorschläge</div>
-                    <div class="space-y-2 max-h-52 overflow-auto">
-                        <template x-for="(item, index) in improvementMessages" :key="index">
-                            <div class="bg-csdark-900 border border-gray-800 rounded-lg px-3 py-2.5 flex items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                    <div class="text-sm text-gray-200 break-words" x-text="item.text"></div>
-                                    <div class="text-[10px] text-gray-600 mt-1" x-text="item.player + ' · ' + item.time"></div>
-                                </div>
-                                <span class="text-[10px] text-gray-600 shrink-0" x-text="'#' + (index + 1)"></span>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </section>
-
             <div class="bg-csdark-800 border border-dashed border-csorange/30 rounded-2xl p-8 text-center">
                 <i class="fa-solid fa-flask text-3xl text-csorange mb-3"></i>
                 <h3 class="text-lg font-bold text-white">Hier bauen wir neue Sachen zuerst</h3>
                 <p class="text-sm text-gray-500 mt-1">Der Test-Reiter ist bewusst getrennt vom produktiven Bereich.</p>
             </div>
+        </div>
+
+        <!-- TAB: SUGGESTIONS -->
+        <div x-show="activeTab === 'suggestions'" x-cloak class="space-y-5">
+            <div class="bg-csdark-800 border border-csorange/30 rounded-2xl p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">Community</div>
+                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2"><i class="fa-solid fa-comments text-csorange"></i> Vorschläge</h2>
+                        <p class="text-gray-400 text-sm mt-1">Verbesserungen mit der Community teilen – ohne Anmeldung.</p>
+                    </div>
+                    <div class="bg-csdark-900 border border-gray-800 rounded-xl px-5 py-3 text-center">
+                        <div class="text-[10px] uppercase tracking-widest text-gray-500">Heute noch möglich</div>
+                        <div class="text-2xl font-black text-csorange" x-text="suggestionRemaining"></div>
+                        <div class="text-[10px] text-gray-600">von 5 · max. 150 Zeichen</div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                <div class="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-3">
+                    <input x-model="suggestionPlayer" maxlength="40" type="text" placeholder="Name (optional)" class="w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-lg px-3 py-2.5 text-sm text-white outline-none">
+                    <div>
+                        <textarea x-model="suggestionText" maxlength="150" rows="3" placeholder="Was soll verbessert werden?" class="w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-lg px-3 py-2.5 text-sm text-white outline-none resize-none"></textarea>
+                        <div class="flex justify-between mt-1 text-[10px]"><span class="text-csorange" x-text="suggestionNotice"></span><span class="text-gray-600"><span x-text="suggestionText.length"></span>/150</span></div>
+                    </div>
+                    <button @click="submitSuggestion()" :disabled="suggestionLoading || suggestionRemaining <= 0" class="bg-csorange hover:bg-csorange-hover disabled:opacity-40 disabled:cursor-not-allowed text-black font-black text-sm px-5 py-2.5 rounded-lg self-start"><i class="fa-solid fa-paper-plane mr-1"></i> Veröffentlichen</button>
+                </div>
+            </section>
+
+            <section class="space-y-3">
+                <div class="flex items-center justify-between"><div class="text-xs uppercase tracking-widest text-gray-500 font-black">Community-Forum</div><button @click="loadSuggestions()" class="text-xs text-csorange hover:text-white"><i class="fa-solid fa-rotate mr-1"></i> Aktualisieren</button></div>
+                <div x-show="suggestionLoading && !suggestionItems.length" class="bg-csdark-800 border border-gray-800 rounded-2xl p-8 text-center text-gray-500"><i class="fa-solid fa-spinner fa-spin text-csorange mr-2"></i> Vorschläge werden geladen...</div>
+                <div x-show="!suggestionLoading && !suggestionItems.length" class="bg-csdark-800 border border-dashed border-gray-800 rounded-2xl p-10 text-center"><i class="fa-regular fa-comments text-3xl text-gray-600 mb-3"></i><div class="font-bold text-gray-300">Noch keine Vorschläge</div><div class="text-xs text-gray-600 mt-1">Sei der Erste und starte die Diskussion.</div></div>
+                <template x-for="item in suggestionItems" :key="item.id">
+                    <article class="bg-csdark-800 border border-gray-800 hover:border-csorange/30 rounded-2xl p-5 transition">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 shrink-0 rounded-full bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange"><i class="fa-solid fa-user"></i></div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2"><span class="font-bold text-white" x-text="item.player || 'Anonym'"></span><span class="text-[10px] text-gray-600" x-text="new Date(item.time).toLocaleString('de-DE')"></span></div>
+                                <p class="text-sm text-gray-300 mt-2 whitespace-pre-wrap break-words" x-text="item.text"></p>
+                            </div>
+                            <span class="text-[10px] text-gray-700 shrink-0">#<span x-text="item.id"></span></span>
+                        </div>
+                    </article>
+                </template>
+            </section>
         </div>
 
         <!-- TAB: ESPORTS -->
@@ -1461,13 +1462,13 @@
                 activeTab: 'maps-nades',
                 testLabCounter: 0,
                 testLabEnabled: false,
-                improvementText: '',
-                improvementPlayer: '',
-                improvementMessages: [],
-                improvementDailyLimit: 5,
-                improvementMaxLength: 150,
-                improvementTodayKey: '',
-                improvementNotice: '',
+                suggestionText: '',
+                suggestionPlayer: '',
+                suggestionItems: [],
+                suggestionRemaining: 5,
+                suggestionLoading: false,
+                suggestionNotice: '',
+                suggestionApiUrl: window.CS2_SUGGESTIONS_API_URL || '/api/suggestions',
                 crosshairPanel: 'builder',
                 playerMoney: 4500,
                 lossStreak: 1,
@@ -2172,52 +2173,57 @@
                     this.loadImprovementSuggestions();
                 },
 
-                improvementDateKey() {
-                    const d = new Date();
-                    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-                },
-
-                loadImprovementSuggestions() {
-                    const today = this.improvementDateKey();
-                    const saved = JSON.parse(localStorage.getItem('cs2toolkit_improvement_suggestions') || '{"date":"","items":[]}');
-                    if (saved.date !== today) {
-                        this.improvementMessages = [];
-                        this.improvementTodayKey = today;
-                        localStorage.setItem('cs2toolkit_improvement_suggestions', JSON.stringify({date: today, items: []}));
-                    } else {
-                        this.improvementMessages = Array.isArray(saved.items) ? saved.items : [];
-                        this.improvementTodayKey = today;
+                async loadSuggestions() {
+                    this.suggestionLoading = true;
+                    try {
+                        const response = await fetch(this.suggestionApiUrl, { cache: 'no-store' });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error || 'Forum konnte nicht geladen werden.');
+                        this.suggestionItems = Array.isArray(data.items) ? data.items : [];
+                        const today = new Date().toISOString().slice(0,10);
+                        const own = JSON.parse(localStorage.getItem('cs2toolkit_suggestion_local') || '{"date":"","count":0}');
+                        this.suggestionRemaining = own.date === today ? Math.max(0, 5 - Number(own.count || 0)) : 5;
+                    } catch (error) {
+                        this.suggestionNotice = 'Forum konnte nicht geladen werden. Backend-Verbindung prüfen.';
+                    } finally {
+                        this.suggestionLoading = false;
                     }
                 },
 
-                submitImprovement() {
-                    const text = String(this.improvementText || '').trim();
-                    const player = String(this.improvementPlayer || '').trim().slice(0, 40);
-                    if (!text) {
-                        this.improvementNotice = 'Bitte zuerst einen Verbesserungsvorschlag eingeben.';
-                        return;
+                async submitSuggestion() {
+                    const text = String(this.suggestionText || '').trim();
+                    const player = String(this.suggestionPlayer || '').trim().slice(0, 40) || 'Anonym';
+                    if (!text) { this.suggestionNotice = 'Bitte zuerst einen Vorschlag eingeben.'; return; }
+                    if (text.length > 150) { this.suggestionNotice = 'Maximal 150 Zeichen pro Nachricht.'; return; }
+                    if (this.suggestionRemaining <= 0) { this.suggestionNotice = 'Dein Tageslimit von 5 Vorschlägen ist erreicht.'; return; }
+
+                    this.suggestionLoading = true;
+                    this.suggestionNotice = '';
+                    try {
+                        const response = await fetch(this.suggestionApiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ text, player })
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error || 'Speichern fehlgeschlagen.');
+
+                        const today = new Date().toISOString().slice(0,10);
+                        const own = JSON.parse(localStorage.getItem('cs2toolkit_suggestion_local') || '{"date":"","count":0}');
+                        const nextCount = own.date === today ? Number(own.count || 0) + 1 : 1;
+                        localStorage.setItem('cs2toolkit_suggestion_local', JSON.stringify({date: today, count: nextCount}));
+                        this.suggestionText = '';
+                        this.suggestionPlayer = '';
+                        this.suggestionRemaining = Math.max(0, 5 - nextCount);
+                        this.suggestionNotice = 'Vorschlag veröffentlicht.';
+                        await this.loadSuggestions();
+                    } catch (error) {
+                        this.suggestionNotice = error.message || 'Speichern fehlgeschlagen.';
+                    } finally {
+                        this.suggestionLoading = false;
                     }
-                    if (text.length > this.improvementMaxLength) {
-                        this.improvementNotice = 'Maximal 150 Zeichen pro Nachricht.';
-                        return;
-                    }
-                    this.loadImprovementSuggestions();
-                    if (this.improvementMessages.length >= this.improvementDailyLimit) {
-                        this.improvementNotice = 'Tageslimit erreicht. Morgen kannst du wieder 5 Vorschläge senden.';
-                        return;
-                    }
-                    this.improvementMessages.push({
-                        text,
-                        player: player || 'Anonym',
-                        time: new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'})
-                    });
-                    localStorage.setItem('cs2toolkit_improvement_suggestions', JSON.stringify({
-                        date: this.improvementTodayKey,
-                        items: this.improvementMessages
-                    }));
-                    this.improvementText = '';
-                    this.improvementNotice = 'Vorschlag gespeichert. Danke für dein Feedback!';
                 },
+
                 smokeId: 0,
                 bombWave: { active: false, site: 'A', x: 50, y: 50, inspectActive: false, inspectX: 50, inspectY: 50 },
                 maps: {
