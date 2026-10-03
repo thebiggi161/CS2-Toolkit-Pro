@@ -173,6 +173,9 @@
                 <button @click="activeTab = 'aim-trainer'" :class="activeTab === 'aim-trainer' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-crosshairs"></i> Aim Trainer
                 </button>
+                <button @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-trophy"></i> Esports
+                </button>
                 <button @click="activeTab = 'weapons'" :class="activeTab === 'weapons' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-gun"></i> Weapons
                 </button>
@@ -229,6 +232,57 @@
 
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+
+        <!-- TAB: ESPORTS -->
+        <div x-show="activeTab === 'esports'" x-cloak class="space-y-5">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+                <div>
+                    <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">CS2 Competitive</div>
+                    <h2 class="text-2xl font-black text-white mt-1">Esports Live</h2>
+                    <p class="text-gray-400 text-sm mt-1">Offizielle bzw. ligaeigene CS2-Übertragungen direkt im Toolkit.</p>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Live-Player</span>
+                    <span>•</span><span>Desktop & Mobile</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[210px_minmax(0,1fr)] gap-4">
+                <aside class="bg-csdark-800 border border-gray-800 rounded-2xl p-2 h-fit">
+                    <div class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">Streams</div>
+                    <button @click="esportsStream='iem'" :class="esportsStream === 'iem' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="w-full text-left px-3 py-3 rounded-xl transition flex items-center gap-3">
+                        <i class="fa-solid fa-globe"></i><span><span class="block font-bold text-sm">IEM</span><span class="block text-[10px] opacity-70">ESL Counter-Strike</span></span>
+                    </button>
+                    <button @click="esportsStream='blast'" :class="esportsStream === 'blast' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="w-full text-left px-3 py-3 rounded-xl transition flex items-center gap-3">
+                        <i class="fa-solid fa-bolt"></i><span><span class="block font-bold text-sm">BLAST</span><span class="block text-[10px] opacity-70">BLAST Premier</span></span>
+                    </button>
+                    <button @click="esportsStream='dach'" :class="esportsStream === 'dach' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="w-full text-left px-3 py-3 rounded-xl transition flex items-center gap-3">
+                        <i class="fa-solid fa-flag"></i><span><span class="block font-bold text-sm">DACH CS Masters</span><span class="block text-[10px] opacity-70">DACH CS</span></span>
+                    </button>
+                </aside>
+
+                <section class="bg-black border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+                    <div class="px-4 py-3 bg-csdark-800 border-b border-gray-800 flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-[0.2em] text-csorange font-black" x-text="esportsStream === 'iem' ? 'IEM / ESL' : (esportsStream === 'blast' ? 'BLAST Premier' : 'DACH CS Masters')"></div>
+                            <div class="text-sm font-bold text-white mt-0.5" x-text="esportsStream === 'iem' ? 'Counter-Strike Broadcast' : (esportsStream === 'blast' ? 'Counter-Strike Broadcast' : 'DACH CS Broadcast')"></div>
+                        </div>
+                        <a x-show="esportsStream === 'iem'" href="https://www.twitch.tv/eslcs" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-400 hover:text-csorange">Extern öffnen ↗</a>
+                        <a x-show="esportsStream === 'blast'" href="https://www.twitch.tv/blastpremier" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-400 hover:text-csorange">Extern öffnen ↗</a>
+                        <a x-show="esportsStream === 'dach'" href="https://www.twitch.tv/dachcs" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-400 hover:text-csorange">Extern öffnen ↗</a>
+                    </div>
+                    <div class="aspect-video bg-black">
+                        <iframe x-show="esportsStream === 'iem'" class="w-full h-full" src="https://player.twitch.tv/?channel=eslcs&parent=thebiggi161.github.io&parent=localhost" title="IEM / ESL Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
+                        <iframe x-show="esportsStream === 'blast'" class="w-full h-full" src="https://player.twitch.tv/?channel=blastpremier&parent=thebiggi161.github.io&parent=localhost" title="BLAST Premier Counter-Strike Live" frameborder="0" allowfullscreen></iframe>
+                        <iframe x-show="esportsStream === 'dach'" class="w-full h-full" src="https://player.twitch.tv/?channel=dachcs&parent=thebiggi161.github.io&parent=localhost" title="DACH CS Masters Live" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="px-4 py-3 bg-csdark-800 border-t border-gray-800 text-xs text-gray-500">
+                        Wenn aktuell kein Match läuft, zeigt der Player den jeweiligen Kanal bzw. eine Offline-Ansicht.
+                    </div>
+                </section>
+            </div>
+        </div>
 
         <!-- TAB: WEAPONS DATABASE -->
         <div x-show="activeTab === 'weapons'" x-cloak class="space-y-6">
@@ -1222,6 +1276,7 @@
                 weaponSearch: '',
                 weaponCategory: 'all',
                 weaponSide: 'all',
+                esportsStream: 'iem',
                 weaponCompare: [null, null, null],
                 weaponData: [
                     {id:'ak47',name:'AK-47',weapon:'Rifle',category:'rifle',side:'T',price:2700,damage:36,armor:77,mag:30,rpm:600,speed:215,reload:'2.43s',reward:300},
