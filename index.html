@@ -340,62 +340,61 @@
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
                         <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">CS2 Toolkit Pro</div>
-                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2"><i class="fa-solid fa-flask text-csorange"></i> TestLab</h2>
-                        <p class="text-gray-400 text-sm mt-1">Admin-Bereich für neue Funktionen, Änderungsanfragen und spätere GitHub-Deployments.</p>
+                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
+                            <i class="fa-solid fa-flask text-csorange"></i> TestLab
+                        </h2>
+                        <p class="text-gray-400 text-sm mt-1">Spielwiese für neue Funktionen. Alles hier darf getestet, verändert und wieder verworfen werden.</p>
                     </div>
-                    <div class="inline-flex items-center gap-2 bg-csorange/10 border border-csorange/30 rounded-lg px-3 py-2 text-xs text-csorange font-bold"><span class="w-2 h-2 rounded-full bg-csorange animate-pulse"></span> ADMIN TESTBEREICH</div>
+                    <div class="inline-flex items-center gap-2 bg-csorange/10 border border-csorange/30 rounded-lg px-3 py-2 text-xs text-csorange font-bold">
+                        <span class="w-2 h-2 rounded-full bg-csorange animate-pulse"></span>
+                        TESTBEREICH
+                    </div>
                 </div>
             </div>
 
-            <section x-show="!adminAuthenticated" class="max-w-xl mx-auto bg-csdark-800 border border-csorange/30 rounded-2xl p-6 shadow-2xl">
-                <div class="text-center mb-6">
-                    <div class="mx-auto w-14 h-14 rounded-2xl bg-csorange/10 border border-csorange/30 flex items-center justify-center text-csorange text-xl"><i class="fa-solid fa-lock"></i></div>
-                    <h3 class="text-xl font-black text-white mt-4">Admin Login</h3>
-                    <p class="text-xs text-gray-500 mt-1">Nur angemeldete Admins können den TestLab-Assistenten verwenden.</p>
-                </div>
-                <form @submit.prevent="adminLogin()" class="space-y-4">
-                    <label class="block"><span class="text-xs text-gray-400">Benutzername</span><input x-model="adminUsername" autocomplete="username" required class="mt-1 w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-xl px-4 py-3 text-sm text-white outline-none" placeholder="Admin-Benutzername"></label>
-                    <label class="block"><span class="text-xs text-gray-400">Passwort</span><input x-model="adminPassword" type="password" autocomplete="current-password" required class="mt-1 w-full bg-csdark-900 border border-gray-700 focus:border-csorange rounded-xl px-4 py-3 text-sm text-white outline-none" placeholder="Admin-Passwort"></label>
-                    <div x-show="adminError" x-cloak class="bg-red-500/10 border border-red-500/30 text-red-300 rounded-lg px-3 py-2 text-xs" x-text="adminError"></div>
-                    <button type="submit" :disabled="adminBusy" class="w-full bg-csorange hover:bg-csorange-hover disabled:opacity-50 text-black font-black rounded-xl py-3 text-sm transition"><i class="fa-solid fa-right-to-bracket mr-1"></i><span x-text="adminBusy ? 'Anmeldung läuft …' : 'Als Admin anmelden'"></span></button>
-                </form>
-                <div class="mt-5 pt-4 border-t border-gray-800 text-[10px] text-gray-600 text-center">Der Login wird serverseitig geprüft. Zugangsdaten werden nicht im Frontend gespeichert.</div>
-            </section>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
+                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
+                        <i class="fa-solid fa-vial"></i>
+                    </div>
+                    <h3 class="font-bold text-white">Funktions-Test</h3>
+                    <p class="text-xs text-gray-500 mt-2">Platzhalter für neue UI-Elemente, Interaktionen und Experimente.</p>
+                    <button @click="testLabCounter++" class="mt-4 w-full bg-csdark-700 hover:bg-csdark-600 border border-gray-700 rounded-lg py-2.5 text-xs font-bold text-gray-200 transition">
+                        <i class="fa-solid fa-play mr-1 text-csorange"></i> Test ausführen
+                    </button>
+                    <div class="text-center text-xs text-gray-500 mt-3">Ausführungen: <span class="text-csorange font-mono font-bold" x-text="testLabCounter"></span></div>
+                </section>
 
-            <section x-show="adminAuthenticated" x-cloak class="space-y-4">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-csdark-800 border border-green-500/20 rounded-2xl p-4">
-                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400"><i class="fa-solid fa-shield-halved"></i></div><div><div class="text-[10px] uppercase tracking-widest text-green-400 font-black">Admin aktiv</div><div class="text-sm font-bold text-white" x-text="adminUsername || 'Admin'"></div></div></div>
-                    <div class="flex gap-2"><span class="px-3 py-2 rounded-lg bg-csdark-900 border border-gray-800 text-[10px] text-gray-500"><i class="fa-solid fa-server text-csorange mr-1"></i> Backend-Session</span><button @click="adminLogout()" class="bg-csdark-700 hover:bg-red-900/40 border border-gray-700 hover:border-red-500/40 text-gray-300 hover:text-red-300 px-3 py-2 rounded-lg text-xs font-bold transition"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</button></div>
-                </div>
+                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
+                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
+                        <i class="fa-solid fa-toggle-on"></i>
+                    </div>
+                    <h3 class="font-bold text-white">UI Playground</h3>
+                    <p class="text-xs text-gray-500 mt-2">Kleiner Bereich zum Testen von Zuständen und Komponenten.</p>
+                    <button @click="testLabEnabled=!testLabEnabled" :class="testLabEnabled ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="mt-4 w-full border border-gray-700 rounded-lg py-2.5 text-xs font-bold transition">
+                        <i class="fa-solid" :class="testLabEnabled ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                        <span x-text="testLabEnabled ? 'Aktiv' : 'Inaktiv'"></span>
+                    </button>
+                </section>
 
-                <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
-                    <section class="bg-csdark-800 border border-csorange/30 rounded-2xl overflow-hidden">
-                        <div class="px-5 py-4 border-b border-gray-800 flex items-center justify-between gap-3"><div><div class="text-[10px] uppercase tracking-widest text-csorange font-black">CS2 Toolkit AI</div><h3 class="text-lg font-black text-white mt-1">Admin-Assistent</h3></div><button @click="adminMessages=[]" class="text-xs text-gray-500 hover:text-white transition"><i class="fa-solid fa-eraser mr-1"></i> Chat leeren</button></div>
-                        <div class="h-[430px] overflow-y-auto p-4 space-y-3 bg-csdark-900/40">
-                            <div x-show="adminMessages.length===0" class="h-full flex items-center justify-center text-center"><div class="max-w-md"><i class="fa-solid fa-robot text-3xl text-csorange mb-3"></i><div class="font-bold text-white">Bereit für Änderungsanfragen</div><p class="text-xs text-gray-500 mt-2">Zum Beispiel: „Prüfe die TestLab-Navigation“ oder „Plane eine Änderung an der Weapons Database“.</p></div></div>
-                            <template x-for="(message,index) in adminMessages" :key="'admin-msg-'+index"><div class="flex" :class="message.role==='user' ? 'justify-end' : 'justify-start'"><div class="max-w-[88%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap" :class="message.role==='user' ? 'bg-csorange text-black rounded-br-md' : 'bg-csdark-700 border border-gray-700 text-gray-200 rounded-bl-md'" x-text="message.content"></div></div></template>
-                            <div x-show="adminChatBusy" class="flex justify-start"><div class="bg-csdark-700 border border-gray-700 text-gray-400 rounded-2xl rounded-bl-md px-4 py-3 text-sm"><i class="fa-solid fa-spinner fa-spin text-csorange mr-2"></i> Assistent denkt …</div></div>
-                        </div>
-                        <form @submit.prevent="sendAdminMessage()" class="p-4 border-t border-gray-800">
-                            <div class="flex gap-2"><textarea x-model="adminDraft" @keydown.enter.ctrl.prevent="sendAdminMessage()" rows="3" class="flex-1 bg-csdark-900 border border-gray-700 focus:border-csorange rounded-xl px-4 py-3 text-sm text-white outline-none resize-none" placeholder="Beschreibe die gewünschte Änderung …"></textarea><button type="submit" :disabled="adminChatBusy || !adminDraft.trim()" class="self-end bg-csorange hover:bg-csorange-hover disabled:opacity-40 text-black font-black rounded-xl px-4 py-3 transition" title="Senden"><i class="fa-solid fa-paper-plane"></i></button></div>
-                            <div class="text-[10px] text-gray-600 mt-2">Strg + Enter zum Senden · Änderungen werden in dieser Version noch nicht automatisch committed.</div>
-                        </form>
-                    </section>
+                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
+                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="font-bold text-white">Experiment-Status</h3>
+                    <p class="text-xs text-gray-500 mt-2">Hier können wir später neue Prototypen unabhängig vom Hauptbereich testen.</p>
+                    <div class="mt-4 bg-csdark-900 border border-gray-800 rounded-lg p-3 text-xs">
+                        <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="font-bold" :class="testLabEnabled ? 'text-green-400' : 'text-gray-400'" x-text="testLabEnabled ? 'Experiment aktiv' : 'Bereit'"></span></div>
+                        <div class="flex justify-between mt-2"><span class="text-gray-500">Testläufe</span><span class="text-csorange font-mono" x-text="testLabCounter"></span></div>
+                    </div>
+                </section>
+            </div>
 
-                    <aside class="space-y-4">
-                        <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
-                            <div class="flex items-center gap-2 text-csorange font-black text-sm"><i class="fa-solid fa-code-branch"></i> Workflow</div>
-                            <div class="mt-4 space-y-3 text-xs">
-                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csorange text-black font-black flex items-center justify-center">1</span><div><div class="font-bold text-white">Anfrage</div><div class="text-gray-500">Du beschreibst die gewünschte Änderung.</div></div></div>
-                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csdark-700 border border-gray-700 text-gray-300 font-black flex items-center justify-center">2</span><div><div class="font-bold text-white">Analyse</div><div class="text-gray-500">Der Assistent erklärt betroffene Dateien und Vorgehen.</div></div></div>
-                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csdark-700 border border-gray-700 text-gray-300 font-black flex items-center justify-center">3</span><div><div class="font-bold text-white">Vorschau</div><div class="text-gray-500">Als nächstes kommt eine Diff-Vorschau.</div></div></div>
-                                <div class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-csdark-700 border border-gray-700 text-gray-300 font-black flex items-center justify-center">4</span><div><div class="font-bold text-white">Bestätigen</div><div class="text-gray-500">Erst nach deiner Bestätigung wird später GitHub geändert.</div></div></div>
-                            </div>
-                        </div>
-                        <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5"><div class="text-[10px] uppercase tracking-widest text-csorange font-black">Backend Status</div><div class="mt-3 flex items-center gap-2 text-sm"><span class="w-2 h-2 rounded-full" :class="adminBackendAvailable ? 'bg-green-400' : 'bg-yellow-400'"></span><span x-text="adminBackendAvailable ? 'Verbunden' : 'Auf Vercel deployen'"></span></div><p class="text-[10px] text-gray-600 mt-2">GitHub Pages kann die serverseitigen Admin-Funktionen nicht ausführen.</p></div>
-                    </aside>
-                </div>
-            </section>
+            <div class="bg-csdark-800 border border-dashed border-csorange/30 rounded-2xl p-8 text-center">
+                <i class="fa-solid fa-flask text-3xl text-csorange mb-3"></i>
+                <h3 class="text-lg font-bold text-white">Hier bauen wir neue Sachen zuerst</h3>
+                <p class="text-sm text-gray-500 mt-1">Der Test-Reiter ist bewusst getrennt vom produktiven Bereich.</p>
+            </div>
         </div>
 
         <!-- TAB: ESPORTS -->
@@ -1410,96 +1409,9 @@
                     localStorage.setItem('cs2toolkit_overlay_clickthrough', JSON.stringify(this.clickThrough));
                 },
 
-                init() {
-                    this.checkAdminSession();
-                },
-
-                async checkAdminSession() {
-                    try {
-                        const response = await fetch('/api/session', { credentials: 'include' });
-                        this.adminBackendAvailable = response.status !== 404;
-                        if (!response.ok) {
-                            this.adminAuthenticated = false;
-                            return;
-                        }
-                        const data = await response.json();
-                        this.adminAuthenticated = !!data.authenticated;
-                        if (data.username) this.adminUsername = data.username;
-                    } catch (error) {
-                        this.adminBackendAvailable = false;
-                        this.adminAuthenticated = false;
-                    }
-                },
-
-                async adminLogin() {
-                    this.adminBusy = true;
-                    this.adminError = '';
-                    try {
-                        const response = await fetch('/api/login', {
-                            method: 'POST',
-                            credentials: 'include',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ username: this.adminUsername, password: this.adminPassword })
-                        });
-                        const data = await response.json().catch(() => ({}));
-                        if (!response.ok) throw new Error(data.error || 'Login fehlgeschlagen.');
-                        this.adminAuthenticated = true;
-                        this.adminPassword = '';
-                        await this.checkAdminSession();
-                    } catch (error) {
-                        this.adminAuthenticated = false;
-                        this.adminError = error.message || 'Login fehlgeschlagen.';
-                    } finally {
-                        this.adminBusy = false;
-                    }
-                },
-
-                async adminLogout() {
-                    await fetch('/api/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
-                    this.adminAuthenticated = false;
-                    this.adminUsername = '';
-                    this.adminMessages = [];
-                },
-
-                async sendAdminMessage() {
-                    const content = this.adminDraft.trim();
-                    if (!content || this.adminChatBusy || !this.adminAuthenticated) return;
-                    this.adminDraft = '';
-                    this.adminMessages.push({ role: 'user', content });
-                    this.adminChatBusy = true;
-                    try {
-                        const response = await fetch('/api/chat', {
-                            method: 'POST',
-                            credentials: 'include',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ messages: this.adminMessages })
-                        });
-                        const data = await response.json().catch(() => ({}));
-                        if (response.status === 401) {
-                            this.adminAuthenticated = false;
-                            throw new Error('Session abgelaufen. Bitte erneut anmelden.');
-                        }
-                        if (!response.ok) throw new Error(data.error || 'Chat-Anfrage fehlgeschlagen.');
-                        this.adminMessages.push({ role: 'assistant', content: data.reply || 'Keine Antwort erhalten.' });
-                    } catch (error) {
-                        this.adminMessages.push({ role: 'assistant', content: 'Fehler: ' + (error.message || 'Unbekannter Fehler.') });
-                    } finally {
-                        this.adminChatBusy = false;
-                    }
-                },
-
                 activeTab: 'maps-nades',
                 testLabCounter: 0,
                 testLabEnabled: false,
-                adminAuthenticated: false,
-                adminBackendAvailable: false,
-                adminUsername: '',
-                adminPassword: '',
-                adminError: '',
-                adminBusy: false,
-                adminDraft: '',
-                adminMessages: [],
-                adminChatBusy: false,
                 crosshairPanel: 'builder',
                 playerMoney: 4500,
                 lossStreak: 1,
@@ -1998,91 +1910,3 @@
                             ['Smoke','T','B','Banana','Coffins / CT','Banana Execute Smoke','Schneidet Coffins und CT für den B-Execute ab.','Banana-Referenz exakt aus dem Demo-Clip übernehmen.'],
                             ['Smoke','CT','B','CT Spawn','Banana','CT Banana Smoke','Bremst Banana-Control und kauft Zeit für Rotationen.','CT-Spawn-Position und Aim-Punkt aus dem Demo reproduzieren.'],
                             ['Flash','T','B','Banana','Coffins','Banana Popflash','Blendet den engen Coffins-Hold beim B-Entry.','Timing unmittelbar vor dem Entry ausführen.'],
-                            ['Flash','CT','A','Arch / Library','Pit','A Retake Flash','Öffnet Pit und Site für einen koordinierten Retake.','Flash über Site schicken und Pit/Default im Trade clearen.'],
-                            ['Molotov','T','B','Banana','Coffins','Coffins Molotov','Vertreibt den Anchor aus Coffins.','Aim-Punkt und Bewegungsablauf aus dem Demo übernehmen.'],
-                            ['HE','CT','B','CT / Banana','Banana','Banana HE','Bestraft frühe Banana-Pushes.','HE auf das dokumentierte Banana-Timing werfen.'],
-                            ['Retake','CT','A','Library / Arch','A Site','A Retake Utility','Öffnet Pit, Default und Site-Holds.','Flash zuerst, danach Feuer und gemeinsam clearen.'],
-                            ['Retake','CT','B','CT','Coffins / Dark','B Retake Utility','Macht die engen B-Winkel kontrollierbar.','Smoke/Flash trennen Coffins und Dark, dann gemeinsam Site clearen.']
-                        ],
-                        nuke: [
-                            ['Smoke','T','Outside','T Spawn / Outside','Garage','Outside Garage Smoke','Reduziert die Sicht vom Garage-Hold beim Outside-Cross.','Outside-Position und Aim-Punkt anhand des Demo-Clips übernehmen.'],
-                            ['Smoke','T','A','Lobby / Squeaky','Heaven','Heaven Smoke','Nimmt den hohen A-Hold für den Execute heraus.','Lobby/Squeaky auf den dokumentierten Heaven-Punkt ausrichten.'],
-                            ['Flash','T','Outside','Garage','Heaven / Yard','Outside Entry Flash','Blendet Heaven/Container beim Yard-Cross.','Flash über die Außenwand setzen und direkt kreuzen.'],
-                            ['Flash','T','A','Ramp','Ramp','Ramp Popflash','Öffnet Ramp gegen den ersten CT-Hold.','Popflash kurz vor dem Ramp-Peek.'],
-                            ['Molotov','T','A','Silo','Heaven','Heaven Molotov','Entfernt den Heaven-Anker vor dem A-Plant.','Silo-Referenz und Aim-Punkt aus dem Demo übernehmen.'],
-                            ['HE','CT','Outside','Garage / CT','Outside','Outside HE','Chip-Damage gegen frühe Yard-Control.','Auf das übliche Garage-/Outside-Timing werfen.'],
-                            ['Retake','CT','A','Heaven / Rafters','A Site','A Retake Utility','Öffnet Site ohne blind in Hut/Squeaky zu laufen.','Flash, Heaven/Rafters clearen, danach gemeinsam Site nehmen.'],
-                            ['Retake','CT','B','Ramp / Vents','B Site','B Retake Utility','Sichert den Lower-Retake.','Smoke zur Trennung, Flash in den Plant-Bereich und von zwei Seiten einsteigen.']
-                        ],
-                        ancient: [
-                            ['Smoke','T','A','Outside A','Donut / CT','Donut Smoke','Schneidet Donut als Rotations- und Crossfire-Winkel ab.','Outside-A-Position und dokumentierten Aim-Punkt übernehmen.'],
-                            ['Smoke','T','B','Ruins','B Alley / CT','B Alley Smoke','Blockiert die wichtigsten B-Rotationswinkel.','Ruins-Referenz aus dem Demo exakt reproduzieren.'],
-                            ['Flash','T','A','A Main','A Site','A Site Entry Flash','Blendet den A-Site-Hold vor dem Entry.','A-Main-Position und Throw aus dem Demo verwenden.'],
-                            ['Flash','T','B','Ruins Box','B Site','B Site Flash','Öffnet enge B-Site-Winkel.','Flash auf den dokumentierten B-Site-Aim-Punkt.'],
-                            ['Molotov','T','A','A Main','A Default','A Default Molotov','Räumt den Standard-Plant-Hold.','A-Main-Position und Aim-Punkt aus dem Demo übernehmen.'],
-                            ['HE','CT','Mid','CT / Temple','Mid','Mid HE','Bestraft frühe Mid-Control.','HE auf das dokumentierte Mid-Timing werfen.'],
-                            ['Retake','CT','A','CT / Donut','A Site','A Retake Utility','Trennt Donut und Site und öffnet Plant-Zonen.','Flash auf Site, danach Default/Back clearen.'],
-                            ['Retake','CT','B','CT / Lane','B Site','B Retake Utility','Schafft Raum gegen Cave-, Pillar- und Back-Site-Holds.','Flash zuerst, dann Cave/Back-Site im Trade clearen.']
-                        ],
-                        dust2: [
-                            ['Smoke','T','Mid','T Spawn','Xbox / Mid','Xbox Smoke','Schirmt Mid ab und öffnet Catwalk/Short.','T-Spawn-Position und Xbox-Aim aus dem Demo reproduzieren.'],
-                            ['Smoke','T','A','Long','CT Spawn','A CT Smoke','Blockiert CT-Rotation beim A-Take.','Long-Position und Aim-Punkt aus dem Demo übernehmen.'],
-                            ['Flash','T','A','Long','Long Corner','Long Entry Flash','Blendet den ersten Long-Hold.','Flash über die dokumentierte Ecke setzen.'],
-                            ['Flash','T','B','Upper Tunnels','B Site','B Tunnels Flash','Öffnet den Tunnels-Ausgang gegen den Site-Hold.','Vor dem Tunnels-Exit nach dem Demo-Timing werfen.'],
-                            ['Molotov','T','A','Long Pit','A Site','A Default Molotov','Verbrennt einen typischen Default-Hold.','Long/Pit-Position und Aim-Punkt reproduzieren.'],
-                            ['HE','CT','B','B Site','Upper Tunnels','B Tunnels HE','Chip-Damage gegen einen B-Rush.','Früh auf das dokumentierte Tunnels-Timing werfen.'],
-                            ['Retake','CT','A','CT Spawn','A Site','A Retake Utility','Trennt Long/Short und ermöglicht den ersten CT-Peek.','Flash, Smoke und danach Default/Goose clearen.'],
-                            ['Retake','CT','B','B Doors / CT','B Site','B Retake Utility','Nimmt Tunnels- und Back-Site-Holds aus dem Blick.','Flash über B Doors, gemeinsam Pillar/Back clearen.']
-                        ],
-                        anubis: [
-                            ['Smoke','T','A','Water','Heaven / Temple','A Execute Smoke','Blockiert hohe A-Winkel und schützt den Plant.','Water-Position und Aim-Punkt aus dem Demo übernehmen.'],
-                            ['Smoke','T','B','Ruins','B Site','B Site Smoke','Trennt B-Entry vom Site-Hold.','Ruins-Position und dokumentierten Aim-Punkt reproduzieren.'],
-                            ['Flash','T','A','Water','A Site','A Site Entry Flash','Öffnet den ersten A-Site-Kontakt.','Flash aus Water nach dem Demo-Timing werfen.'],
-                            ['Flash','T','B','Water / Canal','Connector','Water Flash','Blendet den Connector-/Roamer-Winkel.','Water-Position und Aim-Punkt exakt nachstellen.'],
-                            ['Molotov','T','B','EBox','Backsite','Backsite Molotov','Vertreibt einen Defender aus dem engen B-Hold.','EBox-Position und dokumentierten Aim-Punkt verwenden.'],
-                            ['HE','CT','A','A Main','Fountain','Fountain HE','Früher Schaden auf der A-Seite.','A-Main-Position und Timing aus dem Demo verwenden.'],
-                            ['Retake','CT','A','CT Stairs','A Site','A Retake Utility','Öffnet Temple, Default und die hohe Site.','Flash zuerst, danach Default/Temple clearen.'],
-                            ['Retake','CT','B','CT / Canal','B Site','B Retake Utility','Reduziert Pillar-/Dark-Winkel beim B-Retake.','Smoke trennt den Entry, Flash öffnet Pillar und Back Site.']
-                        ],
-                        cache: [
-                            ['Smoke','T','Mid','T Side','Mid','Mid Smoke','Schneidet Mid-Sichtlinien und öffnet beide Splits.','T-Seite-Position und Aim-Punkt aus dem Demo übernehmen.'],
-                            ['Smoke','T','A','A Main','Heaven','Heaven Smoke','Nimmt Heaven beim A-Entry heraus.','A-Main-Position und Heaven-Aim aus dem Demo reproduzieren.'],
-                            ['Flash','T','A','A Main','A Site','A Main Entry Flash','Blendet Site-Holds hinter Truck/Default.','Flash vor dem Entry nach dem dokumentierten Timing werfen.'],
-                            ['Flash','T','B','B Main','B Site','B Main Popflash','Öffnet den engen B-Entry.','Popflash kurz vor dem Exit aus B Main.'],
-                            ['Molotov','T','A','A Main','Forklift','Forklift Molotov','Räumt den Forklift-Hold.','A-Main-Position und Aim-Punkt aus dem Demo übernehmen.'],
-                            ['HE','CT','B','CT / Checkers','B Main','B Main HE','Bestraft einen schnellen B-Push.','HE auf das B-Main-Timing werfen.'],
-                            ['Retake','CT','A','CT / Highway','A Site','A Retake Utility','Trennt A Main und Site und öffnet Heaven/Truck.','Flash hoch, danach Default/Heaven clearen.'],
-                            ['Retake','CT','B','CT / Checkers','B Site','B Retake Utility','Sichert Checkers und die zentrale B-Plant-Zone.','Flash auf Site, Feuer für engen Hold, danach gemeinsam clearen.']
-                        ]
-                    };
-
-                    const exactSources = {
-                        mirage: {
-                            'Jungle Smoke':'https://csnades.gg/mirage/smokes/jungle-from-tetris',
-                            'Window Smoke':'https://csnades.gg/mirage/smokes/mid-window-from-t-spawn-a',
-                            'A Ramp Entry Flash':'https://csnades.gg/mirage/flashbangs/a-ramp-from-a-ramp',
-                            'B Apps Entry Flash':'https://csnades.gg/mirage/flashbangs/b-site-from-apts',
-                            'Ticket Molotov':'https://csnades.gg/mirage/molotovs/default-a-from-ramp',
-                            'B Retake Smoke + Flash':'https://csnades.gg/mirage/smokes/market-window-from-back-alley'
-                        },
-                        inferno: {
-                            'Banana Execute Smoke':'https://csnades.gg/inferno/smokes/coffins-from-banana',
-                            'CT Banana Smoke':'https://csnades.gg/inferno/smokes/bottom-mid-from-ct-spawn-1',
-                            'Coffins Molotov':'https://csnades.gg/inferno/molotovs/new-box-from-ct'
-                        },
-                        nuke: {
-                            'Outside Garage Smoke':'https://csnades.gg/nuke/smokes/garage-from-outside-t-spawn',
-                            'Heaven Smoke':'https://csnades.gg/nuke/smokes/heaven-from-silo',
-                            'Heaven Molotov':'https://csnades.gg/nuke/molotovs/a-site-from-t-roof',
-                            'A Retake Utility':'https://csnades.gg/nuke/flashbangs/a-site-from-heaven'
-                        },
-                        ancient: {
-                            'Donut Smoke':'https://csnades.gg/ancient/smokes/donut-from-t-spawn',
-                            'B Alley Smoke':'https://csnades.gg/ancient/smokes/b-alley-from-ruins',
-                            'A Site Entry Flash':'https://csnades.gg/ancient/flashbangs/a-site-from-a-main',
-                            'B Site Flash':'https://csnades.gg/ancient/flashbangs/b-site-from-ruins-box',
-                            'A Default Molotov':'https://csnades.gg/ancient/molotovs/a-default-from-a-main'
-                        },
-                        dust2: {
-                            'Xbox Smoke':'https://csnades.gg/dust2/smokes/xbox-from-t-spawn',
-                            'A Default Molotov':'https://csnades.gg/dust2/molotovs/back-plat-from-upper-tunnels'
