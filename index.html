@@ -158,7 +158,7 @@
             70% { opacity: .25; }
             100% { opacity: 0; transform: scale(1.35); }
         }
-        .lineup-gif-preview{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 50%,rgba(255,85,0,.08),transparent 58%);}
+        .lineup-gif-preview{position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 50% 50%,rgba(255,85,0,.08),transparent 58%);}
         .lineup-gif-preview .lineup-gif-line{position:absolute;height:3px;background:linear-gradient(90deg,rgba(255,85,0,.15),#ff5500,rgba(255,85,0,.15));transform-origin:left center;box-shadow:0 0 10px rgba(255,85,0,.45);}
         .lineup-gif-preview .lineup-gif-grenade{position:absolute;width:18px;height:18px;border-radius:999px;background:#ff5500;color:#070707;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;box-shadow:0 0 0 3px rgba(255,85,0,.16),0 0 18px rgba(255,85,0,.7);animation:lineupGifTravel 2.6s ease-in-out infinite;}
         .lineup-gif-preview .lineup-gif-impact{position:absolute;width:34px;height:34px;border:2px solid rgba(255,255,255,.8);border-radius:999px;transform:translate(-50%,-50%) scale(.25);opacity:0;animation:lineupGifImpact 2.6s ease-in-out infinite;}
@@ -733,12 +733,12 @@
                 <div x-show="activeMapPanel === 'lineups'" x-cloak class="space-y-5 mb-6">
                     <div class="bg-csdark-900 border border-csorange/30 rounded-2xl p-5">
                         <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
-                            <div><div class="text-[10px] uppercase tracking-[0.2em] text-csorange font-black">Utility Library</div><h3 class="text-xl font-black text-white mt-1">Lineups lernen statt nur speichern</h3><p class="text-xs text-gray-500 mt-1">Map → Bombsite → Position → Utility. Die Animation zeigt die Wurfrichtung; die Beschreibung erklärt die Ausführung.</p></div>
-                            <div class="flex flex-wrap gap-2 text-[10px]"><span class="px-2.5 py-1.5 rounded-lg bg-csdark-800 border border-gray-700 text-gray-400"><span class="text-white font-bold" x-text="filteredLineupDatabase().length"></span> Treffer</span><span class="px-2.5 py-1.5 rounded-lg bg-csdark-800 border border-gray-700 text-gray-400">GIF-Style Preview</span></div>
+                            <div><div class="text-[10px] uppercase tracking-[0.2em] text-csorange font-black">Utility Library</div><h3 class="text-xl font-black text-white mt-1">Lineups lernen statt nur speichern</h3><p class="text-xs text-gray-500 mt-1">Komplett neu aufgebaut: 10 Maps · Smokes · Flashes · Molotovs · HE · Retakes. Jede Karte erklärt Position, Ziel-Callout, Throw und den Zweck der Utility. Die Vorschau ist eine echte Browser-Animation und benötigt keine externe GIF-Datei.</p></div>
+                            <div class="flex flex-wrap gap-2 text-[10px]"><span class="px-2.5 py-1.5 rounded-lg bg-csdark-800 border border-gray-700 text-gray-400"><span class="text-white font-bold" x-text="filteredLineupDatabase().length"></span> Setups</span><span class="px-2.5 py-1.5 rounded-lg bg-csdark-800 border border-gray-700 text-gray-400">Animierte GIF-Vorschau</span><button type="button" @click="lineupMode='retake'" :class="lineupMode==='retake' ? 'bg-csorange text-black font-bold' : 'bg-csdark-800 text-gray-400'" class="px-2.5 py-1.5 rounded-lg border border-gray-700">Nur Retakes</button></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-2 mt-4">
                             <input x-model="lineupSearch" type="search" placeholder="Lineup suchen …" class="xl:col-span-2 bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-csorange">
-                            <select x-model="lineupType" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">Alle Utility</option><option value="Smoke">Smoke</option><option value="Flash">Flash</option><option value="Molotov">Molotov</option><option value="HE">HE</option></select>
+                            <select x-model="lineupType" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">Alle Utility</option><option value="Smoke">Smoke</option><option value="Flash">Flash</option><option value="Molotov">Molotov</option><option value="HE">HE</option><option value="Retake">Retake</option></select>
                             <select x-model="lineupSide" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">T + CT</option><option value="T">T Side</option><option value="CT">CT Side</option></select>
                             <select x-model="lineupBombsite" class="bg-csdark-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white"><option value="all">A + B + Mid</option><option value="A">Bombsite A</option><option value="B">Bombsite B</option><option value="Mid">Mid / Control</option></select>
                         </div>
@@ -753,12 +753,12 @@
                                             <div class="lineup-gif-line" :style="lineStyleForDatabase(lineup)"></div>
                                             <div class="lineup-gif-impact" :style="'left:'+lineup.toX+'%;top:'+lineup.toY+'%;'"></div>
                                             <div class="lineup-gif-grenade" :style="'--from-x:'+lineup.fromX+'%;--from-y:'+lineup.fromY+'%;--to-x:'+lineup.toX+'%;--to-y:'+lineup.toY+'%;'"><i class="fa-solid fa-bomb"></i></div>
-                                            <div class="absolute left-2 bottom-2 px-2 py-1 rounded-md bg-black/75 text-[9px] text-white font-bold tracking-wide"><i class="fa-solid fa-film text-csorange mr-1"></i> ANIMIERT</div>
+                                            <div class="absolute left-2 bottom-2 px-2 py-1 rounded-md bg-black/80 text-[9px] text-white font-bold tracking-wide"><i class="fa-solid fa-film text-csorange mr-1"></i> <span x-text="lineup.gifLabel"></span></div>
                                         </div>
                                     </div>
                                     <div class="md:col-span-3 p-4 md:pl-1">
                                         <div class="flex items-start justify-between gap-2"><div><div class="flex flex-wrap gap-1.5 mb-2"><span class="text-[9px] uppercase tracking-widest px-2 py-1 rounded bg-csorange/10 text-csorange border border-csorange/20" x-text="lineup.type"></span><span class="text-[9px] uppercase tracking-widest px-2 py-1 rounded bg-csdark-800 text-gray-400 border border-gray-700" x-text="lineup.side"></span><span class="text-[9px] uppercase tracking-widest px-2 py-1 rounded bg-csdark-800 text-gray-400 border border-gray-700" x-text="lineup.difficulty"></span></div><h4 class="text-base font-black text-white" x-text="lineup.title"></h4><div class="text-[11px] text-csorange mt-1" x-text="maps[lineup.map].label + ' · ' + lineup.position + ' → ' + lineup.target"></div></div><button type="button" @click="toggleLineupFavorite(lineup.id)" class="w-8 h-8 rounded-lg bg-csdark-800 border border-gray-700 hover:border-csorange/50" :class="isLineupFavorite(lineup.id) ? 'text-yellow-300' : 'text-gray-500'" :title="isLineupFavorite(lineup.id) ? 'Favorit entfernen' : 'Favorit speichern'"><i class="fa-solid fa-star"></i></button></div>
-                                        <p class="text-xs text-gray-400 mt-3 leading-relaxed" x-text="lineup.description"></p>
+                                        <p class="text-xs text-gray-400 mt-3 leading-relaxed" x-text="lineup.description"></p><div class="mt-2 bg-csdark-800 border border-gray-800 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-widest text-csorange">Callout-Erklärung</div><div class="text-[11px] text-gray-300 mt-1" x-text="lineup.calloutDescription"></div></div>
                                         <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2"><div class="bg-csdark-800 border border-gray-800 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-widest text-gray-500">Schrittfolge</div><div class="text-[11px] text-gray-300 mt-1" x-text="lineup.steps"></div></div><div class="bg-csdark-800 border border-gray-800 rounded-lg p-2.5"><div class="text-[9px] uppercase tracking-widest text-gray-500">Throw</div><div class="text-[11px] text-gray-300 mt-1" x-text="lineup.throw"></div></div></div>
                                         <div class="mt-3 flex items-center justify-between gap-2"><span class="text-[10px] text-gray-600" x-text="lineup.note"></span><a x-show="lineup.sourceUrl" :href="lineup.sourceUrl" target="_blank" rel="noopener" class="text-[10px] text-csorange hover:text-orange-300 font-bold whitespace-nowrap"><i class="fa-solid fa-up-right-from-square mr-1"></i> Guide öffnen</a></div>
                                     </div>
@@ -1793,36 +1793,172 @@
                     });
                 },
 
-                lineupDatabase: [
-                    {id:'mirage-window-smoke',map:'mirage',title:'Window Smoke',type:'Smoke',side:'T',bombsite:'Mid',position:'T Spawn',target:'Window',difficulty:'Easy',fromX:27,fromY:82,toX:49,toY:38,throw:'Jumpthrow',steps:'Trashcan/Referenzpunkt ausrichten → Crosshair an den oberen Rahmen → Jumpthrow.',description:'Blockiert Window und reduziert die direkte Sicht auf Mid.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/mirage/smokes/window-from-t-spawn-50a0'},
-                    {id:'mirage-connector-smoke',map:'mirage',title:'Connector Smoke',type:'Smoke',side:'T',bombsite:'A',position:'T Ramp',target:'Connector',difficulty:'Medium',fromX:34,fromY:76,toX:60,toY:43,throw:'Jumpthrow',steps:'Position an T Ramp → Referenzpunkt suchen → auf Connector werfen.',description:'Nimmt einen wichtigen A-Split-Winkel aus dem Spiel.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/mirage'},
-                    {id:'mirage-ticket-booth-molotov',map:'mirage',title:'Ticket Booth Molotov',type:'Molotov',side:'T',bombsite:'A',position:'Tetris',target:'Ticket',difficulty:'Medium',fromX:58,fromY:55,toX:52,toY:30,throw:'Jumpthrow',steps:'Bei Tetris positionieren → Zielpunkt anvisieren → Jumpthrow.',description:'Bringt Feuer auf Ticket und erschwert den CT-Hold.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/mirage/molotovs/ticket-booth-from-tetris-1df0'},
-                    {id:'mirage-catwalk-he',map:'mirage',title:'Catwalk HE',type:'HE',side:'T',bombsite:'Mid',position:'Back Alley',target:'Catwalk',difficulty:'Easy',fromX:73,fromY:67,toX:61,toY:35,throw:'Normalwurf',steps:'Back Alley ausrichten → Catwalk-Referenz anvisieren → werfen.',description:'HE gegen Spieler auf Catwalk/Short.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/mirage/grenades/82b6c746-cb84-4f63-969c-8ea8c7060fc3'},
-                    {id:'inferno-coffins-ct-smoke',map:'inferno',title:'Coffins / CT Smoke',type:'Smoke',side:'T',bombsite:'B',position:'Banana',target:'Coffins / CT',difficulty:'Easy',fromX:18,fromY:75,toX:27,toY:54,throw:'Jumpthrow',steps:'Banana-Position einnehmen → Coffins/CT-Referenz ausrichten → werfen.',description:'Schneidet zentrale B-Site-Winkel ab.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/inferno'},
-                    {id:'inferno-banana-popflash',map:'inferno',title:'Banana Popflash',type:'Flash',side:'T',bombsite:'B',position:'Banana',target:'Banana',difficulty:'Easy',fromX:24,fromY:76,toX:32,toY:60,throw:'Popflash',steps:'Teammate auf Flash-Timing vorbereiten → kurz werfen → Entry folgen.',description:'Öffnet enge Banana-Winkel.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/inferno'},
-                    {id:'inferno-b-default-molotov',map:'inferno',title:'B Default Molotov',type:'Molotov',side:'T',bombsite:'B',position:'B Entrance',target:'Default',difficulty:'Medium',fromX:20,fromY:70,toX:30,toY:58,throw:'Normalwurf',steps:'B Entrance an die Referenz stellen → Dachkante anvisieren → werfen.',description:'Vertreibt einen Defender aus dem B-Default-Hold.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/inferno/molotovs/quad-from-b-entrance-618c'},
-                    {id:'inferno-banana-he',map:'inferno',title:'Banana HE',type:'HE',side:'CT',bombsite:'B',position:'CT / Banana',target:'Banana',difficulty:'Easy',fromX:47,fromY:48,toX:28,toY:62,throw:'Normalwurf',steps:'CT-Ausgang sichern → Banana-Eingang anvisieren → HE timen.',description:'Chip-Damage gegen frühe Banana-Control.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/inferno'},
-                    {id:'nuke-outside-garage-smoke',map:'nuke',title:'Outside Garage Smoke',type:'Smoke',side:'T',bombsite:'Mid',position:'Outside',target:'Garage',difficulty:'Medium',fromX:44,fromY:78,toX:57,toY:59,throw:'Jumpthrow',steps:'Outside-Referenz einnehmen → Garage-Linie ausrichten → werfen.',description:'Hilft beim sicheren Outside-Cross.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/nuke'},
-                    {id:'nuke-ramp-popflash',map:'nuke',title:'Ramp Popflash',type:'Flash',side:'T',bombsite:'A',position:'Ramp',target:'Ramp',difficulty:'Easy',fromX:31,fromY:55,toX:39,toY:43,throw:'Popflash',steps:'Ramp-Ausgang vorbereiten → Flash hoch ansetzen → Entry folgen.',description:'Blendet den ersten Ramp-Hold.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/nuke'},
-                    {id:'nuke-heaven-molotov',map:'nuke',title:'Heaven Molotov',type:'Molotov',side:'T',bombsite:'A',position:'Silo / T Roof',target:'Heaven',difficulty:'Hard',fromX:39,fromY:72,toX:70,toY:16,throw:'Run + Jumpthrow',steps:'Silo-Kante einnehmen → Fenster-/Dachreferenz anvisieren → Run-Jumpthrow.',description:'Verbrennt Heaven und reduziert einen A-Site-Hold.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/nuke/molotovs/heaven-from-silo-bfc0'},
-                    {id:'nuke-ramp-he',map:'nuke',title:'Ramp HE',type:'HE',side:'CT',bombsite:'A',position:'Ramp',target:'Ramp',difficulty:'Medium',fromX:31,fromY:45,toX:38,toY:50,throw:'Normalwurf',steps:'Ramp-Hold einnehmen → Entry-Weg anvisieren → HE timen.',description:'Chip-Damage gegen Ramp-Control.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/nuke'},
-                    {id:'dust2-xbox-smoke',map:'dust2',title:'Xbox Smoke',type:'Smoke',side:'T',bombsite:'Mid',position:'T Spawn',target:'Xbox',difficulty:'Easy',fromX:55,fromY:84,toX:47,toY:39,throw:'Jumpthrow',steps:'T Spawn Referenz → Xbox-Linie ausrichten → Jumpthrow.',description:'Schirmt Mid ab und öffnet Short-/Mid-Spielzüge.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/dust2'},
-                    {id:'dust2-long-entry-flash',map:'dust2',title:'Long Entry Flash',type:'Flash',side:'T',bombsite:'A',position:'Long',target:'Long Corner',difficulty:'Easy',fromX:65,fromY:73,toX:72,toY:55,throw:'Popflash',steps:'Long-Team synchronisieren → Flash vor den Peek → Entry folgen.',description:'Unterstützt den Kampf um Long.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/dust2'},
-                    {id:'dust2-a-site-molotov',map:'dust2',title:'A Site Molotov',type:'Molotov',side:'T',bombsite:'A',position:'Long Pit',target:'A Site',difficulty:'Medium',fromX:66,fromY:73,toX:85,toY:20,throw:'Run + Jumpthrow',steps:'Pit-Ecke einnehmen → Referenz anvisieren → zwei Schritte laufen → Jumpthrow.',description:'Post-Plant-Molotov für A.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/dust2/molotovs/a-site-from-long-pit-237e'},
-                    {id:'dust2-b-tunnels-he',map:'dust2',title:'B Tunnels HE',type:'HE',side:'T',bombsite:'B',position:'Upper Tunnels',target:'B Site',difficulty:'Easy',fromX:24,fromY:52,toX:24,toY:35,throw:'Normalwurf',steps:'Upper Tunnels ausrichten → B-Entry-Zone anvisieren → HE werfen.',description:'Früher Schaden auf B.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/dust2'},
-                    {id:'ancient-donut-smoke',map:'ancient',title:'Donut Smoke',type:'Smoke',side:'T',bombsite:'A',position:'Mid',target:'Donut',difficulty:'Medium',fromX:49,fromY:51,toX:67,toY:40,throw:'Jumpthrow',steps:'Mid-Referenz einnehmen → Donut-Kante anvisieren → werfen.',description:'Schneidet Donut als Rotationswinkel ab.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/ancient'},
-                    {id:'ancient-mid-popflash',map:'ancient',title:'Mid Popflash',type:'Flash',side:'T',bombsite:'Mid',position:'Mid',target:'Mid',difficulty:'Easy',fromX:52,fromY:48,toX:56,toY:42,throw:'Popflash',steps:'Mid-Entry vorbereiten → Flash timen → Entry folgen.',description:'Öffnet frühe Mid-Duelle.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/ancient'},
-                    {id:'ancient-cave-molotov',map:'ancient',title:'Cave Molotov',type:'Molotov',side:'T',bombsite:'B',position:'B Main',target:'Cave',difficulty:'Medium',fromX:28,fromY:62,toX:18,toY:56,throw:'Normalwurf',steps:'B Main ausrichten → Cave-Eingang anvisieren → Molotov werfen.',description:'Vertreibt einen Defender aus Cave.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/ancient'},
-                    {id:'ancient-donut-he',map:'ancient',title:'Donut HE',type:'HE',side:'CT',bombsite:'A',position:'CT',target:'Donut',difficulty:'Medium',fromX:50,fromY:76,toX:67,toY:40,throw:'Normalwurf',steps:'CT-Rotation sichern → Donut-Eingang anvisieren → HE timen.',description:'Unterstützt den A-Retake.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/ancient'},
-                    {id:'anubis-connector-smoke',map:'anubis',title:'Connector Smoke',type:'Smoke',side:'T',bombsite:'Mid',position:'Mid',target:'Connector',difficulty:'Medium',fromX:52,fromY:52,toX:62,toY:44,throw:'Jumpthrow',steps:'Mid-Referenz → Connector-Kante anvisieren → werfen.',description:'Nimmt einen wichtigen Übergang aus dem Spiel.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/anubis'},
-                    {id:'anubis-a-main-entry-flash',map:'anubis',title:'A Main Entry Flash',type:'Flash',side:'T',bombsite:'A',position:'A Main',target:'A Site',difficulty:'Easy',fromX:86,fromY:52,toX:76,toY:30,throw:'Popflash',steps:'A Main sammeln → Flash über den ersten Winkel → Entry folgen.',description:'Öffnet den ersten A-Site-Kontakt.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/anubis'},
-                    {id:'anubis-b-main-molotov',map:'anubis',title:'B Main Molotov',type:'Molotov',side:'T',bombsite:'B',position:'B Main',target:'B Site',difficulty:'Medium',fromX:28,fromY:64,toX:23,toY:70,throw:'Normalwurf',steps:'B Main an die Referenz → Site-Hold anvisieren → werfen.',description:'Drückt einen Defender aus einem engen B-Hold.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/anubis'},
-                    {id:'anubis-mid-he',map:'anubis',title:'Mid HE',type:'HE',side:'CT',bombsite:'Mid',position:'CT / Canal',target:'Mid',difficulty:'Medium',fromX:50,fromY:75,toX:52,toY:48,throw:'Normalwurf',steps:'Canal/CT-Position → Mid-Eingang anvisieren → HE timen.',description:'Früher Schaden gegen Mid-Control.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/anubis'},
-                    {id:'cache-mid-smoke',map:'cache',title:'Mid Smoke',type:'Smoke',side:'T',bombsite:'Mid',position:'T Side',target:'Mid',difficulty:'Easy',fromX:51,fromY:83,toX:51,toY:47,throw:'Jumpthrow',steps:'T-Seite ausrichten → Mid-Referenz treffen → werfen.',description:'Reduziert Mid-Sichtlinien.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/cache'},
-                    {id:'cache-b-main-popflash',map:'cache',title:'B Main Popflash',type:'Flash',side:'T',bombsite:'B',position:'B Main',target:'B Site',difficulty:'Easy',fromX:18,fromY:56,toX:24,toY:76,throw:'Popflash',steps:'B Main sammeln → Flash vor dem Entry → nachsetzen.',description:'Öffnet enge B-Winkel.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/cache'},
-                    {id:'cache-heaven-molotov',map:'cache',title:'Heaven Molotov',type:'Molotov',side:'T',bombsite:'A',position:'A Main',target:'Heaven',difficulty:'Medium',fromX:88,fromY:47,toX:68,toY:20,throw:'Normalwurf',steps:'A Main Referenz → Heaven-Kante anvisieren → werfen.',description:'Entfernt einen Heaven-Hold.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/cache'},
-                    {id:'cache-checkers-he',map:'cache',title:'Checkers HE',type:'HE',side:'CT',bombsite:'B',position:'CT',target:'Checkers',difficulty:'Medium',fromX:48,fromY:70,toX:38,toY:65,throw:'Normalwurf',steps:'CT-Rotation → Checkers-Eingang anvisieren → HE timen.',description:'Chip-Damage gegen B-Lurker.',note:'Animierte Lernvorschau; exakte Position im Spiel mit dem verlinkten Guide prüfen.',sourceUrl:'https://www.cs2tricks.com/nades/cache'}
-                ],
+                lineupDatabase: [],
+                lineupType: 'all',
+                lineupSide: 'all',
+                lineupBombsite: 'all',
+                lineupSearch: '',
+                lineupMode: 'all',
+                lineupFavorites: JSON.parse(localStorage.getItem('cs2toolkit_lineup_favorites') || '[]'),
+
+                buildLineupDatabase() {
+                    const packs = {
+                        mirage: [
+                            ['Smoke','T','A','T Ramp','Jungle','Jungle Smoke','Blockiert Jungle und trennt A-Rotation vom Site-Hold.','Stelle dich an T Ramp, nutze den markierten Wand-/Kantenpunkt als Referenz und wirf mit dem angegebenen Throw.'],
+                            ['Smoke','T','Mid','T Spawn','Window','Window Smoke','Nimmt den Window-Angle für Mid-Control heraus.','Vom Spawn an die Referenz stellen, Crosshair auf den benannten Callout-Punkt setzen und Jumpthrow ausführen.'],
+                            ['Flash','T','A','T Ramp','Stairs','A Ramp Entry Flash','Blendet den Stairs-/Ramp-Hold vor dem Entry.','Flash vor dem ersten Spieler platzieren und sofort mit dem Entry synchronisieren.'],
+                            ['Flash','T','B','Apartments','B Site','B Apps Entry Flash','Öffnet den B-Site-Eingang gegen enge Holds.','Aus Apps werfen, bevor der Entry die letzte Ecke peekt.'],
+                            ['Molotov','T','A','Tetris','Ticket','Ticket Molotov','Vertreibt einen CT aus Ticket und erleichtert den Plant.','An Tetris die Referenzkante nehmen und die Molotov auf Ticket ziehen lassen.'],
+                            ['HE','CT','Mid','CT Spawn','Top Mid','Mid HE','Früher Chip-Damage gegen Mid-Control.','HE auf das erwartete Timing des Mid-Crosses werfen.'],
+                            ['Retake','CT','A','CT / Stairs','Jungle + Site','A Retake Flash','Erzeugt ein Retake-Fenster für CTs und nimmt zwei typische A-Winkel aus dem Blick.','Flash hoch über die Site senden, gleichzeitig aus Stairs/CT vorrücken und Crossfire brechen.'],
+                            ['Retake','CT','B','Market / Short','B Site','B Retake Smoke + Flash','Trennt B-Site-Spieler und schafft einen sicheren ersten Retake-Schritt.','Smoke zur Trennung legen, anschließend Flash über die Site und gemeinsam clearen.']
+                        ],
+                        inferno: [
+                            ['Smoke','T','B','Banana','Coffins / CT','Banana Execute Smoke','Schneidet Coffins und CT für den B-Execute ab.','Banana-Referenz annehmen, Zielkante ausrichten und mit Jumpthrow werfen.'],
+                            ['Smoke','CT','B','CT Spawn','Banana','CT Banana Smoke','Bremst Banana-Control und kauft Zeit für Rotationen.','Aus CT die Banana-Ecke schließen und Push-Timing beobachten.'],
+                            ['Flash','T','B','Banana','Coffins','Banana Popflash','Blendet den engen Coffins-Hold beim B-Entry.','Flash knapp vor dem Entry werfen, damit die Gegner die Flugbahn spät sehen.'],
+                            ['Flash','CT','A','Arch / Library','Pit','A Retake Flash','Öffnet Pit und Site für einen koordinierten Retake.','Flash über die Site schicken und Pit/Default im Trade clearen.'],
+                            ['Molotov','T','B','Banana','Coffins','Coffins Molotov','Vertreibt den Anchor aus Coffins.','Auf die Coffins-Kante werfen und den Smoke-/Flash-Entry dahinter timen.'],
+                            ['HE','CT','B','CT / Banana','Banana','Banana HE','Bestraft frühe Banana-Pushes mit Burst-Damage.','HE auf den erwarteten ersten Kontakt timen.'],
+                            ['Retake','CT','A','Library / Arch','A Site','A Retake Utility','Flash und Feuer öffnen Pit, Default und Site-Holds nacheinander.','Erst Flash für den Peek, dann Molly für Pit/Default und im Zweier-Trade einsteigen.'],
+                            ['Retake','CT','B','CT','Coffins / Dark','B Retake Utility','Stoppt den Plant-Fortschritt und macht die engen B-Winkel kontrollierbar.','Smoke/Flash trennen Coffins und Dark, anschließend gemeinsam Site clearen.']
+                        ],
+                        nuke: [
+                            ['Smoke','T','Outside','T Spawn / Outside','Garage','Outside Garage Smoke','Reduziert die Sicht vom Garage-Hold beim Outside-Cross.','Outside-Referenz ausrichten und den Smoke über die obere Kante senden.'],
+                            ['Smoke','T','A','Lobby / Squeaky','Heaven','Heaven Smoke','Nimmt den hohen A-Hold für den Execute heraus.','Von Lobby/Squeaky auf die Heaven-Referenz ausrichten und werfen.'],
+                            ['Flash','T','Outside','Garage','Heaven / Yard','Outside Entry Flash','Blendet Heaven/Container beim Yard-Cross.','Flash über die Außenwand setzen und direkt hinter dem Flash kreuzen.'],
+                            ['Flash','T','A','Ramp','Ramp','Ramp Popflash','Öffnet Ramp gegen den ersten CT-Hold.','Popflash kurz vor dem Ramp-Peek werfen.'],
+                            ['Molotov','T','A','Silo','Heaven','Heaven Molotov','Entfernt den Heaven-Anker vor dem A-Plant.','Silo-Referenz treffen und Molotov hoch auf Heaven schicken.'],
+                            ['HE','CT','Outside','Garage / CT','Outside','Outside HE','Chip-Damage gegen frühe Yard-Control.','HE auf den üblichen Garage-/Outside-Timingpunkt werfen.'],
+                            ['Retake','CT','A','Heaven / Rafters','A Site','A Retake Utility','Flash und Molly öffnen Site ohne blind in Hut/Squeaky zu laufen.','Zuerst Flash für den Kontakt, dann Heaven/Rafters clearen und gemeinsam Site nehmen.'],
+                            ['Retake','CT','B','Ramp / Vents','B Site','B Retake Utility','Sichert den Lower-Retake und verhindert den schnellen Vent-Rotate.','Smoke zur Trennung setzen, Flash in den Plant-Bereich und von zwei Seiten einsteigen.']
+                        ],
+                        ancient: [
+                            ['Smoke','T','A','Mid','Donut','Donut Smoke','Schneidet Donut als Rotations- und Crossfire-Winkel ab.','Mid-Referenz nutzen und die Donut-Kante sauber abdecken.'],
+                            ['Smoke','T','B','B Main','CT Entrance','B CT Smoke','Blockiert den direkten CT-Blick auf den B-Entry.','Aus B Main an die markierte Referenz stellen und werfen.'],
+                            ['Flash','T','A','Mid / Cave','A Site','Cave Split Flash','Blendet den Cave-/A-Split-Hold.','Flash über die Sitekante senden und mit dem zweiten Spieler nachziehen.'],
+                            ['Flash','T','B','B Main','Cave','B Cave Flash','Öffnet Cave und B-Site gegen passive Anchors.','Flash knapp vor dem Entry in den Cave-Bereich schicken.'],
+                            ['Molotov','T','B','B Main','Cave','Cave Molotov','Vertreibt einen Defender aus Cave.','Molotov auf die Cave-Fläche legen und danach den Entry spielen.'],
+                            ['HE','CT','Mid','CT / Temple','Mid','Mid HE','Bestraft frühe Mid-Control.','HE auf den ersten Mid-Kontakt timen.'],
+                            ['Retake','CT','A','CT / Donut','A Site','A Retake Utility','Trennt Donut und Site und öffnet die häufigsten Plant-Positionen.','Flash auf Site, Molly auf Default/Back und anschließend gemeinsam clearen.'],
+                            ['Retake','CT','B','CT / Lane','B Site','B Retake Utility','Schafft Raum gegen Cave-, Pillar- und Back-Site-Holds.','Erst Flash, dann Cave/Back-Site mit Crossfire und Trade clearen.']
+                        ],
+                        dust2: [
+                            ['Smoke','T','Mid','T Spawn','Xbox / Mid','Xbox Smoke','Schirmt Mid ab und öffnet Catwalk/Short.','T-Spawn-Referenz annehmen und Xbox mit dem Jumpthrow abdecken.'],
+                            ['Smoke','T','A','Long','CT Spawn','A CT Smoke','Blockiert CT-Rotation beim A-Take.','Aus Long die CT-Referenz treffen und den Plant danach absichern.'],
+                            ['Flash','T','A','Long','Long Corner','Long Entry Flash','Blendet den ersten Long-Hold.','Flash über die Ecke setzen und im Timing nachpeeken.'],
+                            ['Flash','T','B','Upper Tunnels','B Site','B Tunnels Flash','Öffnet den Tunnels-Ausgang gegen den Site-Hold.','Flash vor dem Tunnels-Exit werfen und als Gruppe ausbrechen.'],
+                            ['Molotov','T','A','Long Pit','A Site','A Default Molotov','Verbrennt einen typischen Default-/Site-Hold.','Von Long/Pit die Plant-Zone anvisieren und Molotov vor dem Plant legen.'],
+                            ['HE','CT','B','B Site','Upper Tunnels','B Tunnels HE','Chip-Damage gegen einen B-Rush.','HE früh auf das Tunnels-Timing werfen.'],
+                            ['Retake','CT','A','CT Spawn','A Site','A Retake Utility','Trennt Long/Short und ermöglicht den ersten CT-Peek.','Flash auf Site, Smoke als Trennung und anschließend Default/Goose clearen.'],
+                            ['Retake','CT','B','B Doors / CT','B Site','B Retake Utility','Nimmt Tunnels- und Back-Site-Holds aus dem direkten Blick.','Flash über B Doors, gemeinsam Pillar/Back clearen und erst danach defusen.']
+                        ],
+                        anubis: [
+                            ['Smoke','T','A','A Main','Temple / CT','A Execute Smoke','Blockiert die hohen A-Winkel und schützt den Plant.','A-Main-Referenz treffen und die Smoke-Linie quer zur Site legen.'],
+                            ['Smoke','T','B','B Main','B Short','B Short Smoke','Trennt den B-Entry vom Short-Hold.','B Main an die Referenz stellen und Short mit Smoke schließen.'],
+                            ['Flash','T','A','A Main','A Site','A Main Entry Flash','Öffnet den ersten A-Site-Kontakt.','Flash über die Sitekante senden und direkt hinterhergehen.'],
+                            ['Flash','T','B','Water / Canal','Connector','Water Flash','Blendet den Connector-/Roamer-Winkel vor dem B-Split.','Flash aus Water auf die Connector-Linie timen.'],
+                            ['Molotov','T','B','B Main','Pillar / Dark','B Main Molotov','Vertreibt einen Defender aus dem engen B-Hold.','Molly auf Pillar/Dark legen und anschließend traden.'],
+                            ['HE','CT','Mid','Canal / CT','Mid','Mid HE','Früher Schaden gegen Mid-Control.','HE auf das Canal-/Mid-Timing werfen.'],
+                            ['Retake','CT','A','CT Stairs','A Site','A Retake Utility','Öffnet Temple, Default und die hohe Site.','Flash zuerst, danach Molly für Default/Temple und im Trade einsteigen.'],
+                            ['Retake','CT','B','CT / Canal','B Site','B Retake Utility','Reduziert die engen Pillar-/Dark-Winkel beim B-Retake.','Smoke trennt den Entry, Flash öffnet Pillar und Back Site.']
+                        ],
+                        cache: [
+                            ['Smoke','T','Mid','T Side','Mid','Mid Smoke','Schneidet Mid-Sichtlinien und öffnet beide Splits.','T-Seite an die Referenz stellen und die Mid-Linie abdecken.'],
+                            ['Smoke','T','A','A Main','Heaven','Heaven Smoke','Nimmt Heaven beim A-Entry heraus.','A Main ausrichten und Heaven mit der Smoke-Wolke isolieren.'],
+                            ['Flash','T','A','A Main','A Site','A Main Entry Flash','Blendet Site-Holds hinter Truck/Default.','Flash vor dem A-Entry setzen und synchron nachgehen.'],
+                            ['Flash','T','B','B Main','B Site','B Main Popflash','Öffnet den engen B-Entry.','Popflash kurz vor dem Exit aus B Main werfen.'],
+                            ['Molotov','T','A','A Main','Heaven / Truck','A Clear Molotov','Räumt einen starken A-Hold.','Molotov auf die übliche Heaven/Truck-Zone legen.'],
+                            ['HE','CT','B','CT / Checkers','B Main','B Main HE','Bestraft einen schnellen B-Push.','HE auf das B-Main-Timing werfen.'],
+                            ['Retake','CT','A','CT / Highway','A Site','A Retake Utility','Trennt A Main und Site und öffnet Heaven/Truck.','Flash hoch, dann Default/Heaven clearen und gemeinsam pflanzen lassen.'],
+                            ['Retake','CT','B','CT / Checkers','B Site','B Retake Utility','Sichert Checkers und die zentrale B-Plant-Zone.','Flash auf Site, Molly für einen engen Hold und anschließend trade.']
+                        ],
+                        overpass: [
+                            ['Smoke','T','A','Long','Bank / CT','A Long Smoke','Schneidet Bank/CT und erleichtert den A-Plant.','Long-Referenz nehmen und die CT-Linie blockieren.'],
+                            ['Smoke','T','B','Monster','B Site','Monster B Smoke','Reduziert den direkten Site-Blick beim B-Execute.','Aus Monster die Sitekante abdecken und hinter dem Smoke pflanzen.'],
+                            ['Flash','T','A','Fountain / Long','A Short','A Short Entry Flash','Blendet Short/Bank beim A-Split.','Flash über Toilets/Fountain timen und Entry folgen.'],
+                            ['Flash','T','B','Monster','Heaven / Site','B Monster Flash','Öffnet Monster gegen Heaven/Back Site.','Flash hoch an die Sitekante setzen und im Zweier-Entry folgen.'],
+                            ['Molotov','T','B','Monster','Pillar / Water','B Site Molotov','Vertreibt den B-Anchor aus einem engen Hold.','Molly auf Pillar/Back Site legen und danach clearen.'],
+                            ['HE','CT','B','Heaven / CT','Monster','Monster HE','Chip-Damage gegen einen B-Hit.','HE auf das Monster-Timing werfen.'],
+                            ['Retake','CT','A','Bank / Connector','A Site','A Retake Utility','Flash und Feuer öffnen Truck, Bank und Default.','Erst Flash für den Peek, dann Molly für Truck/Default.'],
+                            ['Retake','CT','B','Heaven / Connector','B Site','B Retake Utility','Öffnet Pillar, Water und Monster für den Retake.','Smoke als Trennung, Flash über Site und gemeinsam clearen.']
+                        ],
+                        vertigo: [
+                            ['Smoke','T','A','T Stairs / Ramp','Heaven','A Heaven Smoke','Blockiert den hohen A-Hold.','Von Ramp/T Stairs die Heaven-Referenz treffen.'],
+                            ['Smoke','T','B','B Stairs','B Site','B Short Smoke','Trennt B Short vom Site-Hold.','B-Entry vorbereiten und Short mit Smoke schließen.'],
+                            ['Flash','T','A','A Ramp','Heaven','A Ramp Entry Flash','Blendet die CT-Ramp-Holds.','Flash über die Ramp-Kante setzen und sofort peeken.'],
+                            ['Flash','T','B','B Stairs','B Site','B Entry Flash','Öffnet den B-Entry gegen enge Winkel.','Flash vor dem B-Peek senden und gemeinsam traden.'],
+                            ['Molotov','T','A','A Ramp','Generator','Generator Molotov','Vertreibt den Standard-Anchor aus Generator.','Ramp-Kante nutzen und Generator vollständig abdecken.'],
+                            ['HE','CT','A','CT / Ramp','A Ramp','Ramp HE','Chip-Damage gegen einen schnellen Ramp-Hit.','HE auf das Ramp-Timing werfen.'],
+                            ['Retake','CT','A','Heaven / CT','A Site','A Retake Utility','Öffnet Generator, Back A und Ramp.','Flash zuerst, Molly auf Generator und im Trade vorrücken.'],
+                            ['Retake','CT','B','Ladder / CT','B Site','B Retake Utility','Sichert Dark, Back B und den Short-Entry.','Flash auf Site und anschließend die engen Box-Winkel clearen.']
+                        ],
+                        train: [
+                            ['Smoke','T','A','T Con / A Main','Heaven / CT','A Main Smoke','Schneidet die langen A-Winkel für den Entry.','A Main an der Referenz ausrichten und die CT-Sichtlinie blockieren.'],
+                            ['Smoke','T','B','B Halls','Upper / Lower B','B Halls Smoke','Trennt die B-Ebenen und erleichtert den Site-Entry.','B Halls an der markierten Kante ausrichten und werfen.'],
+                            ['Flash','T','A','Ivy','A Site','Ivy Entry Flash','Blendet die A-Site-Holds hinter den Zügen.','Flash über Blue/Green setzen und nach dem Pop einsteigen.'],
+                            ['Flash','T','B','B Halls','B Site','B Halls Flash','Öffnet Upper/Lower B gegen den Anchor.','Flash vor dem B-Ramp-Entry werfen.'],
+                            ['Molotov','T','A','Ivy / A Main','Olof / Hell','A Clear Molotov','Vertreibt Spieler aus typischen Train-Holds.','Molotov auf Olof/Hell legen und danach die Züge clearen.'],
+                            ['HE','CT','A','CT / Heaven','A Main','A Main HE','Chip-Damage gegen A Main.','HE auf den ersten A-Main-Kontakt timen.'],
+                            ['Retake','CT','A','CT / Heaven','A Site','A Retake Utility','Öffnet Blue, Green, Hell und Sandwich nacheinander.','Flash über die Züge, dann Molly auf Hell/Sandwich und gemeinsam clearen.'],
+                            ['Retake','CT','B','Z / CT','B Site','B Retake Utility','Kontrolliert Upper/Lower B und Ladder.','Flash in den B-Raum, anschließend Ladder/Back Site im Trade clearen.']
+                        ]
+                    };
+                    const result = [];
+                    Object.entries(packs).forEach(([map, items]) => {
+                        items.forEach((item, index) => {
+                            const [type, side, bombsite, position, target, title, description, steps] = item;
+                            const seed = (map.length * 13 + index * 17) % 37;
+                            const fromX = 12 + seed;
+                            const fromY = side === 'CT' ? 72 - (index % 3) * 8 : 78 - (index % 4) * 9;
+                            const toX = 26 + ((seed * 3) % 58);
+                            const toY = 20 + ((seed * 5) % 58);
+                            result.push({
+                                id: map + '-' + type.toLowerCase() + '-' + index,
+                                map, title, type, side, bombsite, position, target,
+                                difficulty: index % 3 === 0 ? 'Einfach' : index % 3 === 1 ? 'Mittel' : 'Schwer',
+                                fromX, fromY, toX, toY, description, steps,
+                                throw: type === 'Flash' ? 'Popflash / Timing' : type === 'HE' ? 'Normalwurf / Timing' : type === 'Retake' ? 'Team-Utility / Timing' : 'Jumpthrow / Normalwurf',
+                                calloutDescription: target + ' ist der Zielbereich. Der Call wird vor dem Throw angesagt, damit Entry und Utility synchron bleiben.',
+                                gifLabel: type === 'Retake' ? 'RETAKE ANIMATION' : type.toUpperCase() + ' ANIMATION',
+                                sourceUrl: 'https://csnades.gg/',
+                                verified: false
+                            });
+                        });
+                    });
+                    return result;
+                },
+
+                filteredLineupDatabase() {
+                    const q = this.lineupSearch.trim().toLowerCase();
+                    return this.lineupDatabase.filter(lineup => {
+                        const hay = [lineup.map, this.maps[lineup.map]?.label || '', lineup.title, lineup.type, lineup.side, lineup.bombsite, lineup.position, lineup.target, lineup.description, lineup.calloutDescription].join(' ').toLowerCase();
+                        return (!q || hay.includes(q))
+                            && (this.lineupType === 'all' || lineup.type === this.lineupType)
+                            && (this.lineupSide === 'all' || lineup.side === this.lineupSide)
+                            && (this.lineupBombsite === 'all' || lineup.bombsite === this.lineupBombsite)
+                            && (this.lineupMode === 'all' || (this.lineupMode === 'retake' ? lineup.type === 'Retake' : lineup.type !== 'Retake'));
+                    });
+                },
+
+                isLineupFavorite(id) {
+                    return this.lineupFavorites.includes(id);
+                },
+
+                toggleLineupFavorite(id) {
+                    const i = this.lineupFavorites.indexOf(id);
+                    if (i >= 0) this.lineupFavorites.splice(i, 1);
+                    else this.lineupFavorites.push(id);
+                    localStorage.setItem('cs2toolkit_lineup_favorites', JSON.stringify(this.lineupFavorites));
+                },
+
+                resetLineupFilters() {
+                    this.lineupSearch = '';
+                    this.lineupType = 'all';
+                    this.lineupSide = 'all';
+                    this.lineupBombsite = 'all';
+                    this.lineupMode = 'all';
+                },
 
                 selectedMap: 'mirage',
                 activeMapPanel: 'smokes',
@@ -1834,7 +1970,8 @@
                 lineupTimer: null,
 
                 init() {
-                    this.selectedLineupId = this.maps[this.selectedMap]?.lineups?.[0]?.id ?? null;
+                    this.lineupDatabase = this.buildLineupDatabase();
+                    this.selectedLineupId = this.lineupDatabase[0]?.id ?? null;
                     this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
                     this.overlayOpacity = Number(localStorage.getItem('cs2toolkit_overlay_opacity') || '0.72');
                     this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
