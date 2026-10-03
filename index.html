@@ -195,6 +195,36 @@
             transform-origin: center;
             animation: bomb-wave-pulse 1.35s ease-out infinite;
         }
+            .shisha-counter-window {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: min(340px, calc(100vw - 36px));
+            z-index: 120;
+            border: 1px solid rgba(255,85,0,.38);
+            border-radius: 18px;
+            background: rgba(18,18,18,.94);
+            box-shadow: 0 20px 55px rgba(0,0,0,.6), 0 0 28px rgba(255,85,0,.08);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .shisha-counter-closed {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 120;
+        }
+        .shisha-counter-progress {
+            height: 5px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.08);
+            overflow: hidden;
+        }
+        .shisha-counter-progress > div {
+            height: 100%;
+            background: linear-gradient(90deg,#ff5500,#ff7733);
+            transition: width .25s linear;
+        }
     </style>
 </head>
 <body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()" x-init="init()">
@@ -1434,6 +1464,79 @@
 
         </main>
 
+    <!-- Shisha Counter Mini-Fenster -->
+    <div x-show="shishaCounterOpen" x-cloak class="shisha-counter-window p-4">
+        <div class="flex items-center justify-between gap-3 mb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-xl bg-csorange/15 border border-csorange/30 flex items-center justify-center text-csorange">
+                    <i class="fa-solid fa-cloud"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-white">Shisha-Counter</div>
+                    <div class="text-[11px] text-gray-500">Deine Session im Blick</div>
+                </div>
+            </div>
+            <button @click="shishaClose()" class="w-8 h-8 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-400 hover:text-white transition" title="Counter schließen">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="rounded-2xl bg-csdark-900/80 border border-gray-800 p-4 mb-3">
+            <div class="flex items-end justify-between gap-3">
+                <div>
+                    <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Restzeit</div>
+                    <div class="text-4xl font-black tabular-nums tracking-tight" :class="shishaSecondsLeft === 0 ? 'text-red-400' : 'text-white'" x-text="shishaFormatTime(shishaSecondsLeft)"></div>
+                </div>
+                <div class="text-right text-xs text-gray-500">
+                    <div x-show="shishaRunning" class="text-csorange font-semibold">Läuft</div>
+                    <div x-show="shishaPaused">Pausiert</div>
+                    <div x-show="!shishaRunning && !shishaPaused && shishaSecondsLeft > 0">Bereit</div>
+                    <div x-show="shishaSecondsLeft === 0" class="text-red-400 font-semibold">Fertig</div>
+                </div>
+            </div>
+            <div class="shisha-counter-progress mt-3">
+                <div :style="'width:' + Math.max(0, Math.min(100, (shishaSecondsLeft / shishaTotalSeconds) * 100)) + '%'"></div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="block text-xs font-semibold text-gray-400 mb-2">Zeit auswählen</label>
+            <div class="grid grid-cols-5 gap-1.5 mb-2">
+                <template x-for="minutes in [30,45,60,90,120]" :key="minutes">
+                    <button @click="shishaDurationMinutes = minutes; shishaApplyDuration()" :class="shishaDurationMinutes === minutes ? 'bg-csorange text-black border-csorange' : 'bg-csdark-700 text-gray-300 border-gray-700 hover:border-csorange/50'" class="py-1.5 rounded-lg border text-xs font-semibold transition" x-text="minutes + 'm'"></button>
+                </template>
+            </div>
+            <div class="flex gap-2">
+                <input x-model.number="shishaDurationMinutes" @change="shishaApplyDuration()" type="number" min="1" max="180" class="w-full bg-csdark-700 border border-gray-700 focus:border-csorange rounded-lg px-3 py-2 text-sm text-white outline-none" placeholder="Eigene Minuten">
+                <button @click="shishaApplyDuration()" class="px-3 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange/50 text-gray-300 transition" title="Zeit übernehmen">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+            <div class="text-[10px] text-gray-600 mt-1">1–180 Minuten · Beim Ändern wird der Counter zurückgesetzt.</div>
+        </div>
+
+        <div class="flex gap-2">
+            <button @click="shishaRunning ? shishaPause() : shishaStart()" :disabled="shishaSecondsLeft === 0" class="flex-1 py-2.5 rounded-xl bg-csorange hover:bg-csorange-hover text-black font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">
+                <i class="fa-solid mr-1" :class="shishaRunning ? 'fa-pause' : 'fa-play'"></i>
+                <span x-text="shishaRunning ? 'Pause' : (shishaPaused ? 'Weiter' : 'Start')"></span>
+            </button>
+            <button @click="shishaReset()" class="px-4 py-2.5 rounded-xl bg-csdark-700 hover:bg-csdark-600 border border-gray-700 text-gray-300 transition" title="Zurücksetzen">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+            <button @click="shishaRequestNotification()" class="px-4 py-2.5 rounded-xl bg-csdark-700 hover:bg-csdark-600 border border-gray-700 text-gray-300 transition" title="Benachrichtigung erlauben">
+                <i class="fa-regular fa-bell"></i>
+            </button>
+        </div>
+    </div>
+
+    <div x-show="!shishaCounterOpen" x-cloak class="shisha-counter-closed">
+        <button @click="shishaOpen()" class="flex items-center gap-2 px-3 py-2.5 rounded-full bg-csdark-800 border border-csorange/40 text-white shadow-xl shadow-black/40 hover:border-csorange hover:shadow-csorange/10 transition" title="Shisha-Counter öffnen">
+            <i class="fa-solid fa-cloud text-csorange"></i>
+            <span class="text-xs font-semibold">Shisha</span>
+            <span class="font-black tabular-nums text-sm" x-text="shishaFormatTime(shishaSecondsLeft)"></span>
+        </button>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-csdark-800 border-t border-gray-800 py-4 mt-auto text-center text-xs text-gray-500">
         CS2 Pro Toolkit & Economy Manager &bull; Orange/Black Edition
@@ -1469,6 +1572,16 @@
                 suggestionLoading: false,
                 suggestionNotice: '',
                 suggestionApiUrl: window.CS2_SUGGESTIONS_API_URL || '/api/suggestions',
+
+                shishaCounterOpen: true,
+                shishaRunning: false,
+                shishaPaused: false,
+                shishaDurationMinutes: 60,
+                shishaSecondsLeft: 3600,
+                shishaTimer: null,
+                shishaStartedAt: null,
+                shishaTotalSeconds: 3600,
+
                 crosshairPanel: 'builder',
                 playerMoney: 4500,
                 lossStreak: 1,
@@ -2166,11 +2279,94 @@
 
                 init() {
                     this.lineupDatabase = this.buildLineupDatabase();
+                    this.shishaApplyDuration();
                     this.selectedLineupId = this.lineupDatabase[0]?.id ?? null;
                     this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
                     this.overlayOpacity = Number(localStorage.getItem('cs2toolkit_overlay_opacity') || '0.72');
                     this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
-                    this.loadImprovementSuggestions();
+                },
+
+                shishaFormatTime(seconds) {
+                    const total = Math.max(0, Math.floor(Number(seconds) || 0));
+                    const h = Math.floor(total / 3600);
+                    const m = Math.floor((total % 3600) / 60);
+                    const s = total % 60;
+                    return h > 0
+                        ? String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
+                        : String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                },
+
+                shishaApplyDuration() {
+                    const minutes = Math.min(180, Math.max(1, Math.round(Number(this.shishaDurationMinutes) || 60)));
+                    this.shishaDurationMinutes = minutes;
+                    this.shishaTotalSeconds = minutes * 60;
+                    this.shishaSecondsLeft = this.shishaTotalSeconds;
+                    this.shishaRunning = false;
+                    this.shishaPaused = false;
+                    if (this.shishaTimer) {
+                        clearInterval(this.shishaTimer);
+                        this.shishaTimer = null;
+                    }
+                },
+
+                shishaStart() {
+                    if (this.shishaSecondsLeft <= 0) this.shishaApplyDuration();
+                    if (this.shishaRunning) return;
+                    this.shishaRunning = true;
+                    this.shishaPaused = false;
+                    this.shishaStartedAt = Date.now();
+                    if (this.shishaTimer) clearInterval(this.shishaTimer);
+                    this.shishaTimer = setInterval(() => {
+                        if (!this.shishaRunning) return;
+                        const elapsed = Math.floor((Date.now() - this.shishaStartedAt) / 1000);
+                        this.shishaSecondsLeft = Math.max(0, this.shishaTotalSeconds - elapsed);
+                        if (this.shishaSecondsLeft <= 0) this.shishaFinish();
+                    }, 250);
+                },
+
+                shishaPause() {
+                    if (!this.shishaRunning) return;
+                    const elapsed = Math.floor((Date.now() - this.shishaStartedAt) / 1000);
+                    this.shishaSecondsLeft = Math.max(0, this.shishaSecondsLeft - elapsed);
+                    this.shishaRunning = false;
+                    this.shishaPaused = true;
+                    if (this.shishaTimer) {
+                        clearInterval(this.shishaTimer);
+                        this.shishaTimer = null;
+                    }
+                },
+
+                shishaReset() {
+                    this.shishaApplyDuration();
+                },
+
+                shishaFinish() {
+                    this.shishaRunning = false;
+                    this.shishaPaused = false;
+                    this.shishaSecondsLeft = 0;
+                    if (this.shishaTimer) {
+                        clearInterval(this.shishaTimer);
+                        this.shishaTimer = null;
+                    }
+                    try {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification('Shisha-Counter', { body: 'Deine eingestellte Zeit ist abgelaufen.' });
+                        }
+                    } catch (_) {}
+                },
+
+                shishaRequestNotification() {
+                    if ('Notification' in window && Notification.permission === 'default') {
+                        Notification.requestPermission().catch(() => {});
+                    }
+                },
+
+                shishaClose() {
+                    this.shishaCounterOpen = false;
+                },
+
+                shishaOpen() {
+                    this.shishaCounterOpen = true;
                 },
 
                 async loadSuggestions() {
