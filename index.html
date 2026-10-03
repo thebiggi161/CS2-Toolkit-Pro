@@ -301,7 +301,7 @@
                 <button @click="esportsMiniMinimized=!esportsMiniMinimized" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" :title="esportsMiniMinimized ? 'Öffnen' : 'Minimieren'">
                     <i class="fa-solid" :class="esportsMiniMinimized ? 'fa-expand' : 'fa-minus'"></i>
                 </button>
-                <button @click.stop="esportsMiniChat=!esportsMiniChat" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" :class="esportsMiniChat ? 'text-csorange' : ''" :title="esportsMiniChat ? 'Chat schließen' : 'Chat öffnen'">
+                <button @click.stop="esportsMiniChat ? closeEsportsChat() : toggleEsportsChat()" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" :class="esportsMiniChat ? 'text-csorange' : ''" :title="esportsMiniChat ? 'Chat-Fenster schließen' : 'Chat-Fenster öffnen'">
                     <i class="fa-solid fa-comments"></i>
                 </button>
                 <button @click.stop="popoutEsports()" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" title="Popout öffnen">
@@ -317,10 +317,6 @@
                 <iframe class="w-full h-full" :src="esportsStreamUrl()" :title="esportsStreamLabel() + ' Counter-Strike Live'" frameborder="0" allowfullscreen></iframe>
             </template>
             <span class="esports-resize-hint"></span>
-        </div>
-        <div x-show="esportsMiniChat && !esportsMiniMinimized" x-cloak class="esports-mini-chat"
-             :style="`background:rgba(7,7,7,${overlayOpacity});`">
-            <iframe :src="esportsChatUrl()" :title="esportsStreamLabel() + ' Twitch Chat'" frameborder="0"></iframe>
         </div>
     </div>
 
@@ -1370,6 +1366,7 @@
                 esportsDragOffsetY: 0,
                 esportsDragMoveHandler: null,
                 esportsDragStopHandler: null,
+                esportsChatPopup: null,
                 esportsStreamUrl() {
                     const channel = this.esportsStream === 'blast' ? 'blastpremier' : (this.esportsStream === 'dach' ? 'dachcs' : 'eslcs');
                     return 'https://player.twitch.tv/?channel=' + channel + '&parent=thebiggi161.github.io&parent=localhost';
@@ -1379,9 +1376,28 @@
                     return this.esportsStream === 'blast' ? 'BLAST Premier' : (this.esportsStream === 'dach' ? 'DACH CS Masters' : 'IEM / ESL');
                 },
 
-                esportsChatUrl() {
+                toggleEsportsChat() {
                     const channel = this.esportsStream === 'blast' ? 'blastpremier' : (this.esportsStream === 'dach' ? 'dachcs' : 'eslcs');
-                    return 'https://www.twitch.tv/embed/' + channel + '/chat?parent=thebiggi161.github.io&parent=localhost&darkpopout';
+                    if (this.esportsChatPopup && !this.esportsChatPopup.closed) {
+                        this.esportsChatPopup.focus();
+                        return;
+                    }
+                    const url = 'https://www.twitch.tv/popout/' + channel + '/chat?popout=';
+                    const popup = window.open(url, 'cs2_esports_chat', 'width=360,height=620,resizable=yes,scrollbars=yes');
+                    if (!popup) {
+                        alert('Chat-Fenster wurde vom Browser blockiert. Bitte Popups für diese Seite erlauben.');
+                        return;
+                    }
+                    this.esportsChatPopup = popup;
+                    this.esportsMiniChat = true;
+                },
+
+                closeEsportsChat() {
+                    if (this.esportsChatPopup && !this.esportsChatPopup.closed) {
+                        this.esportsChatPopup.close();
+                    }
+                    this.esportsChatPopup = null;
+                    this.esportsMiniChat = false;
                 },
 
                 startEsportsDrag(event) {
