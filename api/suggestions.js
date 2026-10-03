@@ -36,6 +36,21 @@ function dateKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
+async function ensureSuggestionLabel() {
+  try {
+    await github('/repos/' + REPO + '/labels/toolkit-suggestion');
+  } catch {
+    await github('/repos/' + REPO + '/labels', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'toolkit-suggestion',
+        color: 'ff5500',
+        description: 'Öffentlicher CS2 Toolkit Verbesserungsvorschlag'
+      })
+    });
+  }
+}
+
 async function getRecentSuggestions() {
   const q = encodeURIComponent('repo:' + REPO + ' label:toolkit-suggestion is:open');
   return github('/search/issues?q=' + q + '&sort=created&order=desc&per_page=100');
@@ -43,6 +58,11 @@ async function getRecentSuggestions() {
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Access-Control-Allow-Origin', 'https://thebiggi161.github.io');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(204).end();
 
   try {
     if (req.method === 'GET') {
@@ -50,8 +70,8 @@ module.exports = async (req, res) => {
       return json(res, 200, {
         items: (data.items || []).map(issue => ({
           id: issue.number,
-          text: String(issue.body || '').slice(0, 150),
-          player: issue.user?.login === 'github-actions[bot]' ? 'Anonym' : (issue.body || '').match(/Spieler: (.*)/)?.[1] || 'Anonym',
+          text: (String(issue.body || '').match(/Vorschlag: ([\\s\\S]*?)(?:\\n\\nSpieler:|$)/)?.[1] || '').slice(0, 150),
+          player: (String(issue.body || '').match(/\\n\\nSpieler: (.*?)\\nRate-Key:/)?.[1] || 'Anonym').slice(0, 40),
           time: issue.created_at,
           url: issue.html_url
         }))
@@ -82,6 +102,8 @@ module.exports = async (req, res) => {
     if (ownToday.length >= LIMIT) {
       return json(res, 429, { error: 'Tageslimit erreicht. Morgen sind wieder 5 Vorschläge möglich.' });
     }
+
+    await ensureSuggestionLabel();
 
     const issue = await github('/repos/' + REPO + '/issues', {
       method: 'POST',
