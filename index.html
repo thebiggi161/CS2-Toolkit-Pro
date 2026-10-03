@@ -242,6 +242,20 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
                 <div class="bg-csorange text-black font-black px-3 py-1.5 rounded tracking-wider text-lg shadow-md shadow-csorange/20">CS2</div>
+                <!-- GOOGLE LOGIN -->
+                <div class="flex items-center gap-2">
+                    <template x-if="googleUser">
+                        <div class="flex items-center gap-2 bg-csdark-700 border border-gray-700 rounded-full pl-1 pr-2 py-1">
+                            <img :src="googleUser.picture || ''" x-show="googleUser.picture" class="w-7 h-7 rounded-full" alt="">
+                            <span class="text-xs text-gray-200 max-w-[160px] truncate" x-text="googleUser.name || googleUser.email"></span>
+                            <button @click="googleLogout()" class="text-gray-400 hover:text-white px-1" title="Abmelden"><i class="fa-solid fa-right-from-bracket"></i></button>
+                        </div>
+                    </template>
+                    <template x-if="!googleUser">
+                        <div id="google-signin-button" class="min-w-[150px] min-h-[40px]"></div>
+                    </template>
+                </div>
+
                 <h1 class="text-xl font-bold tracking-wide text-white flex items-center gap-2">
                     Pro Toolkit <span class="text-csorange text-sm font-normal">& Economy Manager</span>
                     <button @click="overlayMode=true; overlaySettingsOpen=!overlaySettingsOpen" class="w-8 h-8 rounded-lg bg-csdark-700 hover:bg-csdark-600 border border-csorange/30 text-csorange transition" title="Toolkit-Einstellungen">
@@ -459,9 +473,10 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     <input x-model="youtubeApiKey" type="password" placeholder="YouTube Data API Key (für Suche)" class="bg-csdark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none">
                     <input x-model="youtubeOAuthClientId" type="text" placeholder="Google OAuth Client-ID (für Abos)" class="bg-csdark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none">
+                    <input x-model="googleClientId" type="text" placeholder="Google Client-ID (für Login)" class="bg-csdark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none">
                 </div>
-                <button @click="youtubeSaveConfig()" class="mt-3 px-4 py-2 rounded-lg bg-csdark-700 hover:bg-csdark-600 border border-gray-700 text-sm text-gray-200">Konfiguration speichern</button>
-                <p class="text-[10px] text-gray-600 mt-2">Die Schlüssel werden nur lokal gespeichert. Eine persönliche Abo-Liste kann erst nach OAuth-Konfiguration von Google geladen werden.</p>
+                <button @click="youtubeSaveConfig(); googleSaveClientId()" class="mt-3 px-4 py-2 rounded-lg bg-csdark-700 hover:bg-csdark-600 border border-gray-700 text-sm text-gray-200">Konfiguration speichern</button>
+                <p class="text-[10px] text-gray-600 mt-2">API-Schlüssel und Client-IDs werden lokal gespeichert. Für den Google-Login muss derselbe Web-Client in Google Cloud für die Website freigegeben sein.</p>
             </section>
         </div>
 
@@ -1697,6 +1712,11 @@
                 youtubeOAuthToken: '',
                 youtubeTokenClient: null,
 
+                googleClientId: localStorage.getItem('cs2toolkit_google_client_id') || '',
+                googleUser: null,
+                googleLoginLoading: false,
+                googleAuthApiUrl: window.CS2_GOOGLE_AUTH_API_URL || '/api/google-login',
+
                 shishaCounterOpen: true,
                 shishaCounterMinimized: false,
                 shishaDragging: false,
@@ -2416,6 +2436,87 @@
                     this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
                     this.overlayOpacity = Number(localStorage.getItem('cs2toolkit_overlay_opacity') || '0.72');
                     this.clickThrough = JSON.parse(localStorage.getItem('cs2toolkit_overlay_clickthrough') || 'false');
+                    this.googleClientId = localStorage.getItem('cs2toolkit_google_client_id') || this.youtubeOAuthClientId || '';
+                    this.googleInit();
+                    this.googleLoadSession();
+                },
+
+                googleSaveClientId() {
+                    const value = String(this.googleClientId || '').trim();
+                    this.googleClientId = value;
+                    localStorage.setItem('cs2toolkit_google_client_id', value);
+                    if (value) this.googleInit();
+                },
+
+                googleInit() {
+                    if (!this.googleClientId || !window.google?.accounts?.id) {
+                        window.setTimeout(() => {
+                            if (this.googleClientId && window.google?.accounts?.id) this.googleInit();
+                        }, 600);
+                        return;
+                    }
+                    try {
+                        window.google.accounts.id.initialize({
+                            client_id: this.googleClientId,
+                            callback: (response) => this.googleHandleCredential(response)
+                        });
+                        const button = document.getElementById('google-signin-button');
+                        if (button) {
+                            button.innerHTML = '';
+                            window.google.accounts.id.renderButton(button, {
+                                theme: 'filled_black',
+                                size: 'medium',
+                                shape: 'pill',
+                                text: 'signin_with',
+                                logo_alignment: 'left'
+                            });
+                        }
+                    } catch (error) {
+                        console.warn('Google Login konnte nicht initialisiert werden.', error);
+                    }
+                },
+
+                async googleHandleCredential(response) {
+                    if (!response?.credential) return;
+                    this.googleLoginLoading = true;
+                    try {
+                        const result = await fetch(this.googleAuthApiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ credential: response.credential })
+                        });
+                        const data = await result.json();
+                        if (!result.ok) throw new Error(data.error || 'Google-Anmeldung fehlgeschlagen.');
+                        this.googleUser = data.user || null;
+                    } catch (error) {
+                        alert(error.message);
+                    } finally {
+                        this.googleLoginLoading = false;
+                    }
+                },
+
+                async googleLoadSession() {
+                    const url = this.googleAuthApiUrl.replace(/\\/google-login$/, '/session');
+                    try {
+                        const response = await fetch(url, { credentials: 'include', cache: 'no-store' });
+                        if (!response.ok) return;
+                        const data = await response.json();
+                        if (data.authenticated && data.provider === 'google') {
+                            this.googleUser = data.user || { email: data.username || '' };
+                        }
+                    } catch (error) {
+                        // GitHub Pages without a deployed API can simply remain logged out.
+                    }
+                },
+
+                async googleLogout() {
+                    try {
+                        const url = this.googleAuthApiUrl.replace(/\\/google-login$/, '/logout');
+                        await fetch(url, { method: 'POST', credentials: 'include' });
+                    } catch (error) {}
+                    this.googleUser = null;
+                    if (window.google?.accounts?.id) window.google.accounts.id.disableAutoSelect();
                 },
 
                 youtubeSaveConfig() {
