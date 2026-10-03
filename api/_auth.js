@@ -55,7 +55,9 @@ function clearSessionCookie(res, cookieName = 'cs2_admin_session') {
 }
 
 function setGoogleSessionCookie(res, token) {
-  setSessionCookie(res, token, 'cs2_google_session');
+  res.setHeader('Set-Cookie', [
+    'cs2_google_session=' + token + '; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=28800'
+  ]);
 }
 
 function clearGoogleSessionCookie(res) {
