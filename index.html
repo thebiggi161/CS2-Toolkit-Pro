@@ -5764,5 +5764,65 @@ bombSites: [
       })();
     </script>
 
+
+    <!-- V2 navigation failsafe: keep game/tab navigation usable if Alpine startup is interrupted. -->
+    <script id="v2-navigation-runtime-fallback">
+      (() => {
+        const root = document.querySelector('body[x-data]');
+        const main = document.querySelector('main');
+        const nav = document.querySelector('header nav');
+        if (!root || !main || !nav) return;
+
+        const panels = Array.from(main.querySelectorAll(':scope > section[x-show]'));
+        const getTabFromButton = (button) => {
+          const expression = button.getAttribute('@click') || button.getAttribute('x-on:click') || '';
+          const match = expression.match(/(?:^|[;\s])activeTab\s*=\s*['"]([^'"]+)['"]/);
+          return match ? match[1] : null;
+        };
+        const showTab = (tab) => {
+          if (!tab) return;
+          let state = null;
+          try { if (window.Alpine && typeof Alpine.$data === 'function') state = Alpine.$data(root); } catch (_) {}
+          if (state) {
+            try { state.activeTab = tab; } catch (_) {}
+            if (tab === 'overwatch') {
+              try { state.owTab = state.owTab || 'overview'; } catch (_) {}
+              try { state.overlayMode = false; state.clickThrough = false; } catch (_) {}
+            }
+          }
+          for (const panel of panels) {
+            const expression = panel.getAttribute('x-show') || '';
+            const match = expression.match(/^\s*activeTab\s*===\s*['"]([^'"]+)['"]\s*$/);
+            if (!match) continue;
+            const visible = match[1] === tab;
+            panel.style.display = visible ? '' : 'none';
+            panel.removeAttribute('x-cloak');
+          }
+          document.body.classList.toggle('v2-overwatch-mode', tab === 'overwatch');
+        };
+
+        nav.addEventListener('click', (event) => {
+          const button = event.target && event.target.closest('button');
+          if (!button || !nav.contains(button)) return;
+          const tab = getTabFromButton(button);
+          if (!tab) return;
+          // Alpine normally handles this. This is a second, harmless sync path if
+          // its component initialization or event binding has failed.
+          window.setTimeout(() => showTab(tab), 0);
+        }, true);
+
+        // Repair initial visibility only if Alpine never attached a component.
+        window.setTimeout(() => {
+          let state = null;
+          try { if (window.Alpine && typeof Alpine.$data === 'function') state = Alpine.$data(root); } catch (_) {}
+          if (state) return;
+          root.setAttribute('data-v2-nav-fallback', 'active');
+          const selected = nav.querySelector('button[title="Zum CS2 Toolkit wechseln"]');
+          showTab(getTabFromButton(selected) || 'suggestions');
+          console.warn('[Toolkit V2] Alpine component unavailable; navigation fallback enabled.');
+        }, 1800);
+      })();
+    </script>
+
 </body>
 </html>
