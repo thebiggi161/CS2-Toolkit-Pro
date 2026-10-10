@@ -285,7 +285,7 @@
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
                 <button @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-flask"></i> Test
+                    <i class="fa-solid fa-trophy"></i> Turnierbäume
                 </button>
                 <button @click="activeTab = 'maps-nades'" :class="activeTab === 'maps-nades' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-map"></i> Maps & Nades
@@ -404,66 +404,43 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
 
-        <!-- TAB: TEST LAB -->
-        <div x-show="activeTab === 'test'" x-cloak class="space-y-6">
-            <div class="bg-csdark-800 border border-csorange/30 rounded-2xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- TAB: TURNIERBÄUME -->
+        <div x-show="activeTab === 'test'" x-cloak class="space-y-5">
+            <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                     <div>
-                        <div class="text-xs font-black tracking-[0.25em] text-csorange uppercase">CS2 Toolkit Pro</div>
-                        <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
-                            <i class="fa-solid fa-flask text-csorange"></i> TestLab
-                        </h2>
-                        <p class="text-gray-400 text-sm mt-1">Spielwiese für neue Funktionen. Alles hier darf getestet, verändert und wieder verworfen werden.</p>
+                        <div class="text-xs font-black tracking-[0.2em] text-csorange uppercase">CS2 Esports</div>
+                        <h2 class="text-2xl font-black text-white mt-1"><i class="fa-solid fa-trophy text-csorange mr-2"></i>Turnierbäume</h2>
+                        <p class="text-sm text-gray-400 mt-1">Wähle eine Quelle. DACH CS ist direkt eingebettet; internationale Turnierseiten lassen sich je nach deren Einbettungsrichtlinien anzeigen.</p>
                     </div>
-                    <div class="inline-flex items-center gap-2 bg-csorange/10 border border-csorange/30 rounded-lg px-3 py-2 text-xs text-csorange font-bold">
-                        <span class="w-2 h-2 rounded-full bg-csorange animate-pulse"></span>
-                        TESTBEREICH
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="bracketSource='international'" :class="bracketSource==='international' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-3 py-2 text-sm font-bold">Internationale Turniere</button>
+                        <button @click="bracketSource='dach'" :class="bracketSource==='dach' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-3 py-2 text-sm font-bold">DACH CS</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
-                        <i class="fa-solid fa-vial"></i>
+                <div x-show="bracketSource==='international'" class="rounded-2xl border border-gray-800 bg-csdark-900 overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-800">
+                        <div><div class="font-bold text-white">Internationale Turniere</div><div class="text-xs text-gray-400 mt-1">HLTV-Turnierübersicht – externe Seite, ohne PandaScore/API-Key.</div></div>
+                        <a href="https://www.hltv.org/events" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">HLTV separat öffnen ↗</a>
                     </div>
-                    <h3 class="font-bold text-white">Funktions-Test</h3>
-                    <p class="text-xs text-gray-500 mt-2">Platzhalter für neue UI-Elemente, Interaktionen und Experimente.</p>
-                    <button @click="testLabCounter++" class="mt-4 w-full bg-csdark-700 hover:bg-csdark-600 border border-gray-700 rounded-lg py-2.5 text-xs font-bold text-gray-200 transition">
-                        <i class="fa-solid fa-play mr-1 text-csorange"></i> Test ausführen
-                    </button>
-                    <div class="text-center text-xs text-gray-500 mt-3">Ausführungen: <span class="text-csorange font-mono font-bold" x-text="testLabCounter"></span></div>
-                </section>
-
-                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
-                        <i class="fa-solid fa-toggle-on"></i>
+                    <iframe src="https://www.hltv.org/events" title="HLTV internationale CS2 Turniere" loading="lazy" class="w-full bg-white" style="height: min(70vh, 760px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                    <div class="p-4 border-t border-gray-800">
+                        <p class="text-xs text-gray-400 mb-3">Falls HLTV das Einbetten blockiert, kannst du die Turnierübersicht separat öffnen. Für einzelne Turnierbäume findest du hier außerdem direkte Quellen:</p>
+                        <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                            <a href="https://liquipedia.net/counterstrike/Main_Page" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">Liquipedia – Turnierbäume ↗</a>
+                            <a href="https://www.eslproleague.com/" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">ESL Pro League ↗</a>
+                            <a href="https://blast.tv/cs" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">BLAST ↗</a>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-white">UI Playground</h3>
-                    <p class="text-xs text-gray-500 mt-2">Kleiner Bereich zum Testen von Zuständen und Komponenten.</p>
-                    <button @click="testLabEnabled=!testLabEnabled" :class="testLabEnabled ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="mt-4 w-full border border-gray-700 rounded-lg py-2.5 text-xs font-bold transition">
-                        <i class="fa-solid" :class="testLabEnabled ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
-                        <span x-text="testLabEnabled ? 'Aktiv' : 'Inaktiv'"></span>
-                    </button>
-                </section>
-
-                <section class="bg-csdark-800 border border-gray-800 rounded-2xl p-5 hover:border-csorange/40 transition">
-                    <div class="w-10 h-10 rounded-xl bg-csorange/10 border border-csorange/20 flex items-center justify-center text-csorange mb-4">
-                        <i class="fa-solid fa-code"></i>
+                </div>
+                <div x-show="bracketSource==='dach'" class="rounded-2xl border border-gray-800 bg-csdark-900 overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-800">
+                        <div><div class="font-bold text-white">DACH CS</div><div class="text-xs text-gray-400 mt-1">Offizielle Coverage und Spielstände</div></div>
+                        <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">Coverage separat öffnen ↗</a>
                     </div>
-                    <h3 class="font-bold text-white">Experiment-Status</h3>
-                    <p class="text-xs text-gray-500 mt-2">Hier können wir später neue Prototypen unabhängig vom Hauptbereich testen.</p>
-                    <div class="mt-4 bg-csdark-900 border border-gray-800 rounded-lg p-3 text-xs">
-                        <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="font-bold" :class="testLabEnabled ? 'text-green-400' : 'text-gray-400'" x-text="testLabEnabled ? 'Experiment aktiv' : 'Bereit'"></span></div>
-                        <div class="flex justify-between mt-2"><span class="text-gray-500">Testläufe</span><span class="text-csorange font-mono" x-text="testLabCounter"></span></div>
-                    </div>
-                </section>
-            </div>
-
-            <div class="bg-csdark-800 border border-dashed border-csorange/30 rounded-2xl p-8 text-center">
-                <i class="fa-solid fa-flask text-3xl text-csorange mb-3"></i>
-                <h3 class="text-lg font-bold text-white">Hier bauen wir neue Sachen zuerst</h3>
-                <p class="text-sm text-gray-500 mt-1">Der Test-Reiter ist bewusst getrennt vom produktiven Bereich.</p>
+                    <iframe src="https://www.dachcs.de/coverage/" title="DACH CS Turnierbaum und Coverage" loading="lazy" class="w-full bg-white" style="height: min(70vh, 760px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                    <p class="px-4 pb-4 text-xs text-gray-500">Wenn DACH CS oder HLTV das Einbetten technisch blockiert, funktioniert der Link „separat öffnen“ weiterhin. Externe Turnierbäume lassen sich nur dann einzeln anklicken, wenn die jeweilige Quellseite diese Interaktion bereitstellt.</p>
+                </div>
             </div>
         </div>
 
@@ -506,66 +483,7 @@
             </div>
         </div>
 
-            <div class="mt-6 border-t border-gray-800 pt-5">
-                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                    <div>
-                        <div class="text-xs font-black tracking-[0.2em] text-csorange uppercase">Turniere & Ergebnisse</div>
-                        <h3 class="text-xl font-black text-white mt-1">CS2 Turnier-Center</h3>
-                        <p class="text-sm text-gray-400 mt-1">Turnierstände zentral ansehen. Daten werden automatisch alle 5 Minuten aktualisiert, sobald eine Datenquelle verbunden ist.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button @click="bracketSource='dach'" :class="bracketSource==='dach' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="rounded-lg px-3 py-2 text-sm font-bold">DACH CS</button>
-                        <button @click="bracketSource='international'" :class="bracketSource==='international' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="rounded-lg px-3 py-2 text-sm font-bold">Internationale Turniere</button>
-                    </div>
-                </div>
-
-                <div x-show="bracketSource==='dach'" class="rounded-2xl border border-gray-800 bg-csdark-800 overflow-hidden">
-                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-800">
-                        <div><div class="font-bold text-white">DACH CS Masters</div><div class="text-xs text-gray-400">Offizielle Coverage und Spielstände</div></div>
-                        <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">Coverage separat öffnen ↗</a>
-                    </div>
-                    <iframe src="https://www.dachcs.de/coverage/" title="DACH CS Masters Coverage" loading="lazy" class="w-full bg-white" style="height: min(68vh, 680px); min-height: 420px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                    <p class="px-4 pb-4 text-xs text-gray-500">Falls die Liga das Einbetten im Browser blockiert, nutze bitte „Coverage separat öffnen“.</p>
-                </div>
-
-                <div x-show="bracketSource==='international'" class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 space-y-4">
-                    <div>
-                        <div class="font-bold text-white">Internationale Turniere – ohne API-Zugang</div>
-                        <p class="text-sm text-gray-400 mt-1">Öffne aktuelle Turnierübersichten direkt bei etablierten CS2-Quellen. Die Seiten selbst liefern die neuesten Paarungen und Ergebnisse; wir benötigen dafür keinen API-Token.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div class="rounded-xl border border-gray-700 bg-csdark-900 overflow-hidden md:col-span-2">
-                            <div class="flex flex-wrap items-center justify-between gap-2 p-4">
-                                <div>
-                                    <div class="font-bold text-white">HLTV – Turniere & Matches</div>
-                                    <div class="text-xs text-gray-400 mt-1">Eingebettete Ansicht, sofern HLTV das Laden in einem Frame zulässt.</div>
-                                </div>
-                                <a href="https://www.hltv.org/events" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">In neuem Tab öffnen ↗</a>
-                            </div>
-                            <iframe src="https://www.hltv.org/events" title="HLTV CS2 Turnierkalender" loading="lazy" class="w-full bg-white" style="height: min(68vh, 720px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                            <p class="px-4 pb-4 text-xs text-gray-500">Wenn HLTV die Einbettung technisch blockiert, nutze bitte den Link oben. Die Seite lässt sich nicht durch Code im Toolkit zum Einbetten zwingen.</p>
-                        </div>
-                        <a href="https://liquipedia.net/counterstrike/Main_Page" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
-                            <div class="font-bold text-white">Liquipedia – Counter-Strike ↗</div>
-                            <div class="text-xs text-gray-400 mt-1">Turnierseiten und Brackets, sofern für das Event verfügbar.</div>
-                        </a>
-                        <a href="https://www.eslproleague.com/" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
-                            <div class="font-bold text-white">ESL / Pro League ↗</div>
-                            <div class="text-xs text-gray-400 mt-1">Offizielle Turnierinformationen.</div>
-                        </a>
-                        <a href="https://blast.tv/cs" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
-                            <div class="font-bold text-white">BLAST ↗</div>
-                            <div class="text-xs text-gray-400 mt-1">Offizielle CS2-Turniere und Ergebnisse.</div>
-                        </a>
-                        <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange md:col-span-2">
-                            <div class="font-bold text-white">DACH CS – Coverage ↗</div>
-                            <div class="text-xs text-gray-400 mt-1">Regionale Liga, Spielstände und Begegnungen.</div>
-                        </a>
-                    </div>
-                    <p class="text-xs text-amber-200/80">Hinweis: Ohne API oder eine einbettbare Turnierseite können wir fremde Live-Daten nicht zuverlässig direkt im eigenen Turnierbaum anzeigen. Diese Links funktionieren ohne PandaScore; eine automatische Aktualisierung innerhalb des Toolkits ist damit noch nicht umgesetzt.</p>
-                </div>
-                </div>
-            </div>
+        </div>
 
         <!-- TAB: WEAPONS DATABASE -->
         <div x-show="activeTab === 'weapons'" x-cloak class="space-y-6">
