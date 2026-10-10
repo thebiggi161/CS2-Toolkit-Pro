@@ -1,0 +1,144 @@
+/* Canonical base styles for the CS2 Toolkit
+   Kept intentionally compact and maintainable to reduce inline CSS bloat. */
+
+:root {
+  --cs-bg: #070707;
+  --cs-surface: #121212;
+  --cs-surface-2: #1e1e1e;
+  --cs-surface-3: #2d2d2d;
+  --cs-orange: #ff5500;
+  --cs-orange-hover: #e04a00;
+  --cs-orange-light: #ff7733;
+  --cs-text: #f3f4f6;
+  --cs-text-soft: #d1d5db;
+  --cs-text-muted: #9ca3af;
+  --cs-border: rgba(255, 85, 0, 0.35);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  background: var(--cs-bg);
+  color: var(--cs-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+img, video, canvas, iframe { max-width: 100%; display: block; }
+button, [role="button"], input, select, textarea, a {
+  -webkit-tap-highlight-color: transparent;
+}
+button, [role="button"] { touch-action: manipulation; }
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--cs-orange);
+  outline-offset: 2px;
+}
+
+main, .container, [x-data] { min-width: 0; }
+
+nav.flex.flex-wrap {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+nav.flex.flex-wrap > button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+button,
+[data-role="button"] {
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+button:hover { transform: translateY(-1px); }
+
+.overlay-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: transparent;
+}
+.overlay-gear {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: 46px;
+  height: 46px;
+  z-index: 10001;
+  pointer-events: auto;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 18, 18, 0.82);
+  border: 1px solid rgba(255, 85, 0, 0.55);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  color: var(--cs-orange);
+  cursor: pointer;
+}
+.overlay-settings {
+  position: fixed;
+  left: 16px;
+  bottom: 72px;
+  width: min(360px, calc(100vw - 32px));
+  max-height: calc(100vh - 92px);
+  overflow: auto;
+  z-index: 10000;
+  pointer-events: auto;
+  background: rgba(7, 7, 7, 0.88);
+  border: 1px solid rgba(255, 85, 0, 0.55);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+}
+.overlay-click-through .overlay-settings { pointer-events: none; }
+
+.esports-mini-player,
+.ow-esports-mini-player,
+.shisha-counter-window {
+  border: 1px solid rgba(255, 85, 0, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+}
+
+input[type="range"] { accent-color: var(--cs-orange); }
+input, select, textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+  body { font-size: 14px; }
+  main { padding-left: 12px !important; padding-right: 12px !important; }
+  nav.flex.flex-wrap {
+    max-width: calc(100vw - 24px);
+    padding-bottom: 6px;
+    gap: 6px;
+  }
+  nav.flex.flex-wrap > button {
+    padding-left: 12px;
+    padding-right: 12px;
+    min-height: 42px;
+  }
+  button, [role="button"] { min-height: 40px; }
+  input, select, textarea { min-height: 42px; font-size: 16px !important; }
+  .overlay-settings {
+    left: 8px;
+    bottom: 68px;
+    width: calc(100vw - 16px);
+    max-width: 420px;
+    max-height: calc(100dvh - 84px);
+  }
+  .overlay-gear { left: 8px; bottom: 8px; width: 48px; height: 48px; }
+  iframe { display: block; width: 100%; max-width: 100%; }
+}
+
+@media (pointer: coarse) {
+  button, [role="button"] { min-height: 44px; }
+}
