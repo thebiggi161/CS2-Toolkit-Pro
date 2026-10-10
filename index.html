@@ -529,28 +529,34 @@
                 </div>
 
                 <div x-show="bracketSource==='international'" class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 space-y-4">
-                    <div class="text-sm text-gray-300">Für automatisch aktualisierte Turnierbäume und Ergebnisse nutzen wir PandaScore. Die API stellt Turnier-, Match- und Bracket-Endpunkte bereit; dafür wird ein persönlicher API-Token benötigt.</div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <label class="flex-1"><span class="block text-xs text-gray-400 mb-1">PandaScore API-Token</span><input type="password" x-model="bracketApiTokenInput" autocomplete="off" placeholder="Token hier einfügen" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white focus:border-csorange focus:outline-none"></label>
-                        <button @click="saveBracketToken()" class="self-end rounded-lg bg-csorange px-4 py-2 text-sm font-black text-black">Verbinden</button>
+                    <div>
+                        <div class="font-bold text-white">Internationale Turniere – ohne API-Zugang</div>
+                        <p class="text-sm text-gray-400 mt-1">Öffne aktuelle Turnierübersichten direkt bei etablierten CS2-Quellen. Die Seiten selbst liefern die neuesten Paarungen und Ergebnisse; wir benötigen dafür keinen API-Token.</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <button @click="refreshBrackets()" :disabled="bracketLoading" class="rounded-lg bg-csdark-700 hover:bg-csdark-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-50"><i class="fa-solid fa-rotate mr-1"></i> Jetzt aktualisieren</button>
-                        <span class="text-xs text-gray-500" x-text="bracketStatus"></span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <a href="https://www.hltv.org/events" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
+                            <div class="font-bold text-white">HLTV – Turniere & Matches ↗</div>
+                            <div class="text-xs text-gray-400 mt-1">Turnierkalender, Begegnungen, Ergebnisse und Event-Seiten.</div>
+                        </a>
+                        <a href="https://liquipedia.net/counterstrike/Main_Page" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
+                            <div class="font-bold text-white">Liquipedia – Counter-Strike ↗</div>
+                            <div class="text-xs text-gray-400 mt-1">Turnierseiten und Brackets, sofern für das Event verfügbar.</div>
+                        </a>
+                        <a href="https://www.eslproleague.com/" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
+                            <div class="font-bold text-white">ESL / Pro League ↗</div>
+                            <div class="text-xs text-gray-400 mt-1">Offizielle Turnierinformationen.</div>
+                        </a>
+                        <a href="https://blast.tv/cs" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
+                            <div class="font-bold text-white">BLAST ↗</div>
+                            <div class="text-xs text-gray-400 mt-1">Offizielle CS2-Turniere und Ergebnisse.</div>
+                        </a>
+                        <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange md:col-span-2">
+                            <div class="font-bold text-white">DACH CS – Coverage ↗</div>
+                            <div class="text-xs text-gray-400 mt-1">Regionale Liga, Spielstände und Begegnungen.</div>
+                        </a>
                     </div>
-                    <div x-show="bracketError" x-text="bracketError" class="rounded-lg border border-amber-700/60 bg-amber-900/20 p-3 text-sm text-amber-200" role="status"></div>
-                    <div x-show="bracketTournaments.length" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <template x-for="tournament in bracketTournaments" :key="tournament.id">
-                            <div class="rounded-xl border border-gray-700 bg-csdark-900 p-4">
-                                <div class="text-xs uppercase tracking-wider text-csorange" x-text="tournament.league && tournament.league.name ? tournament.league.name : 'CS2 Turnier'"></div>
-                                <div class="mt-1 font-bold text-white" x-text="tournament.name"></div>
-                                <div class="mt-2 text-xs text-gray-400" x-text="tournament.begin_at ? new Date(tournament.begin_at).toLocaleString('de-DE') : 'Termin noch offen'"></div>
-                                <a :href="'https://www.google.com/search?q='+encodeURIComponent((tournament.name||'CS2 tournament')+' bracket results')" target="_blank" rel="noopener noreferrer" class="inline-block mt-3 text-sm font-bold text-csorange hover:underline">Turnierbaum / Ergebnisse ↗</a>
-                            </div>
-                        </template>
-                    </div>
-                    <div x-show="!bracketTournaments.length" class="rounded-xl border border-dashed border-gray-700 p-4 text-sm text-gray-400">Verbinde einen PandaScore-Token, um aktuelle internationale CS2-Turniere abzurufen. Die fünf großen Turniere werden anhand der verfügbaren API-Daten ausgewählt; Verfügbarkeit und Bracket-Details hängen vom API-Zugang ab.</div>
-                    <div class="text-xs text-gray-500">Aktualisierung: alle 5 Minuten, solange diese Seite geöffnet ist. Der Token wird nur in diesem Browser gespeichert. Für eine öffentliche Website ist ein serverseitiger Proxy sicherer, damit kein API-Token im Frontend liegt.</div>
+                    <p class="text-xs text-amber-200/80">Hinweis: Ohne API oder eine einbettbare Turnierseite können wir fremde Live-Daten nicht zuverlässig direkt im eigenen Turnierbaum anzeigen. Diese Links funktionieren ohne PandaScore; eine automatische Aktualisierung innerhalb des Toolkits ist damit noch nicht umgesetzt.</p>
+                </div>
                 </div>
             </div>
 
@@ -1750,57 +1756,6 @@
                 weaponCategory: 'all',
                 weaponSide: 'all',
                 bracketSource: 'dach',
-                bracketApiTokenInput: localStorage.getItem('cs2toolkit_pandascore_token') || '',
-                bracketTournaments: [],
-                bracketLoading: false,
-                bracketStatus: 'Noch nicht verbunden',
-                bracketError: '',
-                bracketRefreshTimer: null,
-
-                saveBracketToken() {
-                    const token = (this.bracketApiTokenInput || '').trim();
-                    if (!token) {
-                        this.bracketError = 'Bitte gib zuerst deinen PandaScore-API-Token ein.';
-                        return;
-                    }
-                    localStorage.setItem('cs2toolkit_pandascore_token', token);
-                    this.bracketError = '';
-                    this.refreshBrackets();
-                    if (this.bracketRefreshTimer) window.clearInterval(this.bracketRefreshTimer);
-                    this.bracketRefreshTimer = window.setInterval(() => {
-                        if (document.visibilityState === 'visible' && this.bracketSource === 'international') this.refreshBrackets();
-                    }, 300000);
-                },
-
-                async refreshBrackets() {
-                    const token = (this.bracketApiTokenInput || localStorage.getItem('cs2toolkit_pandascore_token') || '').trim();
-                    if (!token) {
-                        this.bracketError = 'Für internationale Live-Daten wird ein PandaScore-API-Token benötigt. Die DACH-Coverage ist ohne Token verfügbar.';
-                        this.bracketStatus = 'Nicht verbunden';
-                        return;
-                    }
-                    this.bracketLoading = true;
-                    this.bracketError = '';
-                    this.bracketStatus = 'Aktualisiere …';
-                    try {
-                        const response = await fetch('https://api.pandascore.co/csgo/tournaments/upcoming?per_page=100&token=' + encodeURIComponent(token), { headers: { 'Accept': 'application/json' } });
-                        if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? 'Der API-Token wurde abgelehnt oder hat keinen Zugriff auf diese Daten.' : 'Die Datenquelle antwortet mit HTTP ' + response.status + '.');
-                        const data = await response.json();
-                        const priority = ['iem', 'esl pro league', 'blast', 'major', 'pgl', 'epl'];
-                        const filtered = (Array.isArray(data) ? data : []).filter(t => {
-                            const name = ((t.name || '') + ' ' + (t.league && t.league.name || '') + ' ' + (t.series && t.series.name || '')).toLowerCase();
-                            return priority.some(term => name.includes(term));
-                        });
-                        this.bracketTournaments = filtered.slice(0, 10);
-                        this.bracketStatus = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
-                        if (!this.bracketTournaments.length) this.bracketError = 'Die API-Verbindung funktioniert, aber in den kommenden API-Daten wurden keine der gesuchten großen Turnier-Reihen gefunden. Prüfe später erneut oder nutze die Turnierlinks.';
-                    } catch (error) {
-                        this.bracketError = error && error.message ? error.message : 'Turnierdaten konnten nicht geladen werden. Prüfe die Verbindung und den API-Zugang.';
-                        this.bracketStatus = 'Aktualisierung fehlgeschlagen';
-                    } finally {
-                        this.bracketLoading = false;
-                    }
-                },
 
                 esportsStream: 'iem',
                 esportsMiniVisible: true,
