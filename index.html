@@ -484,7 +484,14 @@
                                 <button type="button" @click="tournamentCalendarSelect(day.date)" :disabled="!day.date" class="min-h-[66px] sm:min-h-[88px] p-1.5 rounded-lg border text-left transition overflow-hidden" :class="!day.date ? 'border-transparent bg-transparent cursor-default' : (day.hasEvents ? tournamentCalendarPhaseCellClass(day.phase) : (day.isToday ? 'bg-csdark-700 border-csorange text-white' : 'bg-csdark-800 border-white/30 text-gray-300 hover:border-csorange'))" :aria-label="day.date ? day.aria : 'Leeres Kalenderfeld'">
                                     <span class="block text-xs font-black" x-text="day.date ? day.date.getDate() : ''"></span>
                                     <template x-if="day.hasEvents">
-                                        <span class="mt-1 block text-[9px] sm:text-[10px] leading-tight font-bold" x-text="day.preview"></span>
+                                        <div class="mt-1 space-y-0.5">
+                                            <template x-for="item in day.miniEvents" :key="item.id">
+                                                <span class="flex min-w-0 items-center gap-1 rounded px-1 py-0.5 text-[8px] sm:text-[9px] leading-tight font-bold border border-black/20" :style="'background:' + item.color + ';color:' + item.textColor" :title="item.name">
+                                                    <span class="truncate" x-text="item.shortName"></span>
+                                                </span>
+                                            </template>
+                                            <span x-show="day.extraEvents > 0" class="block text-[8px] sm:text-[9px] font-bold" x-text="'+' + day.extraEvents + ' weitere'"></span>
+                                        </div>
                                     </template>
                                 </button>
                             </template>
@@ -2494,6 +2501,14 @@
                             key, date, hasEvents: matches.length > 0,
                             isToday: date.toDateString() === today.toDateString(),
                             preview: matches.map(e => (e.phase ? this.tournamentCalendarPhaseLabel(e.phase) + ': ' : '') + (e.teams || e.tournament)).filter(Boolean).join(' · '),
+                            miniEvents: [...new Map(matches.map(e => [e.tournament || e.teams || e.id, e])).values()].slice(0, 2).map(e => ({
+                                id: e.id || e.tournament,
+                                name: e.tournament || e.teams || 'Turnier',
+                                shortName: this.tournamentCalendarShortName(e.tournament || e.teams || 'Turnier'),
+                                color: this.tournamentCalendarColor(e.tournament || e.teams || 'Turnier').background,
+                                textColor: this.tournamentCalendarColor(e.tournament || e.teams || 'Turnier').text
+                            })),
+                            extraEvents: Math.max(0, new Set(matches.map(e => e.tournament || e.teams || e.id)).size - 2),
                             phase: (matches.find(e => e.phase) || {}).phase || 'tournament',
                             aria: key + (matches.length ? ': ' + matches.map(e => (e.phase ? this.tournamentCalendarPhaseLabel(e.phase) + ', ' : '') + e.tournament + (e.teams ? ' ' + e.teams : '')).join(', ') : '')
                         });
@@ -2513,6 +2528,31 @@
                         tournament: 'Turnierzeitraum'
                     };
                     return labels[phase] || 'Phase noch nicht bestätigt';
+                },
+
+                tournamentCalendarShortName(name) {
+                    const cleaned = String(name || 'Turnier')
+                        .replace(/\\b(Season|Series|Championship|Tournament|Qualifier|Masters)\\b/gi, '')
+                        .replace(/\\s+/g, ' ')
+                        .trim();
+                    return (cleaned || name).slice(0, 13);
+                },
+
+                tournamentCalendarColor(name) {
+                    const palette = [
+                        { background: '#111827', text: '#ffffff' },
+                        { background: '#b91c1c', text: '#ffffff' },
+                        { background: '#f8fafc', text: '#111827' },
+                        { background: '#facc15', text: '#111827' },
+                        { background: '#2563eb', text: '#ffffff' },
+                        { background: '#15803d', text: '#ffffff' },
+                        { background: '#7e22ce', text: '#ffffff' },
+                        { background: '#ea580c', text: '#111827' }
+                    ];
+                    const key = String(name || 'Turnier').toLowerCase();
+                    let hash = 0;
+                    for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+                    return palette[hash % palette.length];
                 },
 
                 tournamentCalendarPhaseCellClass(phase) {
