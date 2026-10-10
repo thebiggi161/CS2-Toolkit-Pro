@@ -572,12 +572,12 @@
                             <template x-for="result in tournamentCalendarSearchResults()" :key="result.id">
                                 <button type="button" @click="tournamentCalendarSelectSearchResult(result)" class="w-full flex items-center justify-between gap-3 p-3 text-left hover:bg-csdark-700" role="option">
                                     <span class="min-w-0"><span class="block text-sm font-bold text-white truncate" x-text="result.name"></span><span class="block text-xs text-gray-400 truncate" x-text="result.detail"></span></span>
-                                    <span class="shrink-0 rounded border border-gray-700 px-2 py-1 text-[10px] font-bold text-csorange" x-text="result.type === 'team' ? 'TEAM' : 'TURNIER'"></span>
+                                    <span class="shrink-0 rounded border border-gray-700 px-2 py-1 text-[10px] font-bold text-csorange" x-text="result.type === 'team' ? 'TEAM' : (result.type === 'player' ? 'SPIELER' : 'MATCH')"></span>
                                 </button>
                             </template>
                         </div>
                         <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-500">
-                            <span x-text="tournamentCalendarTeams.length ? tournamentCalendarTeams.length + ' Teams · ' + tournamentCalendarMatches.length + ' Paarungen im Datensatz · Community-Datenquelle' : 'Teamdaten noch nicht synchronisiert'"></span>
+                            <span x-text="tournamentCalendarTeams.length || tournamentCalendarPlayers.length ? tournamentCalendarTeams.length + ' Teams · ' + tournamentCalendarPlayers.length + ' Spieler · ' + tournamentCalendarMatches.length + ' Paarungen' : 'Daten noch nicht synchronisiert'"></span>
                             <button type="button" @click="refreshTournamentCalendar()" class="text-csorange hover:underline" :disabled="tournamentCalendarLoading" x-text="tournamentCalendarLoading ? 'Synchronisiere …' : 'Teams & Paarungen synchronisieren'"></button>
                         </div>
                         </div>
@@ -1902,6 +1902,7 @@
                 tournamentCalendarSelected: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
                 tournamentCalendarSearch: '',
                 tournamentCalendarTeams: [],
+                tournamentCalendarPlayers: [],
                 tournamentCalendarMatches: [],
                 tournamentCalendarSelectedTournament: '',
                 tournamentCalendarDataSource: 'https://api.csapi.de',
@@ -2718,27 +2719,41 @@
                 tournamentCalendarSearchResults() {
                     const query = String(this.tournamentCalendarSearch || '').trim().toLocaleLowerCase('de');
                     if (!query) return [];
-                    const teams = (this.tournamentCalendarTeams || []).filter(team => String(team.name || '').toLocaleLowerCase('de').includes(query)).slice(0, 8).map(team => ({
+                    const includesQuery = (value) => String(value || '').toLocaleLowerCase('de').includes(query);
+                    const teams = (this.tournamentCalendarTeams || []).filter(team => includesQuery(team.name)).slice(0, 8).map(team => ({
                         id: 'team-' + team.id, type: 'team', name: team.name,
-                        detail: (team.region || team.countryName || 'CS2-Team') + ' · ' + ((this.tournamentCalendarMatches || []).filter(match => match.team1Name === team.name || match.team2Name === team.name).map(match => match.tournament).filter(Boolean).slice(0, 2).join(', ') || 'Turnierzuordnung noch nicht verfügbar'),
+                        detail: (team.region || team.countryName || 'CS2-Team') + ' · ' + ((this.tournamentCalendarMatches || []).filter(match => match.team1Name.toLocaleLowerCase('de') === team.name.toLocaleLowerCase('de') || match.team2Name.toLocaleLowerCase('de') === team.name.toLocaleLowerCase('de')).map(match => match.tournament).filter(Boolean).slice(0, 2).join(', ') || 'Teamdatenbank'),
                         teamName: team.name
                     }));
-                    const events = (this.tournamentCalendarMatches || []).filter(match => String(match.tournament || '').toLocaleLowerCase('de').includes(query)).slice(0, 6).map(match => ({
-                        id: 'event-' + match.id, type: 'event', name: match.tournament,
+                    const players = (this.tournamentCalendarPlayers || []).filter(player => includesQuery(player.name) || includesQuery(player.nickname)).slice(0, 8).map(player => ({
+                        id: 'player-' + player.id, type: 'player', name: player.name || player.nickname,
+                        detail: [player.teamName || 'Team nicht zugeordnet', player.countryName || 'CS2-Spieler'].filter(Boolean).join(' · '),
+                        playerName: player.name || player.nickname, teamName: player.teamName || ''
+                    }));
+                    const matches = (this.tournamentCalendarMatches || []).filter(match =>
+                        includesQuery(match.tournament) || includesQuery(match.team1Name) || includesQuery(match.team2Name)
+                    ).slice(0, 8).map(match => ({
+                        id: 'match-' + match.id, type: 'match', name: match.tournament,
                         detail: match.team1Name + ' vs. ' + match.team2Name + (match.date ? ' · ' + this.tournamentCalendarSavedDate(match.date) : ''),
                         tournament: match.tournament, match
                     }));
-                    return [...teams, ...events].slice(0, 12);
+                    const unique = new Map();
+                    [...teams, ...players, ...matches].forEach(result => { if (!unique.has(result.id)) unique.set(result.id, result); });
+                    return [...unique.values()].slice(0, 20);
                 },
 
                 tournamentCalendarSelectSearchResult(result) {
-                    if (result.type === 'team') {
-                        const match = (this.tournamentCalendarMatches || []).find(item => item.team1Name === result.teamName || item.team2Name === result.teamName);
+                    if (result.type === 'team' || result.type === 'player') {
+                        const teamName = result.teamName || '';
+                        const match = (this.tournamentCalendarMatches || []).find(item =>
+                            item.team1Name.toLocaleLowerCase('de') === teamName.toLocaleLowerCase('de') ||
+                            item.team2Name.toLocaleLowerCase('de') === teamName.toLocaleLowerCase('de')
+                        );
                         if (match) {
                             this.tournamentCalendarSelectedTournament = match.tournament || '';
                             this.tournamentCalendarSelect(match.date);
                         }
-                        this.tournamentCalendarSearch = result.teamName;
+                        this.tournamentCalendarSearch = result.type === 'player' ? result.playerName : result.teamName;
                     } else if (result.match) {
                         this.tournamentCalendarSelectedTournament = result.tournament || '';
                         this.tournamentCalendarSelect(result.match.date);
@@ -2944,10 +2959,11 @@
                 async refreshTournamentCalendar() {
                     if (this.tournamentCalendarLoading) return;
                     this.tournamentCalendarLoading = true;
+                    const errors = [];
                     try {
                         const fetchJson = async (url) => {
                             const controller = new AbortController();
-                            const timeout = window.setTimeout(() => controller.abort(), 10000);
+                            const timeout = window.setTimeout(() => controller.abort(), 12000);
                             try {
                                 const response = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: controller.signal, cache: 'no-store' });
                                 if (!response.ok) throw new Error('HTTP ' + response.status);
@@ -2961,66 +2977,127 @@
                                 if (Array.isArray(payload?.[key])) return payload[key];
                                 if (Array.isArray(payload?.data?.[key])) return payload.data[key];
                             }
+                            if (Array.isArray(payload?.items)) return payload.items;
+                            if (Array.isArray(payload?.results)) return payload.results;
                             if (Array.isArray(payload?.data?.items)) return payload.data.items;
                             if (Array.isArray(payload?.data?.results)) return payload.data.results;
+                            if (Array.isArray(payload?.matches?.live) || Array.isArray(payload?.matches?.upcoming)) {
+                                return [...(payload.matches.live || []), ...(payload.matches.upcoming || [])];
+                            }
                             return [];
                         };
-                        const teamRows = [];
-                        let teamPage = 0;
-                        let teamPaginationSupported = true;
-                        while (teamPage < 20 && teamPaginationSupported) {
-                            const payload = await fetchJson(this.tournamentCalendarDataSource + '/teams/?limit=100&offset=' + (teamPage * 100));
-                            const rows = unwrapRows(payload, ['teams', 'results', 'items']);
-                            if (!rows.length) break;
-                            teamRows.push(...rows);
-                            if (rows.length < 100) break;
-                            teamPage++;
-                        }
-                        const matchPayload = await fetchJson(this.tournamentCalendarDataSource + '/matches/?limit=100&offset=0');
-                        const matchRows = unwrapRows(matchPayload, ['matches', 'results', 'items']);
+                        const fetchPaged = async (path, keys, maxPages, cachePath) => {
+                            // GitHub Pages cannot call CSAPI directly because its CORS allowlist excludes this origin.
+                            // Prefer the same-origin snapshots generated by GitHub Actions; use the API only as fallback.
+                            try {
+                                const cachedPayload = await fetchJson(cachePath);
+                                const cachedRows = unwrapRows(cachedPayload, keys);
+                                if (cachedRows.length) return cachedRows;
+                            } catch (_) {
+                                // Initial snapshot may not exist until the scheduled workflow has run.
+                            }
+                            const all = [];
+                            for (let page = 0; page < maxPages; page++) {
+                                const payload = await fetchJson(this.tournamentCalendarDataSource + path + '?limit=100&offset=' + (page * 100));
+                                const rows = unwrapRows(payload, keys);
+                                all.push(...rows);
+                                if (rows.length < 100) break;
+                            }
+                            return all;
+                        };
+                        const settled = await Promise.allSettled([
+                            fetchPaged('/teams/', ['teams', 'items', 'results'], 10, './data/cs2-teams.json'),
+                            fetchPaged('/players/', ['players', 'items', 'results'], 20, './data/cs2-players.json'),
+                            fetchPaged('/matches/', ['matches', 'items', 'results'], 10, './data/cs2-matches.json')
+                        ]);
+                        const [teamResult, playerResult, matchResult] = settled;
+                        const teamRows = teamResult.status === 'fulfilled' ? teamResult.value : (errors.push('Teams: ' + (teamResult.reason?.message || 'nicht erreichbar')), []);
+                        const playerRows = playerResult.status === 'fulfilled' ? playerResult.value : (errors.push('Spieler: ' + (playerResult.reason?.message || 'nicht erreichbar')), []);
+                        const matchRows = matchResult.status === 'fulfilled' ? matchResult.value : (errors.push('Matches: ' + (matchResult.reason?.message || 'nicht erreichbar')), []);
                         const normalizeTeam = (team, index) => {
                             const name = typeof team === 'string' ? team : (team?.name || team?.teamName || team?.team_name || team?.title || '');
-                            return name ? { id: String(team?.id ?? team?.teamId ?? team?.team_id ?? name ?? index), name: String(name).trim(), logoUrl: team?.logoUrl || team?.logo || team?.image || '', region: team?.region || '', countryName: team?.countryName || team?.country || '', source: 'CSAPI' } : null;
+                            return name ? {
+                                id: String(team?.id ?? team?.teamId ?? team?.team_id ?? name ?? index),
+                                name: String(name).trim(),
+                                logoUrl: team?.logoUrl || team?.logo || team?.image || '',
+                                region: team?.region || team?.countryName || team?.country || '',
+                                countryName: team?.countryName || team?.country || '',
+                                roster: Array.isArray(team?.roster) ? team.roster : (Array.isArray(team?.players) ? team.players : []),
+                                source: 'CSAPI'
+                            } : null;
                         };
                         const teamsByName = new Map();
-                        teamRows.map(normalizeTeam).filter(Boolean).forEach(team => { if (!teamsByName.has(team.name.toLocaleLowerCase('de'))) teamsByName.set(team.name.toLocaleLowerCase('de'), team); });
+                        teamRows.map(normalizeTeam).filter(Boolean).forEach(team => {
+                            const key = team.name.toLocaleLowerCase('de');
+                            if (!teamsByName.has(key)) teamsByName.set(key, team);
+                        });
+                        const playersById = new Map();
+                        const normalizePlayer = (player, index, fallbackTeamName = '') => {
+                            const name = typeof player === 'string' ? player : (player?.name || player?.nickname || player?.nick || player?.playerName || '');
+                            if (!name) return null;
+                            const team = player?.team;
+                            const teamName = typeof team === 'string' ? team : (team?.name || player?.teamName || player?.team_name || fallbackTeamName || '');
+                            return {
+                                id: String(player?.id ?? player?.playerId ?? player?.player_id ?? name + '-' + index),
+                                name: String(name).trim(),
+                                nickname: String(player?.nickname || player?.nick || name).trim(),
+                                teamName: String(teamName || '').trim(),
+                                countryName: String(player?.countryName || player?.country || player?.nationality || '').trim(),
+                                logoUrl: player?.image || player?.picture || player?.picture_url || '',
+                                profileUrl: player?.url || player?.profile_url || '',
+                                source: 'CSAPI'
+                            };
+                        };
+                        playerRows.map((player, index) => normalizePlayer(player, index)).filter(Boolean).forEach(player => playersById.set(player.id, player));
+                        teamRows.map(normalizeTeam).filter(Boolean).forEach(team => team.roster.forEach((rawPlayer, index) => {
+                            const player = normalizePlayer(rawPlayer, index, team.name);
+                            if (player && !playersById.has(player.id)) playersById.set(player.id, player);
+                        }));
                         const localDate = (value) => {
                             if (!value) return '';
+                            if (typeof value === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(value.trim())) return value.trim();
                             const date = new Date(value);
                             if (Number.isNaN(date.getTime())) return '';
                             return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
                         };
+                        const nameOf = (value) => typeof value === 'string' ? value : (value?.name || value?.teamName || value?.team_name || '');
                         const normalizedMatches = matchRows.map((raw, index) => {
-                            const nameOf = (value) => typeof value === 'string' ? value : (value?.name || value?.teamName || value?.team_name || '');
                             const team1Name = nameOf(raw.team1Name || raw.team1_name || raw.team1 || raw.homeTeam || raw.home_team);
                             const team2Name = nameOf(raw.team2Name || raw.team2_name || raw.team2 || raw.awayTeam || raw.away_team);
-                            const tournament = String(raw.event || raw.eventName || raw.tournament || raw.tournamentName || raw.league || 'CS2 Match').trim();
-                            const date = localDate(raw.matchTime || raw.match_time || raw.startTime || raw.start_time || raw.date || raw.timestamp);
+                            const tournament = String(nameOf(raw.event) || raw.eventName || raw.tournament || raw.tournamentName || raw.league || 'CS2 Match').trim();
+                            const rawDate = raw.matchTime || raw.match_time || raw.startTime || raw.start_time || raw.date || raw.timestamp;
+                            const date = localDate(rawDate);
                             if (!team1Name || !team2Name || !date) return null;
-                            [team1Name, team2Name].forEach(name => { const key = name.toLocaleLowerCase('de'); if (!teamsByName.has(key)) teamsByName.set(key, { id: 'match-' + key.replace(/[^a-z0-9]+/gi, '-'), name, logoUrl: '', region: '', countryName: '', source: 'CSAPI match feed' }); });
-                            const score1 = raw.team1Score ?? raw.team1_score ?? raw.score1 ?? raw.homeScore;
-                            const score2 = raw.team2Score ?? raw.team2_score ?? raw.score2 ?? raw.awayScore;
+                            [team1Name, team2Name].forEach(name => {
+                                const key = name.toLocaleLowerCase('de');
+                                if (!teamsByName.has(key)) teamsByName.set(key, { id: 'match-' + key.replace(/[^a-z0-9]+/gi, '-'), name, logoUrl: '', region: '', countryName: '', roster: [], source: 'CSAPI match feed' });
+                            });
+                            const score1 = raw.team1Score ?? raw.team1_score ?? raw.score1 ?? raw.homeScore ?? raw.team1?.score;
+                            const score2 = raw.team2Score ?? raw.team2_score ?? raw.score2 ?? raw.awayScore ?? raw.team2?.score;
+                            const parsedDate = rawDate ? new Date(rawDate) : null;
                             return {
                                 id: String(raw.matchId ?? raw.match_id ?? raw.id ?? (tournament + '-' + date + '-' + team1Name + '-' + team2Name + '-' + index)),
-                                tournament, team1Name, team2Name, teams: team1Name + ' vs. ' + team2Name,
-                                date, time: date ? new Date(raw.matchTime || raw.match_time || raw.startTime || raw.start_time || raw.date || raw.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '',
+                                tournament, team1Name, team2Name, teams: team1Name + ' vs. ' + team2Name, date,
+                                time: rawDate && parsedDate && !Number.isNaN(parsedDate.getTime()) && !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(rawDate)) ? parsedDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '',
                                 score: score1 != null && score2 != null ? String(score1) + ' : ' + String(score2) : '',
-                                team1Logo: raw.team1Logo || raw.team1_logo || raw.homeTeamLogo || '',
-                                team2Logo: raw.team2Logo || raw.team2_logo || raw.awayTeamLogo || '',
+                                team1Logo: raw.team1Logo || raw.team1_logo || raw.homeTeamLogo || raw.team1?.logo || '',
+                                team2Logo: raw.team2Logo || raw.team2_logo || raw.awayTeamLogo || raw.team2?.logo || '',
                                 url: raw.matchUrl || raw.match_url || raw.url || '',
                                 phase: raw.phase || raw.stage || '', status: raw.status || (raw.isLive ? 'LIVE' : ''), source: 'CSAPI', rawUpdatedAt: raw.lastUpdated || raw.updated_at || ''
                             };
                         }).filter(Boolean);
                         this.tournamentCalendarTeams = [...teamsByName.values()].sort((a, b) => a.name.localeCompare(b.name, 'de'));
-                        this.tournamentCalendarMatches = [...new Map(normalizedMatches.map(match => [match.id, match])).values()].sort((a, b) => (a.date + (a.time || '')) .localeCompare(b.date + (b.time || '')));
+                        this.tournamentCalendarPlayers = [...playersById.values()].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+                        this.tournamentCalendarMatches = [...new Map(normalizedMatches.map(match => [match.id, match])).values()].sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
                         this.tournamentCalendarEvents = this.tournamentCalendarMatches.map(match => ({ ...match, source: 'CSAPI', url: match.url || 'https://www.hltv.org/events' }));
                         this.tournamentCalendarLastChecked = new Date();
                         const sourceCount = (this.tournamentCalendarSourceEvents || []).length;
-                        this.tournamentCalendarStatus = this.tournamentCalendarTeams.length + ' Teams · ' + this.tournamentCalendarMatches.length + ' Paarungen synchronisiert · ' + sourceCount + ' zusätzliche Turnierzeiträume · ' + this.tournamentCalendarLastChecked.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                        const dataStatus = this.tournamentCalendarTeams.length + ' Teams · ' + this.tournamentCalendarPlayers.length + ' Spieler · ' + this.tournamentCalendarMatches.length + ' Paarungen';
+                        this.tournamentCalendarStatus = dataStatus + (errors.length ? ' · Teil-Sync: ' + errors.join(' / ') : ' synchronisiert') + ' · ' + sourceCount + ' zusätzliche Turnierzeiträume · ' + this.tournamentCalendarLastChecked.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
                     } catch (error) {
                         this.tournamentCalendarLastChecked = new Date();
-                        this.tournamentCalendarStatus = 'Live-Sync nicht erreichbar – Kalender-Zeiträume bleiben verfügbar. ' + (error?.message || 'Unbekannter Fehler');
-                        console.warn('CS2 Team-/Match-Sync fehlgeschlagen:', error);
+                        this.tournamentCalendarStatus = 'Live-Sync fehlgeschlagen: ' + (error?.message || 'Unbekannter Fehler') + ' · Kalender-Zeiträume bleiben verfügbar.';
+                        console.warn('CS2 Team-/Spieler-/Match-Sync fehlgeschlagen:', error);
                     } finally {
                         this.tournamentCalendarLoading = false;
                     }
