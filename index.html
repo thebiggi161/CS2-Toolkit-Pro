@@ -541,6 +541,11 @@
                         <i class="fa-solid text-csorange" :class="tournamentCalendarOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </button>
                     <div x-show="tournamentCalendarOpen" x-collapse class="border-t border-gray-800 p-4">
+                        <div class="mb-4">
+                            <label for="tournament-calendar-search" class="block text-xs font-bold text-gray-300 mb-1.5">Turniere durchsuchen</label>
+                            <input id="tournament-calendar-search" type="search" x-model="tournamentCalendarSearch" placeholder="Turniername, Phase oder Quelle …" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-csorange focus:outline-none focus:ring-1 focus:ring-csorange" autocomplete="off">
+                            <p class="mt-1 text-[11px] text-gray-500">Die Suche filtert Kalendertage und Einträge, ohne gespeicherte Filter zu verändern.</p>
+                        </div>
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                             <div>
                                 <div class="font-bold text-white" x-text="tournamentCalendarMonthLabel()"></div>
@@ -624,12 +629,16 @@
                                                       x-text="tournamentCalendarPhaseLabel(event.phase)"></span>
                                             </div>
                                             <template x-if="event.team1Name && event.team2Name">
-                                                <div class="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-base sm:text-lg text-white">
-                                                    <img x-show="event.team1Logo" :src="event.team1Logo" :alt="event.team1Name + ' Logo'" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-contain bg-black/30 p-1" loading="lazy">
-                                                    <span x-text="event.team1Name" class="font-bold min-w-0 break-words"></span>
-                                                    <span class="text-gray-500 font-black text-sm">VS</span>
-                                                    <img x-show="event.team2Logo" :src="event.team2Logo" :alt="event.team2Name + ' Logo'" class="w-7 h-7 rounded-full object-contain bg-black/30" loading="lazy">
-                                                    <span x-text="event.team2Name" class="font-bold min-w-0 break-words text-right"></span>
+                                                <div class="mt-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3 text-sm sm:text-base text-white">
+                                                    <div class="flex min-w-0 items-center gap-2">
+                                                        <img x-show="event.team1Logo" :src="event.team1Logo" :alt="event.team1Name + ' Logo'" class="w-7 h-7 sm:w-9 sm:h-9 shrink-0 rounded-full object-contain bg-black/30 p-1" loading="lazy">
+                                                        <span x-text="event.team1Name" class="font-bold min-w-0 break-words"></span>
+                                                    </div>
+                                                    <span class="text-gray-500 font-black text-xs sm:text-sm">VS</span>
+                                                    <div class="flex min-w-0 items-center justify-end gap-2">
+                                                        <span x-text="event.team2Name" class="font-bold min-w-0 break-words text-right"></span>
+                                                        <img x-show="event.team2Logo" :src="event.team2Logo" :alt="event.team2Name + ' Logo'" class="w-7 h-7 sm:w-9 sm:h-9 shrink-0 rounded-full object-contain bg-black/30 p-1" loading="lazy">
+                                                    </div>
                                                 </div>
                                             </template>
                                             <div x-show="!event.team1Name || !event.team2Name" class="mt-1 text-sm text-white" x-text="event.teams || (event.start && event.end ? 'Turnierzeitraum · ' + new Date(event.start + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short'}) + ' – ' + new Date(event.end + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short',year:'numeric'}) : 'Spielpaarung noch nicht veröffentlicht')"></div>
@@ -1855,7 +1864,8 @@
                 internationalSource: 'hltv',
                 tournamentCalendarOpen: false,
                 tournamentCalendarView: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-                tournamentCalendarSelected: new Date().toISOString().slice(0, 10),
+                tournamentCalendarSelected: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
+                tournamentCalendarSearch: '',
                 tournamentCalendarEvents: [],
                 tournamentCalendarWatchlist: (() => { try { const value = JSON.parse(safeStorageGet('cs2_calendar_watchlist', '[]')); return Array.isArray(value) ? value.filter(item => item && typeof item === 'object' && typeof item.id === 'string').slice(-100) : []; } catch (_) { return []; } })(),
                 tournamentCalendarVisibleIds: (() => { try { const value = JSON.parse(safeStorageGet('cs2_calendar_visible_tournaments', '[]')); return Array.isArray(value) ? value.filter(item => typeof item === 'string').slice(0, 100) : []; } catch (_) { return []; } })(),
@@ -2659,6 +2669,13 @@
                     return this.tournamentCalendarVisibleIds.length === 0 || this.tournamentCalendarVisibleIds.includes(name);
                 },
 
+                tournamentCalendarMatchesSearch(event) {
+                    const query = String(this.tournamentCalendarSearch || '').trim().toLocaleLowerCase('de');
+                    if (!query) return true;
+                    return [event.tournament, event.teams, event.team1Name, event.team2Name, event.phase, event.source]
+                        .filter(Boolean).join(' ').toLocaleLowerCase('de').includes(query);
+                },
+
                 tournamentCalendarToggleFilter(name) {
                     const allNames = this.tournamentCalendarFilters().map(filter => filter.name);
                     let visible = this.tournamentCalendarVisibleIds.includes('__none__') ? [] : (this.tournamentCalendarVisibleIds.length === 0 ? [...allNames] : [...this.tournamentCalendarVisibleIds]);
@@ -2687,9 +2704,9 @@
                     const eventsByDate = {};
                     const addEvent = (date, event) => { (eventsByDate[date] ||= []).push(event); };
                     (this.tournamentCalendarEvents || []).forEach(event => {
-                        if (event.date && this.tournamentCalendarIsVisible(event.tournament || event.teams)) addEvent(event.date, event);
+                        if (event.date && this.tournamentCalendarIsVisible(event.tournament || event.teams) && this.tournamentCalendarMatchesSearch(event)) addEvent(event.date, event);
                     });
-                    (this.tournamentCalendarSourceEvents || []).filter(event => this.tournamentCalendarIsVisible(event.tournament)).forEach(event => {
+                    (this.tournamentCalendarSourceEvents || []).filter(event => this.tournamentCalendarIsVisible(event.tournament) && this.tournamentCalendarMatchesSearch(event) && /^\d{4}-\d{2}-\d{2}$/.test(event.start || '') && /^\d{4}-\d{2}-\d{2}$/.test(event.end || '') && event.start <= event.end).forEach(event => {
                         const start = new Date(event.start + 'T12:00:00');
                         const end = new Date(event.end + 'T12:00:00');
                         for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
@@ -2739,7 +2756,7 @@
                 tournamentCalendarShortName(name) {
                     const cleaned = String(name || 'Turnier')
                         .replace(/\b(Season|Series|Championship|Tournament|Qualifier|Masters)\b/gi, '')
-                        .replace(/\\s+/g, ' ')
+                        .replace(/\s+/g, ' ')
                         .trim();
                     return (cleaned || name).slice(0, 13);
                 },
@@ -2793,12 +2810,12 @@
                 },
 
                 tournamentCalendarEventsForSelectedDay() {
-                    const live = (this.tournamentCalendarEvents || []).filter(event => event.date === this.tournamentCalendarSelected && this.tournamentCalendarIsVisible(event.tournament || event.teams));
+                    const live = (this.tournamentCalendarEvents || []).filter(event => event.date === this.tournamentCalendarSelected && this.tournamentCalendarIsVisible(event.tournament || event.teams) && this.tournamentCalendarMatchesSearch(event));
                     const date = this.tournamentCalendarSelected;
                     const scheduled = (this.tournamentCalendarSourceEvents || [])
-                        .filter(event => this.tournamentCalendarIsVisible(event.tournament) && date >= event.start && date <= event.end)
+                        .filter(event => this.tournamentCalendarIsVisible(event.tournament) && this.tournamentCalendarMatchesSearch(event) && /^\d{4}-\d{2}-\d{2}$/.test(event.start || '') && /^\d{4}-\d{2}-\d{2}$/.test(event.end || '') && event.start <= event.end && date >= event.start && date <= event.end)
                         .map(event => ({ ...event, date, teams: '', time: '', id: event.id + '-' + date }));
-                    return [...live, ...scheduled];
+                    return [...live, ...scheduled].sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || String(a.tournament || '').localeCompare(String(b.tournament || ''), 'de'));
                 },
 
                 tournamentCalendarIsSaved(event) {
