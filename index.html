@@ -769,6 +769,7 @@
                 <button type="button" @click="owTab='crosshair'" :class="owTab==='crosshair' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-crosshairs mr-2"></i>Crosshair</button>
                 <button type="button" @click="owTab='sensitivity'" :class="owTab==='sensitivity' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-computer-mouse mr-2"></i>Sensitivity</button>
                 <button type="button" @click="owTab='settings'" :class="owTab==='settings' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-sliders mr-2"></i>Settings & Guides</button>
+                <button type="button" @click="owTab='stats'" :class="owTab==='stats' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-chart-line mr-2"></i>Stat Tracking</button>
             </div>
 
             <section x-show="owTab==='overview'" class="space-y-4">
@@ -894,6 +895,42 @@
                 </div>
                 <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 text-sm text-gray-400"><i class="fa-solid fa-circle-info text-orange-400 mr-2"></i>Diese Tipps sind allgemeine Startwerte, keine universell besten Pro-Settings. Änderungen bitte im Spiel selbst vornehmen und nach Patches erneut prüfen.</div>
             </section>
+        </section>
+
+                <section x-show="owTab==='stats'" x-cloak class="space-y-5">
+            <div class="rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-950/30 via-csdark-800 to-csdark-900 p-5 sm:p-7">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div><div class="text-xs font-black tracking-[0.2em] text-orange-400 uppercase">Player analytics</div><h3 class="mt-2 text-2xl font-black text-white"><i class="fa-solid fa-chart-line mr-2 text-orange-400"></i>Overwatch Stat Tracking</h3><p class="mt-2 max-w-3xl text-sm text-gray-300">Suche Spieler, lade öffentliche Profildaten und erhalte daraus konkrete Ansatzpunkte zur Verbesserung. Die Eingabe wird für die Blizzard-Suche und die Statistikabfrage gemeinsam verwendet.</p></div>
+                    <a href="https://overwatch.blizzard.com/en-us/search/" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-orange-400/50 px-3 py-2 text-sm font-bold text-orange-300 hover:bg-orange-500/10">Offizielle Spielersuche <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></a>
+                </div>
+                <form class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_140px_auto]" @submit.prevent="owSearchStats()">
+                    <div><label for="owStatQuery" class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Spielername / BattleTag</label><input id="owStatQuery" x-model="owStatQuery" type="search" autocomplete="off" placeholder="z. B. Spielername-1234 oder Name#1234" class="w-full rounded-xl border border-gray-700 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-orange-400" /></div>
+                    <div><label for="owStatPlatform" class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Plattform</label><select id="owStatPlatform" x-model="owStatPlatform" class="w-full rounded-xl border border-gray-700 bg-csdark-900 px-3 py-3 text-sm text-white"><option value="pc">PC</option><option value="psn">PlayStation</option><option value="xbl">Xbox</option></select></div>
+                    <button type="submit" :disabled="owStatLoading" class="self-end rounded-xl bg-orange-500 px-5 py-3 text-sm font-black text-black hover:bg-orange-400 disabled:opacity-60"><i class="fa-solid fa-magnifying-glass mr-2"></i><span x-text="owStatLoading ? 'Lade…' : 'Stats suchen'"></span></button>
+                </form>
+                <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-400"><span><i class="fa-solid fa-link mr-1 text-orange-400"></i>Eine Suchleiste für beide Schritte</span><span>·</span><span>Öffentliche Profile erforderlich</span><span>·</span><span>Keine Anmeldung im Toolkit</span></div>
+                <div class="mt-4 rounded-xl border border-white/10 bg-black/20 p-4"><div class="text-sm font-bold text-white">So funktioniert die Namenssuche</div><p class="mt-1 text-sm text-gray-400">Die offizielle Blizzard-Suche kann auch normale Anzeigenamen finden. Wähle dort den passenden Spieler und übernimm dessen BattleTag in dieses Feld, falls die direkte Abfrage mit dem Anzeigenamen keine Daten findet. BattleTags im Format <code class="text-orange-300">Name#1234</code> werden automatisch für die Statistik-API angepasst.</p><button type="button" @click="window.open(owStatSearchUrl(), '_blank', 'noopener')" class="mt-3 rounded-lg border border-gray-700 px-3 py-2 text-xs font-bold text-gray-200 hover:border-orange-400">Diesen Namen bei Blizzard suchen <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></button></div>
+            </div>
+            <div x-show="owStatLoading" class="rounded-xl border border-orange-500/30 bg-orange-500/5 p-5 text-sm text-orange-200"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Spielerprofil und Statistiken werden geladen…</div>
+            <div x-show="owStatError" x-cloak class="rounded-xl border border-red-500/30 bg-red-950/20 p-4 text-sm text-red-200"><i class="fa-solid fa-circle-exclamation mr-2"></i><span x-text="owStatError"></span></div>
+            <div x-show="owStatProfile" x-cloak class="space-y-4">
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3"><div><div class="text-xs font-black uppercase tracking-widest text-orange-400">Spielerprofil</div><h4 class="mt-1 text-xl font-black text-white" x-text="owStatValue(owStatProfile, ['name','username','battletag','playerName'])"></h4><p class="mt-1 text-xs text-gray-500" x-text="'Plattform: ' + owStatPlatform.toUpperCase() + ' · Suche: ' + owStatSearchedTag"></p></div><a :href="owStatProfileUrl()" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-gray-700 px-3 py-2 text-sm font-bold text-orange-300 hover:border-orange-400">Profil öffnen <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></a></div>
+                    <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        <div class="rounded-xl bg-black/25 p-4"><div class="text-xs text-gray-400">Level</div><div class="mt-1 text-xl font-black text-white" x-text="owStatValue(owStatProfile, ['level','prestigeLevel'])"></div></div>
+                        <div class="rounded-xl bg-black/25 p-4"><div class="text-xs text-gray-400">Wertung / Rang</div><div class="mt-1 text-xl font-black text-white" x-text="owStatValue(owStatProfile, ['competitiveStats.tank.rating','rating','rank','competitive.rank'])"></div></div>
+                        <div class="rounded-xl bg-black/25 p-4"><div class="text-xs text-gray-400">Siege</div><div class="mt-1 text-xl font-black text-white" x-text="owStatValue(owStatProfile, ['gamesWon','competitiveStats.gamesWon','competitiveStats.wins'])"></div></div>
+                        <div class="rounded-xl bg-black/25 p-4"><div class="text-xs text-gray-400">Prestige</div><div class="mt-1 text-xl font-black text-white" x-text="owStatValue(owStatProfile, ['prestige','endorsementLevel'])"></div></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5"><h4 class="font-black text-white"><i class="fa-solid fa-bullseye mr-2 text-orange-400"></i>Quickplay</h4><div class="mt-3 space-y-2 text-sm"><div class="flex justify-between gap-3 border-b border-gray-700 py-2"><span class="text-gray-400">Ø Eliminierungen</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['quickPlayStats.eliminationsAvg','quickPlayStats.eliminations.average'])"></strong></div><div class="flex justify-between gap-3 border-b border-gray-700 py-2"><span class="text-gray-400">Ø Schaden</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['quickPlayStats.damageAvg','quickPlayStats.damage.average'])"></strong></div><div class="flex justify-between gap-3 border-b border-gray-700 py-2"><span class="text-gray-400">Ø Heilung</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['quickPlayStats.healingAvg','quickPlayStats.healing.average'])"></strong></div><div class="flex justify-between gap-3 py-2"><span class="text-gray-400">Siege</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['quickPlayStats.gamesWon','quickPlayStats.wins'])"></strong></div></div></div>
+                    <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5"><h4 class="font-black text-white"><i class="fa-solid fa-trophy mr-2 text-orange-400"></i>Competitive</h4><div class="mt-3 space-y-2 text-sm"><div class="flex justify-between gap-3 border-b border-gray-700 py-2"><span class="text-gray-400">Ø Eliminierungen</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['competitiveStats.eliminationsAvg','competitiveStats.eliminations.average'])"></strong></div><div class="flex justify-between gap-3 border-b border-gray-700 py-2"><span class="text-gray-400">Ø Schaden</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['competitiveStats.damageAvg','competitiveStats.damage.average'])"></strong></div><div class="flex justify-between gap-3 border-b border-gray-700 py-2"><span class="text-gray-400">Ø Heilung</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['competitiveStats.healingAvg','competitiveStats.healing.average'])"></strong></div><div class="flex justify-between gap-3 py-2"><span class="text-gray-400">Siege</span><strong class="text-white" x-text="owStatValue(owStatProfile, ['competitiveStats.gamesWon','competitiveStats.wins'])"></strong></div></div></div>
+                </div>
+                <div class="rounded-2xl border border-orange-500/25 bg-csdark-800 p-5"><h4 class="text-lg font-black text-white"><i class="fa-solid fa-arrow-trend-up mr-2 text-orange-400"></i>Verbesserungspotenzial</h4><p class="mt-1 text-sm text-gray-400">Nutze diese Checkliste zusammen mit deinen Werten. Die Empfehlungen sind Coaching-Hinweise und keine automatisierte Analyse von Match-Replays.</p><div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3"><div class="rounded-xl bg-black/25 p-4"><div class="font-bold text-white">Damage</div><p class="mt-1 text-sm text-gray-400">Wenn dein Schaden niedrig ist: mehr Zeit auf sichere Winkel, Gegner mit wenig Leben fokussieren und vor jedem Fight eine klare Zielpriorität wählen.</p></div><div class="rounded-xl bg-black/25 p-4"><div class="font-bold text-white">Überleben</div><p class="mt-1 text-sm text-gray-400">Wenn du oft stirbst: Deckung näher nutzen, gegnerische Cooldowns abwarten und Mobilität oder Defensive für den Rückzug aufheben.</p></div><div class="rounded-xl bg-black/25 p-4"><div class="font-bold text-white">Teamplay</div><p class="mt-1 text-sm text-gray-400">Wenn Heilung/Assists niedrig sind oder Kämpfe verloren gehen: bei deinem Team bleiben, Ultimates abstimmen und nach gewonnenen Fights gemeinsam nachrücken.</p></div></div></div>
+                <div x-show="owStatComplete" class="rounded-2xl border border-gray-800 bg-csdark-800 p-5"><h4 class="font-black text-white">Detaildaten der Helden</h4><p class="mt-1 text-sm text-gray-400">Zusätzliche Heldendaten sind verfügbar, wenn der Statistikdienst sie für das Profil bereitstellt.</p><pre class="mt-3 max-h-96 overflow-auto rounded-lg bg-black/30 p-3 text-xs text-gray-300" x-text="JSON.stringify(owStatComplete, null, 2)"></pre></div>
+            </div>
+            <div class="rounded-xl border border-gray-800 bg-csdark-800/60 p-4 text-xs text-gray-500">Datenquelle: OWAPI.EU (inoffizieller Dienst, Daten aus öffentlichen Profilen). Die Verfügbarkeit, Feldnamen und Aktualität können variieren; private Profile lassen sich nicht auslesen. Die Statistiken werden nicht von Blizzard garantiert und können zeitverzögert sein.</div>
         </section>
 
         <!-- TAB: TURNIERBÄUME -->
@@ -2954,6 +2991,51 @@
                         }
                         alert('Overwatch-Crosshair-Einstellungen kopiert.');
                     } catch (_) { alert('Kopieren nicht möglich. Bitte die Werte manuell übernehmen.'); }
+                },
+                owStatQuery: '',
+                owStatPlatform: 'pc',
+                owStatRegion: 'eu',
+                owStatLoading: false,
+                owStatError: '',
+                owStatProfile: null,
+                owStatComplete: null,
+                owStatSearchedTag: '',
+                owStatSearchUrl() {
+                    const q = this.owStatQuery.trim();
+                    return q ? 'https://overwatch.blizzard.com/en-us/search/?q=' + encodeURIComponent(q) : 'https://overwatch.blizzard.com/en-us/search/';
+                },
+                owStatProfileUrl() {
+                    const tag = this.owStatSearchedTag;
+                    return tag ? 'https://overwatch.blizzard.com/en-us/career/' + encodeURIComponent(tag) : 'https://overwatch.blizzard.com/en-us/search/';
+                },
+                owStatValue(obj, paths) {
+                    for (const path of paths) {
+                        const value = path.split('.').reduce((v, k) => v && v[k] !== undefined ? v[k] : undefined, obj);
+                        if (value !== undefined && value !== null && value !== '') return value;
+                    }
+                    return '—';
+                },
+                async owSearchStats() {
+                    const raw = this.owStatQuery.trim();
+                    if (!raw) { this.owStatError = 'Gib einen BattleTag ein oder suche zuerst über die offizielle Blizzard-Spielersuche.'; return; }
+                    this.owStatLoading = true; this.owStatError = ''; this.owStatProfile = null; this.owStatComplete = null;
+                    // OWAPI expects a BattleTag in Name-1234 format; a display-name-only search is opened separately below.
+                    const tag = raw.replace(/^#/, '').replace('#', '-');
+                    this.owStatSearchedTag = tag;
+                    try {
+                        const base = 'https://owapi.eu/stats/' + encodeURIComponent(this.owStatPlatform) + '/' + encodeURIComponent(tag);
+                        const profileResponse = await fetch(base + '/profile', {headers:{'Accept':'application/json'}});
+                        if (!profileResponse.ok) throw new Error(profileResponse.status === 404 ? 'Profil nicht gefunden. Prüfe den BattleTag und ob das Karriereprofil öffentlich ist.' : 'Der Statistikdienst antwortet gerade nicht (HTTP ' + profileResponse.status + ').');
+                        const profile = await profileResponse.json();
+                        if (!profile || profile.error || profile.message === 'Profile is private') throw new Error('Profil nicht verfügbar oder privat. Stelle die Karriereprofil-Sichtbarkeit im Spiel auf Öffentlich.');
+                        this.owStatProfile = profile;
+                        try {
+                            const completeResponse = await fetch(base + '/complete', {headers:{'Accept':'application/json'}});
+                            if (completeResponse.ok) this.owStatComplete = await completeResponse.json();
+                        } catch (_) { /* Profile statistics remain useful if detailed hero stats are temporarily unavailable. */ }
+                    } catch (err) {
+                        this.owStatError = err && err.message ? err.message : 'Statistiken konnten nicht geladen werden. Bitte später erneut versuchen.';
+                    } finally { this.owStatLoading = false; }
                 },
                 internationalSource: 'hltv',
                 tournamentCalendarOpen: false,
