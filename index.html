@@ -2162,6 +2162,7 @@
                                 <button type="button" @click="consoleCategory='Alle'" :class="consoleCategory==='Alle' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Alle</button>
                                 <button type="button" @click="consoleCategory='Grafik / FPS'" :class="consoleCategory==='Grafik / FPS' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Grafik / FPS</button>
                                 <button type="button" @click="consoleCategory='HUD'" :class="consoleCategory==='HUD' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">HUD</button>
+                                <button type="button" @click="consoleCategory='Gameplay'" :class="consoleCategory==='Gameplay' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Gameplay</button>
                             </div>
                         </div>
                         <div class="space-y-2 max-h-[440px] overflow-y-auto pr-1">
@@ -2225,7 +2226,19 @@
                         <input x-model="profileName" type="text" maxlength="60" placeholder="z. B. Faceit Competitive" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm mb-3">
                         <label class="block text-sm font-semibold mb-2">Startoptionen</label>
                         <textarea x-model="launchOptions" rows="2" maxlength="1000" placeholder="-novid -console" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm font-mono mb-3"></textarea>
-                        <p class="text-xs text-gray-500 mb-3">Wird mit dem Profil gespeichert und separat kopiert/exportiert. Startoptionen in Steam manuell unter CS2 → Eigenschaften → Allgemein einfügen.</p>
+                        <p class="text-xs text-gray-500 mb-3">Wähle gängige Optionen aus oder bearbeite die Zeile selbst. Unbekannte/versionsabhängige Optionen können ignoriert werden. In Steam manuell unter CS2 → Eigenschaften → Allgemein einfügen.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <template x-for="option in launchOptionCatalog" :key="option.value">
+                                <label class="flex items-start gap-2 rounded-lg border border-gray-800 bg-csdark-900 p-2 text-xs cursor-pointer">
+                                    <input type="checkbox" class="mt-0.5 accent-orange-500" :checked="selectedLaunchOptions.includes(option.value)" @change="toggleLaunchOption(option.value, $event.target.checked)">
+                                    <span class="min-w-0 flex-1"><code class="text-csorange" x-text="option.value"></code><span class="block text-gray-300 mt-1" x-text="option.label"></span><span class="block text-gray-500 mt-1" x-text="option.risk"></span></span>
+                                </label>
+                            </template>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <button type="button" @click="applySelectedLaunchOptions()" class="rounded-lg bg-csorange px-3 py-2 text-xs font-bold text-black">Auswahl in Startoptionen übernehmen</button>
+                            <button type="button" @click="selectedLaunchOptions=[]; launchOptions=''" class="rounded-lg border border-gray-700 px-3 py-2 text-xs">Auswahl leeren</button>
+                        </div>
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" @click="saveProfile()" class="rounded-lg bg-csorange px-3 py-2 text-sm font-bold text-black hover:bg-csorange-hover"><i class="fa-solid fa-floppy-disk mr-1"></i><span x-text="selectedProfileId ? 'Änderungen speichern' : 'Profil speichern'"></span></button>
                             <button type="button" @click="exportConfig()" class="rounded-lg border border-gray-700 px-3 py-2 text-sm hover:border-csorange"><i class="fa-solid fa-download mr-1"></i>JSON exportieren</button>
@@ -2412,7 +2425,51 @@
                 {name:'cl_teamid_overhead_mode',value:'2',category:'HUD',selected:false},
                 {name:'cl_autohelp',value:'0',category:'HUD',selected:false},
                 {name:'cl_showloadout',value:'1',category:'HUD',selected:false},
-                {name:'engine_low_latency_sleep_after_client_tick',value:'0',category:'Grafik / FPS',selected:false}
+                {name:'engine_low_latency_sleep_after_client_tick',value:'0',category:'Grafik / FPS',selected:false},
+                {name:'cl_disablehtmlmotd',value:'1',category:'Gameplay',selected:false},
+                {name:'cl_use_opens_buy_menu',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_buywheel_nonumberpurchasing',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_buywheel_donate_key',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_dm_buyrandomweapons',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_sniper_auto_rezoom',value:'1',category:'Gameplay',selected:false},
+                {name:'cl_crosshair_recoil',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshair_drawoutline',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshairalpha',value:'255',category:'HUD',selected:false},
+                {name:'cl_crosshairdot',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshairgap',value:'-2',category:'HUD',selected:false},
+                {name:'cl_crosshairsize',value:'2',category:'HUD',selected:false},
+                {name:'cl_crosshairstyle',value:'4',category:'HUD',selected:false},
+                {name:'cl_crosshairthickness',value:'0.5',category:'HUD',selected:false},
+                {name:'cl_crosshairusealpha',value:'1',category:'HUD',selected:false},
+                {name:'cl_crosshair_t',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshairgap_useweaponvalue',value:'0',category:'HUD',selected:false},
+
+                {name:'cl_show_team_equipment',value:'1',category:'HUD',selected:false},
+                {name:'cl_draw_only_deathnotices',value:'0',category:'HUD',selected:false},
+                {name:'cl_teamid_overhead_colors_show',value:'1',category:'HUD',selected:false},
+                {name:'cl_teamid_overhead_mode',value:'2',category:'HUD',selected:false},
+                {name:'cl_radar_icon_scale_min',value:'0.6',category:'HUD',selected:false},
+                {name:'cl_radar_square_with_scoreboard',value:'1',category:'HUD',selected:false},
+                {name:'cl_hud_playercount_showcount',value:'1',category:'HUD',selected:false},
+                {name:'cl_hud_playercount_pos',value:'0',category:'HUD',selected:false},
+                {name:'cl_hud_bomb_under_radar',value:'1',category:'HUD',selected:false},
+                {name:'cl_hud_healthammo_style',value:'0',category:'HUD',selected:false},
+                {name:'cl_hud_background_alpha',value:'0.5',category:'HUD',selected:false},
+                {name:'cl_hud_color',value:'0',category:'HUD',selected:false},
+                {name:'cl_viewmodel_shift_left_amt',value:'1.5',category:'HUD',selected:false},
+                {name:'cl_viewmodel_shift_right_amt',value:'0.75',category:'HUD',selected:false},
+                {name:'viewmodel_fov',value:'68',category:'HUD',selected:false},
+                {name:'viewmodel_offset_x',value:'2.5',category:'HUD',selected:false},
+                {name:'viewmodel_offset_y',value:'0',category:'HUD',selected:false},
+                {name:'viewmodel_offset_z',value:'-1.5',category:'HUD',selected:false},
+                {name:'sensitivity',value:'1',category:'Gameplay',selected:false},
+                {name:'zoom_sensitivity_ratio',value:'1',category:'Gameplay',selected:false},
+                {name:'cl_autowepswitch',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_mute_enemy_team',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_mute_all_but_friends_and_party',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_color',value:'0',category:'HUD',selected:false},
+                {name:'cl_prefer_lefthanded',value:'0',category:'HUD',selected:false},
+                {name:'fps_max_ui',value:'120',category:'Grafik / FPS',selected:false}
             ];
             const buildConsoleCommands = () => commandSpecs.map(spec => {
                 const row = (Array.isArray(CS2_COMMAND_DATABASE) ? CS2_COMMAND_DATABASE : []).find(entry => Array.isArray(entry) && entry[0] === spec.name);
@@ -2428,6 +2485,20 @@
                 profiles: [],
                 notice: '',
                 launchOptions: '-novid -console',
+                launchOptionCatalog: [
+                    { value: '-novid', label: 'Intro-Video überspringen', risk: 'Niedrig' },
+                    { value: '-console', label: 'Konsole beim Start aktivieren', risk: 'Niedrig' },
+                    { value: '-fullscreen', label: 'Vollbild erzwingen', risk: 'Niedrig' },
+                    { value: '-windowed', label: 'Fenstermodus erzwingen', risk: 'Niedrig' },
+                    { value: '-noborder', label: 'Randloses Fenster (mit -windowed)', risk: 'Niedrig' },
+                    { value: '-nojoy', label: 'Joystick-Unterstützung deaktivieren', risk: 'Niedrig' },
+                    { value: '-allow_third_party_software', label: 'Drittanbieter-Overlay-Kompatibilität testen', risk: 'Hinweis: kann Trust-Factor-/Sicherheitswarnungen beeinflussen' },
+                    { value: '-vulkan', label: 'Vulkan-Renderer testen, falls unterstützt', risk: 'Testoption; bei Problemen entfernen' },
+                    { value: '+fps_max 0', label: 'FPS-Limit aufheben', risk: 'Kann Verbrauch/Temperatur erhöhen' },
+                    { value: '+cl_showfps 1', label: 'FPS-Anzeige aktivieren', risk: 'Niedrig' },
+                    { value: '+exec autoexec.cfg', label: 'autoexec.cfg laden', risk: 'Datei muss bereits im CS2 cfg-Ordner liegen' }
+                ],
+                selectedLaunchOptions: ['-novid', '-console'],
                 configEditor: '',
                 consoleSearch: '',
                 consoleCategory: 'Alle',
@@ -2448,6 +2519,15 @@
                     this.settings = { ...(presets[name] || presets.competitive) };
                     this.notice = 'Profilvorschlag „' + name + '“ geladen. Noch nicht auf den PC angewendet.';
                 },
+                toggleLaunchOption(value, checked) {
+                    const next = new Set(this.selectedLaunchOptions || []);
+                    if (checked) next.add(value); else next.delete(value);
+                    this.selectedLaunchOptions = Array.from(next);
+                },
+                applySelectedLaunchOptions() {
+                    this.launchOptions = (this.selectedLaunchOptions || []).join(' ');
+                    this.notice = 'Startoptionen aus der Auswahl übernommen. Prüfe sie und füge sie manuell in Steam ein.';
+                },
                 get visibleConsoleCommands() {
                     const q = String(this.consoleSearch || '').trim().toLowerCase();
                     return this.consoleCommands.filter(cmd => {
@@ -2465,7 +2545,7 @@
                     this.notice = 'FPS-Basisbefehle ausgewählt. Bitte Werte prüfen und dann exportieren.';
                 },
                 buildConsoleConfig() {
-                    return this.selectedConsoleCommands.map(cmd => cmd.name + ' ' + String(cmd.value).trim()).join('\\n');
+                    return this.selectedConsoleCommands.map(cmd => cmd.name + ' ' + String(cmd.value).trim()).join('\n');
                 },
                 async importCfgFile(event) {
                     const file = event.target.files && event.target.files[0];
@@ -2480,8 +2560,11 @@
                 },
                 generateConfigEditor() {
                     const commands = this.buildConsoleConfig();
-                    this.configEditor = '// CS2 Toolkit Pro V2 - Console / HUD Config\\n// Vor dem Einsatz jede Zeile im Spiel prüfen.\\n' + (commands ? commands + '\\n' : '');
-                    this.notice = 'Config-Editor aus den ausgewählten Commands erstellt. Du kannst die Zeilen jetzt bearbeiten.';
+                    const custom = String(this.configEditor || '').trim();
+                    const lines = Array.from(new Set([commands, custom].filter(Boolean).join('\n').split(/\r?\n/).map(line => line.trim()).filter(Boolean)));
+                    const header = '// CS2 Toolkit Pro V2 - Console / HUD Config\n// Startoptionen und Grafik-Menüoptionen gehören nicht in diese .cfg.\n// Vor dem Einsatz jede Zeile im Spiel prüfen.\n';
+                    this.configEditor = header + lines.join('\n') + (lines.length ? '\n' : '');
+                    this.notice = lines.length ? 'Config erstellt/ergänzt. Du kannst die Zeilen bearbeiten und als .cfg herunterladen.' : 'Keine Befehle ausgewählt. Wähle Commands oder füge eigene Zeilen ein.';
                 },
                 async copyConfigEditor() {
                     const value = String(this.configEditor || '').trim();
@@ -2532,13 +2615,21 @@
                 exportAutoexec() {
                     const commands = this.buildConsoleConfig();
                     const edited = String(this.configEditor || '').trim();
-                    if (!commands && !edited) { this.notice = 'Wähle Console-Befehle aus oder füge eine Config in den Editor ein.'; return; }
-                    const content = '// CS2 Toolkit Pro V2 – exportierte Client-Settings\\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\\n' + (edited || commands) + '\\n';
+                    const header = '// CS2 Toolkit Pro V2 - exportierte Client-Settings\n// Grafik-Menüoptionen und Steam-Startoptionen werden separat im Profil gespeichert.\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\n';
+                    const combined = Array.from(new Set([commands, edited].filter(Boolean).join('\n').split(/\r?\n/).map(line => line.trim()).filter(Boolean))).join('\n');
+                    if (!combined.trim()) { this.notice = 'Wähle Console-/HUD-Befehle aus oder füge Config-Zeilen in den Editor ein.'; return; }
+                    const content = header + combined + '\n';
                     const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
                     const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a'); a.href = url; a.download = 'cs2-toolkit-settings.cfg';
-                    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-                    this.notice = 'CS2-Config als .cfg exportiert.';
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = (String(this.profileName || 'cs2-config').trim().replace(/[^a-z0-9_-]+/gi, '-').replace(/^-+|-+$/g, '') || 'cs2-config') + '.cfg';
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+                    this.notice = 'Download gestartet: ' + a.download + '. Prüfe die Datei im Download-Ordner.';
                 },
                 loadProfiles() {
                     try {
@@ -2560,7 +2651,7 @@
                     if (!name) { this.notice = 'Bitte einen Profilnamen eingeben.'; return; }
                     const id = 'fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
                     const existing = this.profiles.find(item => item.id === this.selectedProfileId);
-                    const record = { id: existing ? existing.id : ('fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7)), name, settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), configEditor: String(this.configEditor || '').slice(0, 50000), savedAt: new Date().toISOString() };
+                    const record = { id: existing ? existing.id : ('fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7)), name, settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), selectedLaunchOptions: Array.isArray(this.selectedLaunchOptions) ? this.selectedLaunchOptions.slice(0, 30) : [], configEditor: String(this.configEditor || '').slice(0, 50000), savedAt: new Date().toISOString() };
                     if (existing) this.profiles = this.profiles.map(item => item.id === existing.id ? record : item);
                     else this.profiles.push(record);
                     if (this.profiles.length > 30) this.profiles.shift();
@@ -2579,6 +2670,7 @@
                     }
                     this.profileName = p.name;
                     this.launchOptions = String(p.launchOptions || '-novid -console').slice(0, 1000);
+                    this.selectedLaunchOptions = Array.isArray(p.selectedLaunchOptions) ? p.selectedLaunchOptions.filter(value => this.launchOptionCatalog.some(option => option.value === value)) : [];
                     this.configEditor = String(p.configEditor || '').slice(0, 50000);
                     this.notice = 'Profil „' + p.name + '“ geladen.';
                 },
@@ -2592,7 +2684,7 @@
                     }
                 },
                 exportConfig() {
-                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 3, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), configEditor: String(this.configEditor || '').slice(0, 50000), checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
+                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 3, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), selectedLaunchOptions: Array.isArray(this.selectedLaunchOptions) ? this.selectedLaunchOptions.slice(0, 30) : [], configEditor: String(this.configEditor || '').slice(0, 50000), checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
                     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -2620,6 +2712,7 @@
                             this.consoleCommands.forEach(cmd => { const item = saved.get(cmd.name); if (item) { cmd.value = String(item.value || cmd.value).replace(/[^a-zA-Z0-9_.+-]/g,'').slice(0,24); cmd.selected = Boolean(item.selected); } });
                         }
                         this.launchOptions = String(data.launchOptions || '').slice(0, 1000);
+                        this.selectedLaunchOptions = Array.isArray(data.selectedLaunchOptions) ? data.selectedLaunchOptions.filter(value => this.launchOptionCatalog.some(option => option.value === value)) : [];
                         this.configEditor = String(data.configEditor || '').slice(0, 50000);
                         this.profileName = String(data.name || file.name.replace(/\.json$/i, '')).slice(0, 60);
                         this.selectedProfileId = '';
