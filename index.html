@@ -5776,7 +5776,7 @@ bombSites: [
         const panels = Array.from(main.querySelectorAll(':scope > section[x-show]'));
         const getTabFromButton = (button) => {
           const expression = button.getAttribute('@click') || button.getAttribute('x-on:click') || '';
-          const match = expression.match(/(?:^|[;\\s])activeTab\\s*=\\s*['"]([^'"]+)['"]/);
+          const match = expression.match(/(?:^|[;\s])activeTab\s*=\s*['"]([^'"]+)['"]/);
           return match ? match[1] : null;
         };
         const showTab = (tab) => {
@@ -5792,7 +5792,7 @@ bombSites: [
           }
           for (const panel of panels) {
             const expression = panel.getAttribute('x-show') || '';
-            const match = expression.match(/^\\s*activeTab\\s*===\\s*['"]([^'"]+)['"]\\s*$/);
+            const match = expression.match(/^\s*activeTab\s*===\s*['"]([^'"]+)['"]\s*$/);
             if (!match) continue;
             const visible = match[1] === tab;
             panel.style.display = visible ? '' : 'none';
