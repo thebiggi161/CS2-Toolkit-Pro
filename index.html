@@ -2189,6 +2189,18 @@
                     </div>
 
                     <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
+                        <h3 class="text-lg font-bold mb-2"><i class="fa-solid fa-file-code text-csorange mr-2"></i>Config-Editor (.cfg)</h3>
+                        <p class="text-xs text-gray-400 mb-3">Erstelle eine Config aus den ausgewählten Console- und HUD-Befehlen oder füge eigene Zeilen ein. Der Editorinhalt wird mit deinem Profil gespeichert.</p>
+                        <textarea x-model="configEditor" rows="9" spellcheck="false" placeholder="// CS2 Toolkit Config&#10;fps_max 0&#10;cl_showfps 1" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-3 text-sm font-mono text-gray-100 focus:border-csorange focus:outline-none"></textarea>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <button type="button" @click="generateConfigEditor()" class="rounded-lg bg-csorange px-3 py-2 text-xs font-bold text-black">Aus Auswahl erstellen</button>
+                            <button type="button" @click="copyConfigEditor()" class="rounded-lg border border-gray-700 px-3 py-2 text-xs hover:border-csorange"><i class="fa-regular fa-copy mr-1"></i>Config kopieren</button>
+                            <button type="button" @click="exportAutoexec()" class="rounded-lg border border-gray-700 px-3 py-2 text-xs hover:border-csorange"><i class="fa-solid fa-download mr-1"></i>.cfg speichern</button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3">Grafik-Menüoptionen werden im Profil/JSON gespeichert. Eine .cfg-Datei enthält nur Console-/HUD-Befehle, die du im Spiel prüfen solltest.</p>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
                         <h3 class="text-lg font-bold mb-3"><i class="fa-solid fa-list-check text-csorange mr-2"></i>Optimierungs-Checkliste</h3>
                         <p class="text-xs text-gray-400 mb-4">Hake Schritte ab, nachdem du sie selbst geprüft hast. Es werden keine Systemänderungen automatisch vorgenommen.</p>
                         <div class="space-y-3">
@@ -2209,9 +2221,16 @@
                         <p class="text-xs text-gray-400 mt-1 mb-4">Profile lokal im Browser speichern, umbenennen, laden oder als JSON exportieren.</p>
                         <label class="block text-sm font-semibold mb-2">Profilname</label>
                         <input x-model="profileName" type="text" maxlength="60" placeholder="z. B. Faceit Competitive" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm mb-3">
+                        <label class="block text-sm font-semibold mb-2">Startoptionen</label>
+                        <textarea x-model="launchOptions" rows="2" maxlength="1000" placeholder="-novid -console" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm font-mono mb-3"></textarea>
+                        <p class="text-xs text-gray-500 mb-3">Wird mit dem Profil gespeichert und separat kopiert/exportiert. Startoptionen in Steam manuell unter CS2 → Eigenschaften → Allgemein einfügen.</p>
                         <div class="grid grid-cols-2 gap-2">
-                            <button type="button" @click="saveProfile()" class="rounded-lg bg-csorange px-3 py-2 text-sm font-bold text-black hover:bg-csorange-hover"><i class="fa-solid fa-floppy-disk mr-1"></i>Speichern</button>
-                            <button type="button" @click="exportConfig()" class="rounded-lg border border-gray-700 px-3 py-2 text-sm hover:border-csorange"><i class="fa-solid fa-download mr-1"></i>Export</button>
+                            <button type="button" @click="saveProfile()" class="rounded-lg bg-csorange px-3 py-2 text-sm font-bold text-black hover:bg-csorange-hover"><i class="fa-solid fa-floppy-disk mr-1"></i><span x-text="selectedProfileId ? 'Änderungen speichern' : 'Profil speichern'"></span></button>
+                            <button type="button" @click="exportConfig()" class="rounded-lg border border-gray-700 px-3 py-2 text-sm hover:border-csorange"><i class="fa-solid fa-download mr-1"></i>JSON exportieren</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <button type="button" @click="copyLaunchOptions()" class="rounded-lg border border-gray-700 px-3 py-2 text-xs hover:border-csorange">Startoptionen kopieren</button>
+                            <button type="button" @click="exportLaunchOptions()" class="rounded-lg border border-gray-700 px-3 py-2 text-xs hover:border-csorange">Startoptionen .txt</button>
                         </div>
                         <label class="block text-sm font-semibold mt-4 mb-2">Gespeicherte Profile</label>
                         <select x-model="selectedProfileId" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm"><option value="">Profil auswählen …</option><template x-for="p in profiles" :key="p.id"><option :value="p.id" x-text="p.name"></option></template></select>
@@ -2406,6 +2425,8 @@
                 selectedProfileId: '',
                 profiles: [],
                 notice: '',
+                launchOptions: '-novid -console',
+                configEditor: '',
                 consoleSearch: '',
                 consoleCategory: 'Alle',
                 consoleCommands: buildConsoleCommands(),
@@ -2444,6 +2465,44 @@
                 buildConsoleConfig() {
                     return this.selectedConsoleCommands.map(cmd => cmd.name + ' ' + String(cmd.value).trim()).join('\\n');
                 },
+                generateConfigEditor() {
+                    const commands = this.buildConsoleConfig();
+                    this.configEditor = '// CS2 Toolkit Pro V2 - Console / HUD Config\\n// Vor dem Einsatz jede Zeile im Spiel prüfen.\\n' + (commands ? commands + '\\n' : '');
+                    this.notice = 'Config-Editor aus den ausgewählten Commands erstellt. Du kannst die Zeilen jetzt bearbeiten.';
+                },
+                async copyConfigEditor() {
+                    const value = String(this.configEditor || '').trim();
+                    if (!value) { this.notice = 'Der Config-Editor ist leer.'; return; }
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(value);
+                        else {
+                            const area = document.createElement('textarea'); area.value = value;
+                            area.style.position = 'fixed'; area.style.opacity = '0'; document.body.appendChild(area);
+                            area.focus(); area.select(); document.execCommand('copy'); area.remove();
+                        }
+                        this.notice = 'Config-Editor-Inhalt kopiert.';
+                    } catch (_) { this.notice = 'Kopieren nicht möglich. Exportiere stattdessen die .cfg-Datei.'; }
+                },
+                async copyLaunchOptions() {
+                    const value = String(this.launchOptions || '').trim();
+                    if (!value) { this.notice = 'Keine Startoptionen eingetragen.'; return; }
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(value);
+                        else {
+                            const area = document.createElement('textarea'); area.value = value;
+                            area.style.position = 'fixed'; area.style.opacity = '0'; document.body.appendChild(area);
+                            area.focus(); area.select(); document.execCommand('copy'); area.remove();
+                        }
+                        this.notice = 'Startoptionen kopiert. Füge sie in Steam manuell ein.';
+                    } catch (_) { this.notice = 'Kopieren nicht möglich. Markiere die Startoptionen und kopiere sie manuell.'; }
+                },
+                exportLaunchOptions() {
+                    const blob = new Blob([String(this.launchOptions || '').trim() + '\\n'], {type:'text/plain;charset=utf-8'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = 'cs2-startoptionen.txt';
+                    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    this.notice = 'Startoptionen als TXT exportiert.';
+                },
                 async copyConsoleCommands() {
                     const text = this.buildConsoleConfig();
                     if (!text) { this.notice = 'Bitte mindestens einen Console-Befehl auswählen.'; return; }
@@ -2460,7 +2519,8 @@
                 exportAutoexec() {
                     const commands = this.buildConsoleConfig();
                     if (!commands) { this.notice = 'Bitte mindestens einen Console-Befehl auswählen.'; return; }
-                    const content = '// CS2 Toolkit Pro V2 – exportierte Client-Settings\\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\\n' + commands + '\\n';
+                    const edited = String(this.configEditor || '').trim();
+                    const content = '// CS2 Toolkit Pro V2 – exportierte Client-Settings\\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\\n' + (edited || commands) + '\\n';
                     const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a'); a.href = url; a.download = 'cs2-toolkit-settings.cfg';
@@ -2486,11 +2546,14 @@
                     const name = String(this.profileName || '').trim().slice(0, 60);
                     if (!name) { this.notice = 'Bitte einen Profilnamen eingeben.'; return; }
                     const id = 'fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
-                    this.profiles.push({ id, name, settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), savedAt: new Date().toISOString() });
+                    const existing = this.profiles.find(item => item.id === this.selectedProfileId);
+                    const record = { id: existing ? existing.id : ('fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7)), name, settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), configEditor: String(this.configEditor || '').slice(0, 50000), savedAt: new Date().toISOString() };
+                    if (existing) this.profiles = this.profiles.map(item => item.id === existing.id ? record : item);
+                    else this.profiles.push(record);
                     if (this.profiles.length > 30) this.profiles.shift();
                     if (this.persistProfiles()) {
-                        this.selectedProfileId = id;
-                        this.notice = 'Profil „' + name + '“ lokal gespeichert.';
+                        this.selectedProfileId = record.id;
+                        this.notice = existing ? 'Änderungen an „' + name + '“ gespeichert.' : 'Profil „' + name + '“ lokal gespeichert.';
                     }
                 },
                 loadProfile() {
@@ -2502,6 +2565,8 @@
                         this.consoleCommands.forEach(cmd => { const item = saved.get(cmd.name); if (item) { cmd.value = String(item.value || cmd.value).replace(/[^a-zA-Z0-9_.+-]/g,'').slice(0,24); cmd.selected = Boolean(item.selected); } });
                     }
                     this.profileName = p.name;
+                    this.launchOptions = String(p.launchOptions || '-novid -console').slice(0, 1000);
+                    this.configEditor = String(p.configEditor || '').slice(0, 50000);
                     this.notice = 'Profil „' + p.name + '“ geladen.';
                 },
                 deleteProfile() {
@@ -2514,7 +2579,7 @@
                     }
                 },
                 exportConfig() {
-                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 2, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
+                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 3, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), configEditor: String(this.configEditor || '').slice(0, 50000), checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
                     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -2541,8 +2606,11 @@
                             const saved = new Map(data.consoleCommands.filter(cmd => cmd && allowed.has(cmd.name)).map(cmd => [cmd.name, cmd]));
                             this.consoleCommands.forEach(cmd => { const item = saved.get(cmd.name); if (item) { cmd.value = String(item.value || cmd.value).replace(/[^a-zA-Z0-9_.+-]/g,'').slice(0,24); cmd.selected = Boolean(item.selected); } });
                         }
+                        this.launchOptions = String(data.launchOptions || '').slice(0, 1000);
+                        this.configEditor = String(data.configEditor || '').slice(0, 50000);
                         this.profileName = String(data.name || file.name.replace(/\.json$/i, '')).slice(0, 60);
-                        this.notice = 'Konfiguration importiert. Bitte Werte prüfen und bei Bedarf speichern.';
+                        this.selectedProfileId = '';
+                        this.notice = 'Konfiguration importiert. Grafik, Commands, Startoptionen und Config-Editor geladen. Speichere sie als Profil, wenn du sie behalten möchtest.';
                     } catch (error) {
                         this.notice = 'Import fehlgeschlagen: ' + (error && error.message ? error.message : 'ungültige JSON-Datei');
                     } finally { event.target.value = ''; }
