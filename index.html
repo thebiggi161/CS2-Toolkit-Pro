@@ -3612,7 +3612,19 @@ bombSites: [
 
                 commandSearch: '',
                 commandSuggestionsOpen: false,
-                commands: [...CS2_COMMAND_DATABASE,
+                commands: [...CS2_COMMAND_DATABASE.map(entry => Array.isArray(entry) ? ({
+                    command: String(entry[0] || ''),
+                    desc: String(entry[1] || 'Keine Beschreibung verfügbar.'),
+                    kind: String(entry[2] || 'Command'),
+                    flags: String(entry[3] || ''),
+                    defaultValue: entry[4] == null ? '' : String(entry[4])
+                }) : ({
+                    command: String(entry.command || ''),
+                    desc: String(entry.desc || 'Keine Beschreibung verfügbar.'),
+                    kind: String(entry.kind || 'Command'),
+                    flags: String(entry.flags || ''),
+                    defaultValue: entry.defaultValue == null ? '' : String(entry.defaultValue)
+                })),
 { command: 'fps_max 0', desc: 'Entfernt das FPS-Limit.' },
                     { command: 'cl_showfps 1', desc: 'Zeigt die aktuellen FPS im Spiel an.' },
                     { command: 'cl_hud_telemetry_frametime_show 2', desc: 'Zeigt Frame-Time/FPS-Telemetrie im HUD.' },
@@ -3649,7 +3661,7 @@ bombSites: [
                 get matchingCommands() {
                     const q = (this.commandSearch || '').trim().toLowerCase();
                     if (!q) return this.commands;
-                    return this.commands.filter(c => c.command.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || c.kind.toLowerCase().includes(q) || c.flags.toLowerCase().includes(q) || (c.defaultValue || '').toLowerCase().includes(q));
+                    return this.commands.filter(c => (c.command || '').toLowerCase().includes(q) || (c.desc || '').toLowerCase().includes(q) || (c.kind || '').toLowerCase().includes(q) || (c.flags || '').toLowerCase().includes(q) || String(c.defaultValue || '').toLowerCase().includes(q));
                 },
                 get matchingCommandCount() { return this.matchingCommands.length; },
                 get filteredCommands() { return this.matchingCommands.slice(0, 100); }
