@@ -2226,7 +2226,19 @@
                         <input x-model="profileName" type="text" maxlength="60" placeholder="z. B. Faceit Competitive" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm mb-3">
                         <label class="block text-sm font-semibold mb-2">Startoptionen</label>
                         <textarea x-model="launchOptions" rows="2" maxlength="1000" placeholder="-novid -console" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm font-mono mb-3"></textarea>
-                        <p class="text-xs text-gray-500 mb-3">Wird mit dem Profil gespeichert und separat kopiert/exportiert. Startoptionen in Steam manuell unter CS2 → Eigenschaften → Allgemein einfügen.</p>
+                        <p class="text-xs text-gray-500 mb-3">Wähle gängige Optionen aus oder bearbeite die Zeile selbst. Unbekannte/versionsabhängige Optionen können ignoriert werden. In Steam manuell unter CS2 → Eigenschaften → Allgemein einfügen.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            <template x-for="option in launchOptionCatalog" :key="option.value">
+                                <label class="flex items-start gap-2 rounded-lg border border-gray-800 bg-csdark-900 p-2 text-xs cursor-pointer">
+                                    <input type="checkbox" class="mt-0.5 accent-orange-500" :checked="selectedLaunchOptions.includes(option.value)" @change="toggleLaunchOption(option.value, $event.target.checked)">
+                                    <span class="min-w-0 flex-1"><code class="text-csorange" x-text="option.value"></code><span class="block text-gray-300 mt-1" x-text="option.label"></span><span class="block text-gray-500 mt-1" x-text="option.risk"></span></span>
+                                </label>
+                            </template>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <button type="button" @click="applySelectedLaunchOptions()" class="rounded-lg bg-csorange px-3 py-2 text-xs font-bold text-black">Auswahl in Startoptionen übernehmen</button>
+                            <button type="button" @click="selectedLaunchOptions=[]; launchOptions=''" class="rounded-lg border border-gray-700 px-3 py-2 text-xs">Auswahl leeren</button>
+                        </div>
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" @click="saveProfile()" class="rounded-lg bg-csorange px-3 py-2 text-sm font-bold text-black hover:bg-csorange-hover"><i class="fa-solid fa-floppy-disk mr-1"></i><span x-text="selectedProfileId ? 'Änderungen speichern' : 'Profil speichern'"></span></button>
                             <button type="button" @click="exportConfig()" class="rounded-lg border border-gray-700 px-3 py-2 text-sm hover:border-csorange"><i class="fa-solid fa-download mr-1"></i>JSON exportieren</button>
@@ -2473,6 +2485,20 @@
                 profiles: [],
                 notice: '',
                 launchOptions: '-novid -console',
+                launchOptionCatalog: [
+                    { value: '-novid', label: 'Intro-Video überspringen', risk: 'Niedrig' },
+                    { value: '-console', label: 'Konsole beim Start aktivieren', risk: 'Niedrig' },
+                    { value: '-fullscreen', label: 'Vollbild erzwingen', risk: 'Niedrig' },
+                    { value: '-windowed', label: 'Fenstermodus erzwingen', risk: 'Niedrig' },
+                    { value: '-noborder', label: 'Randloses Fenster (mit -windowed)', risk: 'Niedrig' },
+                    { value: '-nojoy', label: 'Joystick-Unterstützung deaktivieren', risk: 'Niedrig' },
+                    { value: '-allow_third_party_software', label: 'Drittanbieter-Overlay-Kompatibilität testen', risk: 'Hinweis: kann Trust-Factor-/Sicherheitswarnungen beeinflussen' },
+                    { value: '-vulkan', label: 'Vulkan-Renderer testen, falls unterstützt', risk: 'Testoption; bei Problemen entfernen' },
+                    { value: '+fps_max 0', label: 'FPS-Limit aufheben', risk: 'Kann Verbrauch/Temperatur erhöhen' },
+                    { value: '+cl_showfps 1', label: 'FPS-Anzeige aktivieren', risk: 'Niedrig' },
+                    { value: '+exec autoexec.cfg', label: 'autoexec.cfg laden', risk: 'Datei muss bereits im CS2 cfg-Ordner liegen' }
+                ],
+                selectedLaunchOptions: ['-novid', '-console'],
                 configEditor: '',
                 consoleSearch: '',
                 consoleCategory: 'Alle',
@@ -2492,6 +2518,15 @@
                 applyPreset(name) {
                     this.settings = { ...(presets[name] || presets.competitive) };
                     this.notice = 'Profilvorschlag „' + name + '“ geladen. Noch nicht auf den PC angewendet.';
+                },
+                toggleLaunchOption(value, checked) {
+                    const next = new Set(this.selectedLaunchOptions || []);
+                    if (checked) next.add(value); else next.delete(value);
+                    this.selectedLaunchOptions = Array.from(next);
+                },
+                applySelectedLaunchOptions() {
+                    this.launchOptions = (this.selectedLaunchOptions || []).join(' ');
+                    this.notice = 'Startoptionen aus der Auswahl übernommen. Prüfe sie und füge sie manuell in Steam ein.';
                 },
                 get visibleConsoleCommands() {
                     const q = String(this.consoleSearch || '').trim().toLowerCase();
@@ -2615,7 +2650,7 @@
                     if (!name) { this.notice = 'Bitte einen Profilnamen eingeben.'; return; }
                     const id = 'fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
                     const existing = this.profiles.find(item => item.id === this.selectedProfileId);
-                    const record = { id: existing ? existing.id : ('fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7)), name, settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), configEditor: String(this.configEditor || '').slice(0, 50000), savedAt: new Date().toISOString() };
+                    const record = { id: existing ? existing.id : ('fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7)), name, settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), selectedLaunchOptions: Array.isArray(this.selectedLaunchOptions) ? this.selectedLaunchOptions.slice(0, 30) : [], configEditor: String(this.configEditor || '').slice(0, 50000), savedAt: new Date().toISOString() };
                     if (existing) this.profiles = this.profiles.map(item => item.id === existing.id ? record : item);
                     else this.profiles.push(record);
                     if (this.profiles.length > 30) this.profiles.shift();
@@ -2634,6 +2669,7 @@
                     }
                     this.profileName = p.name;
                     this.launchOptions = String(p.launchOptions || '-novid -console').slice(0, 1000);
+                    this.selectedLaunchOptions = Array.isArray(p.selectedLaunchOptions) ? p.selectedLaunchOptions.filter(value => this.launchOptionCatalog.some(option => option.value === value)) : [];
                     this.configEditor = String(p.configEditor || '').slice(0, 50000);
                     this.notice = 'Profil „' + p.name + '“ geladen.';
                 },
@@ -2647,7 +2683,7 @@
                     }
                 },
                 exportConfig() {
-                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 3, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), configEditor: String(this.configEditor || '').slice(0, 50000), checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
+                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 3, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), launchOptions: String(this.launchOptions || '').slice(0, 1000), selectedLaunchOptions: Array.isArray(this.selectedLaunchOptions) ? this.selectedLaunchOptions.slice(0, 30) : [], configEditor: String(this.configEditor || '').slice(0, 50000), checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
                     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -2675,6 +2711,7 @@
                             this.consoleCommands.forEach(cmd => { const item = saved.get(cmd.name); if (item) { cmd.value = String(item.value || cmd.value).replace(/[^a-zA-Z0-9_.+-]/g,'').slice(0,24); cmd.selected = Boolean(item.selected); } });
                         }
                         this.launchOptions = String(data.launchOptions || '').slice(0, 1000);
+                        this.selectedLaunchOptions = Array.isArray(data.selectedLaunchOptions) ? data.selectedLaunchOptions.filter(value => this.launchOptionCatalog.some(option => option.value === value)) : [];
                         this.configEditor = String(data.configEditor || '').slice(0, 50000);
                         this.profileName = String(data.name || file.name.replace(/\.json$/i, '')).slice(0, 60);
                         this.selectedProfileId = '';
