@@ -545,46 +545,25 @@
                 </h1>
             </div>
             
-            <!-- Navigation Tabs -->
-            <nav class="flex flex-wrap gap-1 sm:gap-2">
-
-                <button type="button" @click.stop="activeTab = 'suggestions'; overlayMode = false; clickThrough = false" :class="activeTab !== 'overwatch' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum CS2 Toolkit wechseln">
-                    <i class="fa-solid fa-gamepad"></i> CS2 Toolkit
-                </button>
-                <button type="button" @click.stop="activeTab = 'overwatch'; owTab = 'overview'; overlayMode = false; clickThrough = false" :class="activeTab === 'overwatch' ? 'bg-orange-500 text-black font-semibold shadow-md shadow-orange-500/30' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum Overwatch Toolkit wechseln">
-                    <i class="fa-solid fa-shield-halved"></i> Overwatch
-                </button>
-                <button @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-trophy"></i> Esports
-                </button>
-                <button @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-trophy"></i> Turnierbäume
-                </button>
-                <button @click="activeTab = 'fps-lab'" :class="activeTab === 'fps-lab' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-gauge-high"></i> FPS & Settings Lab
-                </button>
-                <button @click="activeTab = 'crosshair'" :class="activeTab === 'crosshair' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-crosshairs"></i> Crosshair
-                </button>
-                <button @click="activeTab = 'maps-nades'" :class="activeTab === 'maps-nades' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-map"></i> Maps & Nades
-                </button>
-                <button @click="activeTab = 'callouts'" :class="activeTab === 'callouts' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-location-dot"></i> Callouts
-                </button>
-                <button @click="activeTab = 'commands'" :class="activeTab === 'commands' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-terminal"></i> Console
-                </button>
-                <button @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-calculator"></i> Economy
-                </button>
-                <button @click="activeTab = 'weapons'" :class="activeTab === 'weapons' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-gun"></i> Weapons
-                </button>
-                <button @click="activeTab = 'chickens'" :class="activeTab === 'chickens' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-egg"></i> Chicken Lab
-                </button>
-            </nav>
+            <!-- Game selection is separate from each game's own tab bar. -->
+            <div class="w-full lg:w-auto flex flex-col gap-2">
+                <nav aria-label="Game selection" class="flex flex-wrap gap-2">
+                    <button type="button" @click.stop="activeTab = 'suggestions'; overlayMode = false; clickThrough = false" :class="activeTab !== 'overwatch' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-4 py-2 rounded-xl text-sm transition flex items-center gap-2" title="Zum CS2 Toolkit wechseln"><i class="fa-solid fa-gamepad"></i> CS2 Toolkit</button>
+                    <button type="button" @click.stop="activeTab = 'overwatch'; owTab = 'overview'; overlayMode = false; clickThrough = false" :class="activeTab === 'overwatch' ? 'bg-orange-500 text-black font-semibold shadow-md shadow-orange-500/30' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-4 py-2 rounded-xl text-sm transition flex items-center gap-2" title="Zum Overwatch Toolkit wechseln"><i class="fa-solid fa-shield-halved"></i> Overwatch</button>
+                </nav>
+                <nav data-cs2-subnav aria-label="CS2 Toolkit Unterreiter" x-show="activeTab !== 'overwatch'" x-cloak class="flex flex-wrap gap-1 sm:gap-2">
+                    <button type="button" @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Esports</button>
+                    <button type="button" @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Turnierbäume</button>
+                    <button type="button" @click="activeTab = 'fps-lab'" :class="activeTab === 'fps-lab' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-gauge-high"></i> FPS &amp; Settings Lab</button>
+                    <button type="button" @click="activeTab = 'crosshair'" :class="activeTab === 'crosshair' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-crosshairs"></i> Crosshair</button>
+                    <button type="button" @click="activeTab = 'maps-nades'" :class="activeTab === 'maps-nades' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-map"></i> Maps &amp; Nades</button>
+                    <button type="button" @click="activeTab = 'callouts'" :class="activeTab === 'callouts' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-location-dot"></i> Callouts</button>
+                    <button type="button" @click="activeTab = 'commands'" :class="activeTab === 'commands' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-terminal"></i> Console</button>
+                    <button type="button" @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-calculator"></i> Economy</button>
+                    <button type="button" @click="activeTab = 'weapons'" :class="activeTab === 'weapons' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-gun"></i> Weapons</button>
+                    <button type="button" @click="activeTab = 'chickens'" :class="activeTab === 'chickens' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2"><i class="fa-solid fa-egg"></i> Chicken Lab</button>
+                </nav>
+            </div>      </nav>
         </div>
     </header>
 
@@ -5770,8 +5749,8 @@ bombSites: [
       (() => {
         const root = document.querySelector('body[x-data]');
         const main = document.querySelector('main');
-        const nav = document.querySelector('header nav');
-        if (!root || !main || !nav) return;
+        const navs = Array.from(document.querySelectorAll('header nav'));
+        if (!root || !main || !navs.length) return;
 
         const panels = Array.from(main.querySelectorAll(':scope > [x-show]'));
         const getTabFromButton = (button) => {
@@ -5808,9 +5787,11 @@ bombSites: [
             panel.removeAttribute('x-cloak');
           }
           document.body.classList.toggle('v2-overwatch-mode', tab === 'overwatch');
+          const cs2Nav = document.querySelector('[data-cs2-subnav]');
+          if (cs2Nav && !(window.Alpine && typeof Alpine.$data === 'function' && Alpine.$data(root))) cs2Nav.style.display = tab === 'overwatch' ? 'none' : '';
         };
 
-        nav.addEventListener('click', (event) => {
+        for (const nav of navs) nav.addEventListener('click', (event) => {
           const button = event.target && event.target.closest('button');
           if (!button || !nav.contains(button)) return;
           const tab = getTabFromButton(button);
@@ -5826,7 +5807,7 @@ bombSites: [
           try { if (window.Alpine && typeof Alpine.$data === 'function') state = Alpine.$data(root); } catch (_) {}
           if (state) return;
           root.setAttribute('data-v2-nav-fallback', 'active');
-          const selected = nav.querySelector('button[title="Zum CS2 Toolkit wechseln"]');
+          const selected = document.querySelector('header nav button[title="Zum CS2 Toolkit wechseln"]');
           showTab(getTabFromButton(selected) || 'suggestions');
           console.warn('[Toolkit V2] Alpine component unavailable; navigation fallback enabled.');
         }, 1800);
