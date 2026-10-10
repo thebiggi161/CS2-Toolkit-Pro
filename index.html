@@ -1357,7 +1357,7 @@
 
                             <div class="w-full overflow-hidden rounded-xl border border-gray-700 bg-black">
                                 <iframe
-                                    src="https://skinsniper.com/de/tools/bomb-damage-radius"
+                                    :src="activeMapPanel === 'bombwave' ? 'https://skinsniper.com/de/tools/bomb-damage-radius' : 'about:blank'"
                                     title="SkinSniper CS2 Bomben-Schadenskarte – alle unterstützten Maps"
                                     class="w-full h-[1100px] border-0"
                                     loading="lazy"
