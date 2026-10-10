@@ -5773,7 +5773,7 @@ bombSites: [
         const nav = document.querySelector('header nav');
         if (!root || !main || !nav) return;
 
-        const panels = Array.from(main.querySelectorAll(':scope > section[x-show]'));
+        const panels = Array.from(main.querySelectorAll(':scope > [x-show]'));
         const getTabFromButton = (button) => {
           const expression = button.getAttribute('@click') || button.getAttribute('x-on:click') || '';
           const match = expression.match(/(?:^|[;\s])activeTab\s*=\s*['"]([^'"]+)['"]/);
