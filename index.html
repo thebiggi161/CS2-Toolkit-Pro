@@ -394,7 +394,97 @@
             }
             .shisha-resize-handle { width: 30px; height: 30px; }
         }
-</style>
+
+        /* Feinschliff für Touch-Bedienung in den einzelnen Toolkit-Modulen */
+        .map-radar {
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            overscroll-behavior: contain;
+        }
+        #tournament-calendar { scroll-margin-top: 16px; }
+        #tournament-calendar button,
+        #tournament-calendar a,
+        #tournament-calendar [role="option"] { touch-action: manipulation; }
+        #tournament-calendar img { object-fit: contain; }
+        input[type="range"] { accent-color: #ff5500; }
+        button, a, input, select, textarea { scroll-margin: 12px; }
+
+        @media (max-width: 767px) {
+            /* Keep dense tournament/search controls usable without horizontal page overflow. */
+            #tournament-calendar .flex.items-center,
+            #tournament-calendar .flex.justify-between {
+                min-width: 0;
+            }
+            #tournament-calendar .grid {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+            #tournament-calendar iframe {
+                min-height: 55dvh !important;
+                height: 65dvh !important;
+            }
+            /* Map controls should wrap; the radar itself remains a direct touch surface. */
+            [x-show*="maps-nades"] .flex,
+            [x-show*="callouts"] .flex {
+                min-width: 0;
+            }
+            .map-radar {
+                width: 100%;
+                max-height: min(78vw, 560px);
+                aspect-ratio: 1 / 1;
+                touch-action: none;
+            }
+            .map-radar img, .map-radar canvas, .map-radar svg {
+                max-width: none;
+            }
+            /* Crosshair values/sliders stay readable and easy to adjust with a finger. */
+            input[type="range"] {
+                width: 100%;
+                min-height: 36px;
+                touch-action: pan-y;
+            }
+            input[type="color"] {
+                width: 48px;
+                min-width: 48px;
+                height: 42px;
+                padding: 3px;
+            }
+            /* Keep external trainers playable; browser controls stay inside the viewport. */
+            iframe {
+                display: block;
+                width: 100%;
+                max-width: 100%;
+            }
+            .esports-mini-resize-handle {
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                touch-action: none;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            #tournament-calendar iframe {
+                min-height: 420px !important;
+            }
+            .map-radar {
+                max-height: min(68vw, 680px);
+            }
+            input[type="range"] { min-height: 32px; }
+        }
+
+        @media (pointer: coarse) {
+            #tournament-calendar button,
+            #tournament-calendar a,
+            .esports-mini-player button {
+                min-height: 44px;
+            }
+            .map-radar { -webkit-tap-highlight-color: transparent; }
+        }
+
+    </style>
 </head>
 <body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()" x-init="init()">
     <canvas id="ember-fire-bg" aria-hidden="true"></canvas>
