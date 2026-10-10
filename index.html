@@ -1257,9 +1257,22 @@
                                 class="absolute inset-0 w-full h-full object-contain"
                                 draggable="false">
 
-                            <div class="absolute left-3 bottom-3 z-20 bg-black/85 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300">
-                                <i class="fa-solid fa-map text-csorange mr-1"></i>
-                                Callout-Namen stehen direkt auf der Map
+                            <template x-if="selectedCallout()">
+                                <div class="absolute inset-0 pointer-events-none z-10" aria-live="polite">
+                                    <div class="absolute w-8 h-8 rounded-full border-2 border-white bg-csorange/30 shadow-[0_0_0_5px_rgba(255,85,0,.22),0_0_24px_rgba(255,85,0,.9)] animate-pulse"
+                                        :style="`left:${selectedCallout().x}%; top:${selectedCallout().y}%; transform:translate(-50%,-50%);`">
+                                        <span class="absolute left-1/2 top-1/2 w-2.5 h-2.5 rounded-full bg-white border border-csorange" style="transform:translate(-50%,-50%)"></span>
+                                    </div>
+                                    <div class="absolute px-2.5 py-1.5 rounded-lg bg-black/90 border border-csorange text-white text-xs font-bold shadow-xl whitespace-nowrap"
+                                        :style="`left:${selectedCallout().x}%; top:${selectedCallout().y}%; transform:translate(14px,-130%);`"
+                                        x-text="selectedCallout().name"></div>
+                                </div>
+                            </template>
+
+                            <div class="absolute left-3 bottom-3 z-20 bg-black/85 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 text-[11px] text-gray-300 pointer-events-none">
+                                <i class="fa-solid fa-location-crosshairs text-csorange mr-1"></i>
+                                <span x-show="!selectedCallout()">Callout auswählen, um die Position zu markieren</span>
+                                <span x-show="selectedCallout()" x-text="'Markiert: ' + selectedCallout().name"></span>
                             </div>
                         </div>
 
