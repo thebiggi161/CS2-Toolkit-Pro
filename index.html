@@ -3023,51 +3023,6 @@
                         alert('Overwatch-Crosshair-Einstellungen kopiert.');
                     } catch (_) { alert('Kopieren nicht möglich. Bitte die Werte manuell übernehmen.'); }
                 },
-                owStatQuery: '',
-                owStatPlatform: 'pc',
-                owStatRegion: 'eu',
-                owStatLoading: false,
-                owStatError: '',
-                owStatProfile: null,
-                owStatComplete: null,
-                owStatSearchedTag: '',
-                owStatSearchUrl() {
-                    const q = this.owStatQuery.trim();
-                    return q ? 'https://overwatch.blizzard.com/en-us/search/?q=' + encodeURIComponent(q) : 'https://overwatch.blizzard.com/en-us/search/';
-                },
-                owStatProfileUrl() {
-                    const tag = this.owStatSearchedTag;
-                    return tag ? 'https://overwatch.blizzard.com/en-us/career/' + encodeURIComponent(tag) : 'https://overwatch.blizzard.com/en-us/search/';
-                },
-                owStatValue(obj, paths) {
-                    for (const path of paths) {
-                        const value = path.split('.').reduce((v, k) => v && v[k] !== undefined ? v[k] : undefined, obj);
-                        if (value !== undefined && value !== null && value !== '') return value;
-                    }
-                    return '—';
-                },
-                async owSearchStats() {
-                    const raw = this.owStatQuery.trim();
-                    if (!raw) { this.owStatError = 'Gib einen BattleTag ein oder suche zuerst über die offizielle Blizzard-Spielersuche.'; return; }
-                    this.owStatLoading = true; this.owStatError = ''; this.owStatProfile = null; this.owStatComplete = null;
-                    // OWAPI expects a BattleTag in Name-1234 format; a display-name-only search is opened separately below.
-                    const tag = raw.replace(/^#/, '').replace('#', '-');
-                    this.owStatSearchedTag = tag;
-                    try {
-                        const base = 'https://owapi.eu/stats/' + encodeURIComponent(this.owStatPlatform) + '/' + encodeURIComponent(tag);
-                        const profileResponse = await fetch(base + '/profile', {headers:{'Accept':'application/json'}});
-                        if (!profileResponse.ok) throw new Error(profileResponse.status === 404 ? 'Profil nicht gefunden. Prüfe den BattleTag und ob das Karriereprofil öffentlich ist.' : 'Der Statistikdienst antwortet gerade nicht (HTTP ' + profileResponse.status + ').');
-                        const profile = await profileResponse.json();
-                        if (!profile || profile.error || profile.message === 'Profile is private') throw new Error('Profil nicht verfügbar oder privat. Stelle die Karriereprofil-Sichtbarkeit im Spiel auf Öffentlich.');
-                        this.owStatProfile = profile;
-                        try {
-                            const completeResponse = await fetch(base + '/complete', {headers:{'Accept':'application/json'}});
-                            if (completeResponse.ok) this.owStatComplete = await completeResponse.json();
-                        } catch (_) { /* Profile statistics remain useful if detailed hero stats are temporarily unavailable. */ }
-                    } catch (err) {
-                        this.owStatError = err && err.message ? err.message : 'Statistiken konnten nicht geladen werden. Bitte später erneut versuchen.';
-                    } finally { this.owStatLoading = false; }
-                },
                 internationalSource: 'hltv',
                 tournamentCalendarOpen: false,
                 tournamentCalendarView: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
