@@ -200,25 +200,42 @@
             .shisha-counter-window {
             position: fixed;
             left: var(--shisha-x, auto);
-            top: var(--shisha-y, auto);
-            right: var(--shisha-right, 18px);
-            bottom: var(--shisha-bottom, 18px);
-            width: min(var(--shisha-width, 340px), calc(100vw - 36px));
-            min-width: 280px;
+            top: var(--shisha-y, 72px);
+            right: var(--shisha-right, 12px);
+            bottom: auto;
+            width: min(var(--shisha-width, 320px), calc(100vw - 24px));
+            min-width: 260px;
             min-height: 0;
             z-index: 120;
-            border: 1px solid rgba(255,85,0,.38);
-            border-radius: 18px;
-            background: rgba(18,18,18,.94);
-            box-shadow: 0 20px 55px rgba(0,0,0,.6), 0 0 28px rgba(255,85,0,.08);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: 14px;
+            background: rgba(12,12,12,.58);
+            box-shadow: 0 8px 24px rgba(0,0,0,.18);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .shisha-counter-window:hover {
+            background: rgba(12,12,12,.78);
+            border-color: rgba(255,85,0,.32);
+        }
         }
         .shisha-counter-closed {
             position: fixed;
-            right: 18px;
-            bottom: 18px;
+            top: 72px;
+            right: 12px;
+            bottom: auto;
             z-index: 120;
+        }
+        .shisha-counter-closed button {
+            background: rgba(12,12,12,.52) !important;
+            border-color: rgba(255,255,255,.16) !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,.12) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .shisha-counter-closed button:hover {
+            background: rgba(12,12,12,.76) !important;
         }
         .shisha-drag-handle { cursor: grab; user-select: none; touch-action: none; }
         .shisha-drag-handle:active { cursor: grabbing; }
@@ -1515,6 +1532,9 @@
             <span class="font-black tabular-nums text-sm" x-text="shishaFormatTime(shishaSecondsLeft)"></span>
             <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-gray-500"></i>
         </button>
+        <button @click.stop="shishaClose()" class="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition" title="Counter schließen" aria-label="Counter schließen">
+            <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
     </div>
 
     <div x-show="!shishaCounterOpen" x-cloak class="shisha-counter-closed">
@@ -1560,7 +1580,7 @@
                 googleAuthApiUrl: window.CS2_GOOGLE_AUTH_API_URL || '/api/google-login',
 
                 shishaCounterOpen: true,
-                shishaCounterMinimized: false,
+                shishaCounterMinimized: true,
                 shishaDragging: false,
                 shishaResizing: false,
                 shishaX: null,
