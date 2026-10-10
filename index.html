@@ -3260,7 +3260,7 @@
                         }));
                         const localDate = (value) => {
                             if (!value) return '';
-                            if (typeof value === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(value.trim())) return value.trim();
+                            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) return value.trim();
                             const date = new Date(value);
                             if (Number.isNaN(date.getTime())) return '';
                             return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
@@ -3284,7 +3284,7 @@
                             return {
                                 id: String(raw.matchId ?? raw.match_id ?? raw.id ?? (tournament + '-' + date + '-' + team1Name + '-' + team2Name + '-' + index)),
                                 tournament, team1Name, team2Name, teams: team1Name + ' vs. ' + team2Name, date,
-                                time: rawDate && parsedDate && !Number.isNaN(parsedDate.getTime()) && !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(normalizedRawDate)) ? parsedDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '',
+                                time: rawDate && parsedDate && !Number.isNaN(parsedDate.getTime()) && !/^\d{4}-\d{2}-\d{2}$/.test(String(normalizedRawDate)) ? parsedDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '',
                                 score: score1 != null && score2 != null ? String(score1) + ' : ' + String(score2) : '',
                                 team1Logo: raw.team1Logo || raw.team1_logo || raw.homeTeamLogo || raw.home_team_logo || raw.team1?.logoUrl || raw.team1?.logo_url || raw.team1?.logo || teamsByName.get(team1Name.toLocaleLowerCase('de'))?.logoUrl || '',
                                 team2Logo: raw.team2Logo || raw.team2_logo || raw.awayTeamLogo || raw.away_team_logo || raw.team2?.logoUrl || raw.team2?.logo_url || raw.team2?.logo || teamsByName.get(team2Name.toLocaleLowerCase('de'))?.logoUrl || '',
