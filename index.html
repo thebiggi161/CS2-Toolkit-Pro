@@ -464,6 +464,27 @@
                                 <button type="button" @click="tournamentCalendarMove(1)" class="px-3 py-2 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange" aria-label="Nächster Monat"><i class="fa-solid fa-chevron-right"></i></button>
                             </div>
                         </div>
+                        <div class="mb-4 rounded-xl border border-gray-700 bg-csdark-800 p-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                <div>
+                                    <div class="text-sm font-bold text-white">Turniere im Kalender einblenden</div>
+                                    <div class="text-xs text-gray-400">Häkchen setzen oder entfernen, um Turniere ein- oder auszublenden.</div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button type="button" @click="tournamentCalendarShowAll()" class="text-xs font-bold text-csorange hover:underline">Alle</button>
+                                    <button type="button" @click="tournamentCalendarHideAll()" class="text-xs font-bold text-gray-300 hover:underline">Keine</button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="filter in tournamentCalendarFilters()" :key="filter.name">
+                                    <label class="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-2.5 py-2 text-xs text-white cursor-pointer hover:border-csorange">
+                                        <input type="checkbox" class="accent-orange-500 w-4 h-4" :checked="tournamentCalendarIsVisible(filter.name)" @change="tournamentCalendarToggleFilter(filter.name)">
+                                        <span class="w-3 h-3 rounded-sm border border-black/20" :style="'background:' + filter.color.background"></span>
+                                        <span x-text="filter.name"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
                         <div class="flex flex-wrap gap-3 text-xs text-gray-400 mb-3">
                             <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-csorange"></span> Spieltag / Turnier</span>
                             <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm border border-white/60 bg-csdark-800"></span> Kein Termin hinterlegt</span>
@@ -1686,6 +1707,7 @@
                 tournamentCalendarView: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
                 tournamentCalendarSelected: new Date().toISOString().slice(0, 10),
                 tournamentCalendarEvents: [],
+                tournamentCalendarVisibleIds: (() => { try { return JSON.parse(localStorage.getItem('cs2_calendar_visible_tournaments') || '[]'); } catch (_) { return []; } })(),
                 tournamentCalendarSourceEvents: [
                     { id: 'epl-s24-groups', tournament: 'ESL Pro League Season 24', phase: 'groups', start: '2026-10-03', end: '2026-10-07', source: 'ESL official schedule', url: 'https://pro.eslgaming.com/csgo/proleague/' },
                     { id: 'epl-s24-quarterfinals', tournament: 'ESL Pro League Season 24', phase: 'quarterfinal', start: '2026-10-09', end: '2026-10-09', source: 'ESL official schedule', url: 'https://pro.eslgaming.com/csgo/proleague/' },
@@ -2471,6 +2493,38 @@
                     ].join('-');
                 },
 
+                tournamentCalendarFilters() {
+                    const names = [...new Set([
+                        ...(this.tournamentCalendarSourceEvents || []).map(event => event.tournament),
+                        ...(this.tournamentCalendarEvents || []).map(event => event.tournament || event.teams)
+                    ].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de'));
+                    return names.map(name => ({ name, color: this.tournamentCalendarColor(name) }));
+                },
+
+                tournamentCalendarIsVisible(name) {
+                    return this.tournamentCalendarVisibleIds.length === 0 || this.tournamentCalendarVisibleIds.includes(name);
+                },
+
+                tournamentCalendarToggleFilter(name) {
+                    const allNames = this.tournamentCalendarFilters().map(filter => filter.name);
+                    let visible = this.tournamentCalendarVisibleIds.length === 0 ? [...allNames] : [...this.tournamentCalendarVisibleIds];
+                    visible = visible.includes(name) ? visible.filter(item => item !== name) : [...visible, name];
+                    this.tournamentCalendarVisibleIds = visible.length === allNames.length ? [] : visible;
+                    localStorage.setItem('cs2_calendar_visible_tournaments', JSON.stringify(this.tournamentCalendarVisibleIds));
+                },
+
+                tournamentCalendarShowAll() {
+                    this.tournamentCalendarVisibleIds = [];
+                    localStorage.setItem('cs2_calendar_visible_tournaments', '[]');
+                },
+
+                tournamentCalendarHideAll() {
+                    this.tournamentCalendarVisibleIds = [];
+                    const allNames = this.tournamentCalendarFilters().map(filter => filter.name);
+                    this.tournamentCalendarVisibleIds = ['__none__', ...allNames];
+                    localStorage.setItem('cs2_calendar_visible_tournaments', JSON.stringify(this.tournamentCalendarVisibleIds));
+                },
+
                 tournamentCalendarDays() {
                     const year = this.tournamentCalendarView.getFullYear();
                     const month = this.tournamentCalendarView.getMonth();
@@ -2481,9 +2535,9 @@
                     const eventsByDate = {};
                     const addEvent = (date, event) => { (eventsByDate[date] ||= []).push(event); };
                     (this.tournamentCalendarEvents || []).forEach(event => {
-                        if (event.date) addEvent(event.date, event);
+                        if (event.date && this.tournamentCalendarIsVisible(event.tournament || event.teams)) addEvent(event.date, event);
                     });
-                    (this.tournamentCalendarSourceEvents || []).forEach(event => {
+                    (this.tournamentCalendarSourceEvents || []).filter(event => this.tournamentCalendarIsVisible(event.tournament)).forEach(event => {
                         const start = new Date(event.start + 'T12:00:00');
                         const end = new Date(event.end + 'T12:00:00');
                         for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
@@ -2587,10 +2641,10 @@
                 },
 
                 tournamentCalendarEventsForSelectedDay() {
-                    const live = (this.tournamentCalendarEvents || []).filter(event => event.date === this.tournamentCalendarSelected);
+                    const live = (this.tournamentCalendarEvents || []).filter(event => event.date === this.tournamentCalendarSelected && this.tournamentCalendarIsVisible(event.tournament || event.teams));
                     const date = this.tournamentCalendarSelected;
                     const scheduled = (this.tournamentCalendarSourceEvents || [])
-                        .filter(event => date >= event.start && date <= event.end)
+                        .filter(event => this.tournamentCalendarIsVisible(event.tournament) && date >= event.start && date <= event.end)
                         .map(event => ({ ...event, date, teams: '', time: '', id: event.id + '-' + date }));
                     return [...live, ...scheduled];
                 },
