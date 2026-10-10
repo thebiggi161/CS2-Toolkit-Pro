@@ -143,6 +143,13 @@
         .esports-mini-drag-handle:active { cursor: grabbing; }
         .esports-mini-player button, .esports-mini-player iframe { cursor: default; }
         .esports-mini-player .mini-video { width: 100%; height: calc(100% - 50px); min-height: 0; }
+        .esports-mini-resize-handle {
+            position: absolute; right: 3px; bottom: 3px; z-index: 10002;
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; color: #ff7733; background: rgba(0,0,0,.78);
+            border: 1px solid rgba(255,85,0,.65); cursor: nwse-resize; touch-action: none;
+        }
+        .esports-mini-resize-handle:active { background: rgba(255,85,0,.25); }
         .esports-mini-chat {
             position: absolute;
             left: calc(100% + 8px);
@@ -328,11 +335,11 @@
             .overflow-x-auto { max-width: 100%; -webkit-overflow-scrolling: touch; }
             /* The mini-player remains draggable and resizable, but cannot force a desktop-width layout. */
             .esports-mini-player {
-                width: min(390px, calc(100vw - 24px)) !important;
+                width: min(390px, calc(100vw - 24px));
                 height: min(260px, 42vh);
                 min-width: 0 !important;
                 min-height: 120px;
-                max-width: calc(100vw - 24px) !important;
+                max-width: calc(100vw - 24px);
                 max-height: 70dvh;
                 left: 12px;
                 top: 12px;
@@ -511,6 +518,7 @@
          :class="esportsMiniMinimized ? 'is-minimized' : ''"
          :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto; background:rgba(7,7,7,${overlayOpacity});`"
          >
+        <button type="button" x-show="!esportsMiniMinimized" class="esports-mini-resize-handle" aria-label="Live-Player verkleinern oder vergrößern" title="Ziehen zum Verkleinern oder Vergrößern" @pointerdown.stop.prevent="startEsportsResize($event)"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
 
         <div class="esports-mini-drag-handle px-3 py-2 bg-csdark-800 border-b border-gray-800 flex items-center justify-between gap-2"
              @mousedown="startEsportsDrag($event)" @touchstart.prevent="startEsportsDrag($event)">
@@ -2317,6 +2325,29 @@
                     }
                     this.esportsChatPopup = null;
                     this.esportsMiniChat = false;
+                },
+
+                startEsportsResize(event) {
+                    if (event.button !== undefined && event.button !== 0) return;
+                    const panel = event.currentTarget.closest('.esports-mini-player');
+                    if (!panel) return;
+                    const startX = event.clientX, startY = event.clientY;
+                    const rect = panel.getBoundingClientRect();
+                    const startWidth = rect.width, startHeight = rect.height;
+                    const move = (e) => {
+                        const maxWidth = Math.max(220, window.innerWidth - 24);
+                        const maxHeight = Math.max(140, window.innerHeight * 0.75);
+                        panel.style.width = Math.round(Math.max(220, Math.min(maxWidth, startWidth + e.clientX - startX))) + 'px';
+                        panel.style.height = Math.round(Math.max(140, Math.min(maxHeight, startHeight + e.clientY - startY))) + 'px';
+                    };
+                    const up = () => {
+                        window.removeEventListener('pointermove', move);
+                        window.removeEventListener('pointerup', up);
+                        window.removeEventListener('pointercancel', up);
+                    };
+                    window.addEventListener('pointermove', move);
+                    window.addEventListener('pointerup', up);
+                    window.addEventListener('pointercancel', up);
                 },
 
                 startEsportsDrag(event) {
