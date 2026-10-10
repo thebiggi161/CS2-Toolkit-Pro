@@ -2142,8 +2142,50 @@
                             <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Particle Detail</span><select x-model="settings.particles" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Niedrig">Niedrig</option><option value="Mittel">Mittel</option><option value="Hoch">Hoch</option></select></label>
                             <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Ambient Occlusion</span><select x-model="settings.ambientOcclusion" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Deaktiviert">Deaktiviert</option><option value="Niedrig">Niedrig</option><option value="Mittel">Mittel</option><option value="Hoch">Hoch</option></select></label>
                             <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">High Dynamic Range</span><select x-model="settings.hdr" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Performance">Performance</option><option value="Quality">Quality</option></select></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Texture Filtering</span><select x-model="settings.textureFiltering" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Bilinear">Bilinear</option><option value="Anisotropic 2x">Anisotropic 2x</option><option value="Anisotropic 4x">Anisotropic 4x</option><option value="Anisotropic 8x">Anisotropic 8x</option><option value="Anisotropic 16x">Anisotropic 16x</option></select><span class="block mt-2 text-xs text-gray-500">Höhere Filterung verbessert Texturschärfe; der FPS-Effekt hängt vom System ab.</span></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">MSAA / Anti-Aliasing</span><select x-model="settings.msaa" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Aus">Aus</option><option value="2x MSAA">2x MSAA</option><option value="4x MSAA">4x MSAA</option><option value="8x MSAA">8x MSAA</option></select><span class="block mt-2 text-xs text-gray-500">MSAA kann GPU-Last erhöhen. In reproduzierbaren Szenen testen.</span></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">FidelityFX Super Resolution</span><select x-model="settings.fsr" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Deaktiviert">Deaktiviert</option><option value="Quality">Quality</option><option value="Balanced">Balanced</option><option value="Performance">Performance</option></select><span class="block mt-2 text-xs text-gray-500">Upscaling kann FPS erhöhen, aber Bildschärfe beeinflussen.</span></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Boost Player Contrast</span><select x-model="settings.playerContrast" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Ein">Ein</option><option value="Aus">Aus</option></select><span class="block mt-2 text-xs text-gray-500">Teste die Lesbarkeit auf hellen und dunklen Maps.</span></label>
                             <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">NVIDIA Reflex</span><select x-model="settings.reflex" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Enabled">Enabled</option><option value="Enabled + Boost">Enabled + Boost</option><option value="Disabled">Disabled</option></select><span class="block mt-2 text-xs text-gray-500">Boost kann mehr Strom und Wärme verbrauchen; vergleiche Stabilität und Frametime.</span></label>
                         </div>
+                    </div>
+
+
+                    <div class="rounded-xl border border-csorange/40 bg-csdark-800 p-4 sm:p-5">
+                        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                            <div><h3 class="text-lg font-bold"><i class="fa-solid fa-terminal text-csorange mr-2"></i>Console-Commands integrieren</h3><p class="text-xs text-gray-400 mt-1">Befehle stammen aus der vorhandenen Console-Datenbank. Wähle sie aus, passe sichere Werte an und übernimm sie in Export oder Profil.</p></div>
+                            <span class="rounded-full border border-gray-700 px-2.5 py-1 text-xs text-gray-300" x-text="selectedConsoleCommands.length + ' ausgewählt'"></span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 mb-3">
+                            <input x-model="consoleSearch" type="search" placeholder="Befehl suchen … z. B. fps_max, telemetry, radar" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm">
+                            <div class="flex gap-2">
+                                <button type="button" @click="consoleCategory='Alle'" :class="consoleCategory==='Alle' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Alle</button>
+                                <button type="button" @click="consoleCategory='Grafik / FPS'" :class="consoleCategory==='Grafik / FPS' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Grafik / FPS</button>
+                                <button type="button" @click="consoleCategory='HUD'" :class="consoleCategory==='HUD' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">HUD</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2 max-h-[440px] overflow-y-auto pr-1">
+                            <template x-for="cmd in visibleConsoleCommands" :key="cmd.name">
+                                <div class="rounded-lg border border-gray-800 bg-csdark-900 p-3">
+                                    <div class="flex items-start gap-3">
+                                        <input type="checkbox" class="mt-1 accent-orange-500" x-model="cmd.selected" :aria-label="'Befehl auswählen: ' + cmd.name">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex flex-wrap items-center gap-2"><code class="text-sm font-bold text-csorange" x-text="cmd.name"></code><span class="rounded border border-gray-700 px-1.5 py-0.5 text-[10px] text-gray-400" x-text="cmd.category"></span></div>
+                                            <p class="text-xs text-gray-400 mt-1" x-text="cmd.description"></p>
+                                            <label class="flex items-center gap-2 mt-2 text-xs text-gray-400"><span>Wert</span><input type="text" maxlength="24" x-model="cmd.value" @input="cmd.value=String(cmd.value).replace(/[^a-zA-Z0-9_.+-]/g,'').slice(0,24)" class="w-28 rounded border border-gray-700 bg-csdark-800 px-2 py-1 font-mono text-gray-100" :aria-label="'Wert für ' + cmd.name"></label>
+                                        </div>
+                                        <button type="button" @click="cmd.selected=!cmd.selected" class="rounded border border-gray-700 px-2 py-1 text-xs hover:border-csorange" x-text="cmd.selected ? 'Entfernen' : 'Hinzufügen'"></button>
+                                    </div>
+                                </div>
+                            </template>
+                            <p x-show="visibleConsoleCommands.length===0" class="text-sm text-gray-500 p-4 text-center">Keine passenden sicheren Befehle gefunden.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button type="button" @click="selectRecommendedCommands()" class="rounded-lg border border-gray-700 px-3 py-2 text-xs font-bold hover:border-csorange">FPS-Empfehlungen wählen</button>
+                            <button type="button" @click="copyConsoleCommands()" class="rounded-lg bg-csorange px-3 py-2 text-xs font-bold text-black"><i class="fa-regular fa-copy mr-1"></i>Commands kopieren</button>
+                            <button type="button" @click="exportAutoexec()" class="rounded-lg border border-gray-700 px-3 py-2 text-xs font-bold hover:border-csorange"><i class="fa-solid fa-file-arrow-down mr-1"></i>Als .cfg exportieren</button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3">Die Website führt keine Konsolenbefehle im Spiel aus. Prüfe jeden Befehl in CS2; Werte und Verfügbarkeit können sich mit Updates ändern. Es werden nur ausgewählte, bekannte Client-Befehle angeboten, keine Cheat- oder Dev-Commands.</p>
                     </div>
 
                     <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
@@ -2327,19 +2369,46 @@
             const defaults = {
                 displayMode: 'Vollbild', resolution: '1920 × 1080', playerContrast: 'Ein', vsync: 'Aus',
                 shadows: 'Niedrig', textures: 'Niedrig', shaders: 'Niedrig', particles: 'Niedrig',
-                ambientOcclusion: 'Deaktiviert', hdr: 'Performance', reflex: 'Enabled'
+                ambientOcclusion: 'Deaktiviert', hdr: 'Performance', reflex: 'Enabled',
+                textureFiltering: 'Anisotropic 8x', msaa: 'Aus', fsr: 'Deaktiviert'
             };
             const presets = {
                 competitive: { ...defaults },
-                balanced: { ...defaults, shadows: 'Mittel', textures: 'Mittel', shaders: 'Mittel', particles: 'Mittel', ambientOcclusion: 'Niedrig' },
-                quality: { ...defaults, shadows: 'Sehr hoch', textures: 'Hoch', shaders: 'Hoch', particles: 'Hoch', ambientOcclusion: 'Hoch', hdr: 'Quality' }
+                balanced: { ...defaults, shadows: 'Mittel', textures: 'Mittel', shaders: 'Mittel', particles: 'Mittel', ambientOcclusion: 'Niedrig', textureFiltering: 'Anisotropic 8x', msaa: '2x MSAA' },
+                quality: { ...defaults, shadows: 'Sehr hoch', textures: 'Hoch', shaders: 'Hoch', particles: 'Hoch', ambientOcclusion: 'Hoch', hdr: 'Quality', textureFiltering: 'Anisotropic 16x', msaa: '4x MSAA' }
             };
+            const commandSpecs = [
+                {name:'fps_max',value:'0',category:'Grafik / FPS',selected:true},
+                {name:'cl_showfps',value:'1',category:'Grafik / FPS',selected:false},
+                {name:'cl_hud_telemetry_frametime_show',value:'2',category:'Grafik / FPS',selected:true},
+                {name:'cl_hud_telemetry_ping_show',value:'2',category:'HUD',selected:false},
+                {name:'cl_hud_telemetry_net_misdelivery_show',value:'2',category:'HUD',selected:false},
+                {name:'r_fullscreen_gamma',value:'2.2',category:'Grafik / FPS',selected:false},
+                {name:'cl_radar_scale',value:'0.4',category:'HUD',selected:false},
+                {name:'cl_radar_always_centered',value:'0',category:'HUD',selected:false},
+                {name:'cl_radar_rotate',value:'1',category:'HUD',selected:false},
+                {name:'cl_hud_radar_scale',value:'1.15',category:'HUD',selected:false},
+                {name:'cl_teamid_overhead_mode',value:'2',category:'HUD',selected:false},
+                {name:'cl_autohelp',value:'0',category:'HUD',selected:false},
+                {name:'cl_showloadout',value:'1',category:'HUD',selected:false},
+                {name:'engine_low_latency_sleep_after_client_tick',value:'0',category:'Grafik / FPS',selected:false}
+            ];
+            const buildConsoleCommands = () => commandSpecs.map(spec => {
+                const row = (Array.isArray(CS2_COMMAND_DATABASE) ? CS2_COMMAND_DATABASE : []).find(entry => Array.isArray(entry) && entry[0] === spec.name);
+                if (!row) return null;
+                const flags = String(row[3] || '');
+                if (/cheat|developmentonly|gamedll|replicated/i.test(flags)) return null;
+                return { ...spec, description: String(row[1] || 'CS2-Clientbefehl aus der Console-Datenbank.'), flags, value: spec.value };
+            }).filter(Boolean);
             return {
                 settings: { ...defaults },
                 profileName: 'Competitive NVIDIA FPS',
                 selectedProfileId: '',
                 profiles: [],
                 notice: '',
+                consoleSearch: '',
+                consoleCategory: 'Alle',
+                consoleCommands: buildConsoleCommands(),
                 checklist: [
                     { id: 'refresh', title: 'Monitor-Hz korrekt einstellen', detail: 'Windows und das Spiel auf die unterstützte Bildwiederholrate setzen.', done: false },
                     { id: 'background', title: 'Hintergrundlast prüfen', detail: 'Unnötige Aufnahme-, Browser- und Overlay-Prozesse testweise schließen.', done: false },
@@ -2355,6 +2424,48 @@
                 applyPreset(name) {
                     this.settings = { ...(presets[name] || presets.competitive) };
                     this.notice = 'Profilvorschlag „' + name + '“ geladen. Noch nicht auf den PC angewendet.';
+                },
+                get visibleConsoleCommands() {
+                    const q = String(this.consoleSearch || '').trim().toLowerCase();
+                    return this.consoleCommands.filter(cmd => {
+                        const matchesCategory = this.consoleCategory === 'Alle' || cmd.category === this.consoleCategory;
+                        const matchesSearch = !q || cmd.name.toLowerCase().includes(q) || cmd.description.toLowerCase().includes(q);
+                        return matchesCategory && matchesSearch;
+                    });
+                },
+                get selectedConsoleCommands() {
+                    return this.consoleCommands.filter(cmd => cmd.selected && /^[a-zA-Z0-9_]+$/.test(cmd.name) && /^[a-zA-Z0-9_.+-]{1,24}$/.test(String(cmd.value)));
+                },
+                selectRecommendedCommands() {
+                    const recommended = new Set(['fps_max','cl_hud_telemetry_frametime_show']);
+                    this.consoleCommands.forEach(cmd => { cmd.selected = recommended.has(cmd.name); });
+                    this.notice = 'FPS-Basisbefehle ausgewählt. Bitte Werte prüfen und dann exportieren.';
+                },
+                buildConsoleConfig() {
+                    return this.selectedConsoleCommands.map(cmd => cmd.name + ' ' + String(cmd.value).trim()).join('\\n');
+                },
+                async copyConsoleCommands() {
+                    const text = this.buildConsoleConfig();
+                    if (!text) { this.notice = 'Bitte mindestens einen Console-Befehl auswählen.'; return; }
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+                        else {
+                            const area = document.createElement('textarea'); area.value = text;
+                            area.style.position = 'fixed'; area.style.opacity = '0'; document.body.appendChild(area);
+                            area.focus(); area.select(); document.execCommand('copy'); area.remove();
+                        }
+                        this.notice = 'Ausgewählte Console-Befehle kopiert.';
+                    } catch (_) { this.notice = 'Kopieren nicht möglich. Nutze den .cfg-Export.'; }
+                },
+                exportAutoexec() {
+                    const commands = this.buildConsoleConfig();
+                    if (!commands) { this.notice = 'Bitte mindestens einen Console-Befehl auswählen.'; return; }
+                    const content = '// CS2 Toolkit Pro V2 – exportierte Client-Settings\\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\\n' + commands + '\\n';
+                    const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = 'cs2-toolkit-settings.cfg';
+                    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    this.notice = 'CS2-Config als .cfg exportiert.';
                 },
                 loadProfiles() {
                     try {
@@ -2375,7 +2486,7 @@
                     const name = String(this.profileName || '').trim().slice(0, 60);
                     if (!name) { this.notice = 'Bitte einen Profilnamen eingeben.'; return; }
                     const id = 'fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
-                    this.profiles.push({ id, name, settings: { ...this.settings }, savedAt: new Date().toISOString() });
+                    this.profiles.push({ id, name, settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), savedAt: new Date().toISOString() });
                     if (this.profiles.length > 30) this.profiles.shift();
                     if (this.persistProfiles()) {
                         this.selectedProfileId = id;
@@ -2386,6 +2497,10 @@
                     const p = this.profiles.find(item => item.id === this.selectedProfileId);
                     if (!p) { this.notice = 'Bitte zuerst ein gespeichertes Profil auswählen.'; return; }
                     this.settings = { ...defaults, ...p.settings };
+                    if (Array.isArray(p.consoleCommands)) {
+                        const saved = new Map(p.consoleCommands.map(cmd => [cmd.name, cmd]));
+                        this.consoleCommands.forEach(cmd => { const item = saved.get(cmd.name); if (item) { cmd.value = String(item.value || cmd.value).replace(/[^a-zA-Z0-9_.+-]/g,'').slice(0,24); cmd.selected = Boolean(item.selected); } });
+                    }
                     this.profileName = p.name;
                     this.notice = 'Profil „' + p.name + '“ geladen.';
                 },
@@ -2399,7 +2514,7 @@
                     }
                 },
                 exportConfig() {
-                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 1, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
+                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 2, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, consoleCommands: this.consoleCommands.map(({name,value,selected}) => ({name,value,selected})), checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
                     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -2421,6 +2536,11 @@
                             if (typeof incoming[key] === 'string' && incoming[key].length <= 80) clean[key] = incoming[key];
                         }
                         this.settings = { ...defaults, ...clean };
+                        if (Array.isArray(data.consoleCommands)) {
+                            const allowed = new Set(this.consoleCommands.map(cmd => cmd.name));
+                            const saved = new Map(data.consoleCommands.filter(cmd => cmd && allowed.has(cmd.name)).map(cmd => [cmd.name, cmd]));
+                            this.consoleCommands.forEach(cmd => { const item = saved.get(cmd.name); if (item) { cmd.value = String(item.value || cmd.value).replace(/[^a-zA-Z0-9_.+-]/g,'').slice(0,24); cmd.selected = Boolean(item.selected); } });
+                        }
                         this.profileName = String(data.name || file.name.replace(/\.json$/i, '')).slice(0, 60);
                         this.notice = 'Konfiguration importiert. Bitte Werte prüfen und bei Bedarf speichern.';
                     } catch (error) {
