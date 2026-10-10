@@ -270,7 +270,124 @@
             background: linear-gradient(90deg,#ff5500,#ff7733);
             transition: width .25s linear;
         }
-    </style>
+    
+
+        /* Mobile-/Tablet-Anpassungen: Touch-Ziele, flexible Inhalte und bewegliche Overlays */
+        *, *::before, *::after { box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        body { min-width: 0; overflow-x: hidden; }
+        img, video, canvas, iframe { max-width: 100%; }
+        button, [role="button"], input, select, textarea, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+        button, [role="button"] { touch-action: manipulation; }
+        input, select, textarea { max-width: 100%; }
+        table { max-width: 100%; }
+        .esports-mini-drag-handle, .shisha-drag-handle, .shisha-resize-handle {
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
+        }
+        .shisha-resize-handle {
+            width: 28px;
+            height: 28px;
+            right: 3px;
+            bottom: 3px;
+            touch-action: none;
+        }
+
+        @media (max-width: 767px) {
+            body { font-size: 14px; }
+            main, main > *, .container, [x-data] { min-width: 0; }
+            main { padding-left: 12px !important; padding-right: 12px !important; }
+            nav[aria-label], body > div > nav {
+                max-width: 100%;
+            }
+            /* Keep the primary tabs easy to tap without shrinking them into tiny buttons. */
+            nav.flex.flex-wrap {
+                flex-wrap: nowrap !important;
+                overflow-x: auto;
+                overflow-y: hidden;
+                max-width: calc(100vw - 24px);
+                padding-bottom: 6px;
+                gap: 6px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            nav.flex.flex-wrap > button {
+                flex: 0 0 auto;
+                min-height: 42px;
+                white-space: nowrap;
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+            button, [role="button"] { min-height: 40px; }
+            input, select, textarea { min-height: 42px; font-size: 16px !important; }
+            .grid { min-width: 0; }
+            pre, code { overflow-wrap: anywhere; }
+            .overflow-x-auto { max-width: 100%; -webkit-overflow-scrolling: touch; }
+            /* The mini-player remains draggable and resizable, but cannot force a desktop-width layout. */
+            .esports-mini-player {
+                width: min(390px, calc(100vw - 24px)) !important;
+                height: min(260px, 42vh);
+                min-width: 0 !important;
+                min-height: 120px;
+                max-width: calc(100vw - 24px) !important;
+                max-height: 70dvh;
+                left: 12px;
+                top: 12px;
+                overflow: hidden;
+                resize: both;
+                touch-action: auto;
+            }
+            .esports-mini-player .mini-video { min-height: 0; }
+            .esports-mini-chat {
+                position: fixed !important;
+                left: 12px !important;
+                right: 12px !important;
+                top: auto !important;
+                bottom: 12px !important;
+                width: auto !important;
+                height: min(45dvh, 360px) !important;
+                min-height: 180px;
+                z-index: 10000;
+            }
+            .shisha-counter-window {
+                width: min(var(--shisha-width, 320px), calc(100vw - 16px)) !important;
+                min-width: 0 !important;
+                max-width: calc(100vw - 16px);
+                max-height: calc(100dvh - 100px);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+            }
+            .shisha-counter-window > * { min-width: 0; }
+            .shisha-counter-closed { right: 8px; top: 8px; }
+            .overlay-settings {
+                left: 8px;
+                bottom: 68px;
+                width: calc(100vw - 16px);
+                max-width: 420px;
+                max-height: calc(100dvh - 84px);
+            }
+            .overlay-gear { left: 8px; bottom: 8px; width: 48px; height: 48px; }
+            /* Prevent fixed-width widgets and embedded panels from pushing the page sideways. */
+            .map-radar { max-width: 100%; }
+            iframe { max-width: 100%; }
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            main { padding-left: 16px; padding-right: 16px; }
+            .esports-mini-player { max-width: calc(100vw - 32px); max-height: 75dvh; }
+            .shisha-counter-window { max-width: calc(100vw - 24px); }
+        }
+
+        @media (pointer: coarse) {
+            button, [role="button"], .shisha-resize-handle {
+                -webkit-tap-highlight-color: transparent;
+            }
+            .shisha-resize-handle { width: 30px; height: 30px; }
+        }
+</style>
 </head>
 <body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()" x-init="init()">
     <canvas id="ember-fire-bg" aria-hidden="true"></canvas>
