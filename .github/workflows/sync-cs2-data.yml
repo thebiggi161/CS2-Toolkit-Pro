@@ -1,0 +1,105 @@
+name: Sync CS2 esports database
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sync-cs2-data.yml"
+  schedule:
+    - cron: "17 5 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-cs2-esports-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Download teams, players and matches from CSAPI
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.request
+          from pathlib import Path
+
+          BASE = "https://api.csapi.de"
+          OUT = Path("data")
+          OUT.mkdir(exist_ok=True)
+
+          def rows_from(payload, keys):
+              if isinstance(payload, list):
+                  return payload
+              if not isinstance(payload, dict):
+                  return []
+              for key in keys:
+                  value = payload.get(key)
+                  if isinstance(value, list):
+                      return value
+              for parent in ("data",):
+                  value = payload.get(parent)
+                  if isinstance(value, list):
+                      return value
+                  if isinstance(value, dict):
+                      for key in keys + ["items", "results"]:
+                          if isinstance(value.get(key), list):
+                              return value[key]
+              if isinstance(payload.get("matches"), dict):
+                  matches = payload["matches"]
+                  return (matches.get("live") or []) + (matches.get("upcoming") or [])
+              return []
+
+          def fetch_all(path, keys, max_pages):
+              all_rows = []
+              for page in range(max_pages):
+                  url = f"{BASE}{path}?limit=100&offset={page * 100}"
+                  req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "CS2-Toolkit-Pro-data-sync"})
+                  with urllib.request.urlopen(req, timeout=35) as response:
+                      payload = json.load(response)
+                  rows = rows_from(payload, keys)
+                  all_rows.extend(rows)
+                  if len(rows) < 100:
+                      break
+                  time.sleep(0.15)
+              if not all_rows:
+                  raise RuntimeError(f"No rows received from {path}; refusing to overwrite a previous snapshot")
+              return all_rows
+
+          datasets = [
+              ("cs2-teams.json", "/teams/", ["teams", "items", "results"], 10),
+              ("cs2-players.json", "/players/", ["players", "items", "results"], 20),
+              ("cs2-matches.json", "/matches/", ["matches", "items", "results"], 10),
+          ]
+
+          for filename, endpoint, keys, pages in datasets:
+              items = fetch_all(endpoint, keys, pages)
+              payload = {"updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "count": len(items), "items": items}
+              target = OUT / filename
+              temp = target.with_suffix(".json.tmp")
+              temp.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+              temp.replace(target)
+              print(f"{filename}: {len(items)} records")
+          PY
+
+      - name: Commit refreshed snapshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cs2-teams.json data/cs2-players.json data/cs2-matches.json
+          if git diff --cached --quiet; then
+            echo "CS2 data snapshots are unchanged."
+          else
+            git commit -m "chore: refresh CS2 esports data snapshots"
+            git push
+          fi
