@@ -540,7 +540,10 @@
                 <button @click="activeTab = 'suggestions'" :class="activeTab === 'suggestions' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-house"></i> Startseite
                 </button>
-                <button @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                <button @click="activeTab = 'overwatch'; owTab='overview'" :class="activeTab === 'overwatch' ? 'bg-orange-500 text-black font-semibold shadow-md shadow-orange-500/30' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved"></i> Overwatch
+                </button>
+                <button @click="activeTab = 'esports' :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-trophy"></i> Esports
                 </button>
                 <button @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
@@ -677,6 +680,32 @@
                 </div>
             </div>
 
+            <!-- GAME SELECTOR: CS2 + OVERWATCH -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Spiele auswählen">
+                <button type="button" @click="activeTab='suggestions'" class="group text-left rounded-2xl border border-csorange/50 bg-gradient-to-br from-csdark-800 to-csdark-900 p-5 transition hover:border-csorange hover:shadow-lg hover:shadow-csorange/10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 shrink-0 rounded-xl bg-csorange text-black flex items-center justify-center text-2xl shadow-lg shadow-csorange/20"><i class="fa-solid fa-crosshairs"></i></div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[10px] uppercase tracking-[.22em] font-black text-csorange">Aktives Toolkit</div>
+                            <h3 class="text-xl font-black text-white mt-1">Counter-Strike 2</h3>
+                            <p class="text-sm text-gray-400 mt-1">Deine bestehende CS2-Sammlung mit Configs, Maps, Crosshair, Esports und mehr.</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right text-csorange transition group-hover:translate-x-1"></i>
+                    </div>
+                </button>
+                <button type="button" @click="activeTab='overwatch'; owTab='overview'" class="group text-left rounded-2xl border border-orange-500/40 bg-gradient-to-br from-orange-950/40 via-csdark-800 to-csdark-900 p-5 transition hover:border-orange-400 hover:shadow-lg hover:shadow-orange-500/10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 shrink-0 rounded-xl bg-orange-500 text-black flex items-center justify-center text-2xl shadow-lg shadow-orange-500/20"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[10px] uppercase tracking-[.22em] font-black text-orange-400">Neues Game-Toolkit</div>
+                            <h3 class="text-xl font-black text-white mt-1">Overwatch</h3>
+                            <p class="text-sm text-gray-400 mt-1">Helden-Datenbank, Rollen, Crosshair-Builder, Sensitivity-Rechner und Settings-Hilfe.</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right text-orange-400 transition group-hover:translate-x-1"></i>
+                    </div>
+                </button>
+            </section>
+
             <section class="rounded-2xl border border-csorange/40 bg-csdark-800 p-5" aria-label="Merkliste auf der Startseite">
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <div>
@@ -714,6 +743,158 @@
             </section>
         </section>
 
+
+        <!-- TAB: OVERWATCH TOOLKIT -->
+        <section x-show="activeTab === 'overwatch'" x-cloak class="space-y-5">
+            <div class="rounded-2xl border border-orange-500/40 bg-gradient-to-br from-orange-950/40 via-csdark-800 to-csdark-900 p-5 sm:p-7">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.22em] text-orange-400 uppercase">Pro Toolkit · Game 02</div>
+                        <h2 class="mt-2 text-3xl font-black text-white"><i class="fa-solid fa-shield-halved text-orange-400 mr-2"></i>Overwatch Toolkit</h2>
+                        <p class="mt-2 max-w-3xl text-sm text-gray-300">Dein eigener Bereich für den 5v5-Helden-Shooter – unabhängig von den CS2-Reitern, im selben Toolkit und mit eigener Navigation.</p>
+                    </div>
+                    <a href="https://overwatch.blizzard.com/" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-orange-400/40 bg-black/30 px-4 py-2 text-sm font-bold text-orange-300 hover:bg-orange-500/10"><i class="fa-solid fa-arrow-up-right-from-square mr-2"></i>Offizielle Website</a>
+                </div>
+                <div class="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="rounded-xl border border-white/10 bg-black/25 p-3"><div class="text-xs text-gray-400">Spielmodus</div><div class="mt-1 text-lg font-black text-white">5v5</div></div>
+                    <div class="rounded-xl border border-white/10 bg-black/25 p-3"><div class="text-xs text-gray-400">Rollen</div><div class="mt-1 text-lg font-black text-white">Tank · DPS · Support</div></div>
+                    <div class="rounded-xl border border-white/10 bg-black/25 p-3"><div class="text-xs text-gray-400">Tools</div><div class="mt-1 text-lg font-black text-white">Aim & Settings</div></div>
+                    <div class="rounded-xl border border-white/10 bg-black/25 p-3"><div class="text-xs text-gray-400">Speicherung</div><div class="mt-1 text-lg font-black text-white">Lokal im Browser</div></div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 rounded-xl border border-gray-800 bg-csdark-800/90 p-2">
+                <button type="button" @click="owTab='overview'" :class="owTab==='overview' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-house mr-2"></i>Übersicht</button>
+                <button type="button" @click="owTab='heroes'" :class="owTab==='heroes' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-users mr-2"></i>Helden</button>
+                <button type="button" @click="owTab='crosshair'" :class="owTab==='crosshair' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-crosshairs mr-2"></i>Crosshair</button>
+                <button type="button" @click="owTab='sensitivity'" :class="owTab==='sensitivity' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-computer-mouse mr-2"></i>Sensitivity</button>
+                <button type="button" @click="owTab='settings'" :class="owTab==='settings' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-sliders mr-2"></i>Settings & Guides</button>
+            </div>
+
+            <section x-show="owTab==='overview'" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <button type="button" @click="owTab='heroes'" class="text-left rounded-2xl border border-gray-800 bg-csdark-800 p-5 hover:border-orange-400/60 transition">
+                        <div class="text-2xl text-orange-400"><i class="fa-solid fa-users"></i></div><h3 class="mt-3 text-lg font-black text-white">Helden-Datenbank</h3><p class="mt-1 text-sm text-gray-400">Suche nach Helden und filtere nach Tank, Schaden oder Support.</p><span class="inline-block mt-4 text-sm font-bold text-orange-300">Helden öffnen →</span>
+                    </button>
+                    <button type="button" @click="owTab='crosshair'" class="text-left rounded-2xl border border-gray-800 bg-csdark-800 p-5 hover:border-orange-400/60 transition">
+                        <div class="text-2xl text-orange-400"><i class="fa-solid fa-crosshairs"></i></div><h3 class="mt-3 text-lg font-black text-white">Crosshair-Builder</h3><p class="mt-1 text-sm text-gray-400">Punkt, Kreis oder klassisches Fadenkreuz konfigurieren und Vorschau ansehen.</p><span class="inline-block mt-4 text-sm font-bold text-orange-300">Crosshair bauen →</span>
+                    </button>
+                    <button type="button" @click="owTab='sensitivity'" class="text-left rounded-2xl border border-gray-800 bg-csdark-800 p-5 hover:border-orange-400/60 transition">
+                        <div class="text-2xl text-orange-400"><i class="fa-solid fa-computer-mouse"></i></div><h3 class="mt-3 text-lg font-black text-white">Sensitivity-Rechner</h3><p class="mt-1 text-sm text-gray-400">DPI und Ingame-Sensitivität vergleichen und eine grobe CS2-Umrechnung berechnen.</p><span class="inline-block mt-4 text-sm font-bold text-orange-300">Werte berechnen →</span>
+                    </button>
+                </div>
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5">
+                    <h3 class="text-lg font-black text-white"><i class="fa-solid fa-compass text-orange-400 mr-2"></i>Schnellstart</h3>
+                    <p class="mt-2 text-sm text-gray-400">Wähle einen Bereich oben. Deine Overwatch-Einstellungen bleiben getrennt von den CS2-Tools. Die Angaben sind ein lokaler Toolkit-Helfer und ändern keine Einstellungen direkt im Spiel.</p>
+                </div>
+            </section>
+
+            <section x-show="owTab==='heroes'" x-cloak class="space-y-4">
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
+                    <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                        <div><h3 class="text-xl font-black text-white">Helden-Datenbank</h3><p class="mt-1 text-sm text-gray-400">Durchsuchbare Übersicht mit Rollen und kurzen Einsatzhinweisen.</p></div>
+                        <input x-model="owHeroSearch" type="search" placeholder="Held suchen …" class="w-full md:max-w-xs rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white focus:border-orange-400 focus:outline-none">
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <template x-for="role in owRoles" :key="role">
+                            <button type="button" @click="owRoleFilter=role" :class="owRoleFilter===role ? 'bg-orange-500 text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-3 py-2 text-xs font-bold" x-text="role"></button>
+                        </template>
+                        <span class="ml-auto self-center text-xs text-gray-500" x-text="owFilteredHeroes.length + ' Helden'"></span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                    <template x-for="hero in owFilteredHeroes" :key="hero.name">
+                        <article class="rounded-xl border border-gray-800 bg-csdark-800 p-4 transition hover:border-orange-400/50">
+                            <div class="flex items-start justify-between gap-3">
+                                <div><div class="text-[10px] uppercase tracking-widest font-black" :class="hero.role==='Tank' ? 'text-blue-300' : (hero.role==='Schaden' ? 'text-red-300' : 'text-green-300')" x-text="hero.role"></div><h4 class="mt-1 text-lg font-black text-white" x-text="hero.name"></h4></div>
+                                <span class="rounded-lg bg-black/30 px-2 py-1 text-xs font-bold text-orange-300" x-text="hero.style"></span>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-400" x-text="hero.tip"></p>
+                        </article>
+                    </template>
+                    <div x-show="owFilteredHeroes.length===0" class="col-span-full rounded-xl border border-gray-800 bg-csdark-800 p-8 text-center text-gray-400">Keine passenden Helden gefunden.</div>
+                </div>
+                <p class="text-xs text-gray-500">Hinweis: Die Liste ist eine integrierte Basisübersicht und kann bei neuen Helden oder Rollenänderungen ergänzt werden.</p>
+            </section>
+
+            <section x-show="owTab==='crosshair'" x-cloak class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5 space-y-4">
+                    <div><h3 class="text-xl font-black text-white">Crosshair-Builder</h3><p class="mt-1 text-sm text-gray-400">Passe die Vorschau an und übertrage die Werte anschließend in Overwatch.</p></div>
+                    <label class="block text-xs font-bold text-gray-300">Typ
+                        <select x-model="owCrosshairType" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"><option value="Kreuz">Kreuz</option><option value="Punkt">Punkt</option><option value="Kreis">Kreis</option></select>
+                    </label>
+                    <label class="block text-xs font-bold text-gray-300">Farbe
+                        <input type="color" x-model="owCrosshairColor" class="mt-2 h-10 w-full rounded-lg border border-gray-700 bg-csdark-900 p-1">
+                    </label>
+                    <div><div class="flex justify-between text-xs text-gray-300"><label for="owSize">Größe</label><span x-text="owCrosshairSize+' px'"></span></div><input id="owSize" type="range" min="2" max="18" x-model.number="owCrosshairSize" class="mt-2 w-full accent-orange-500"></div>
+                    <div><div class="flex justify-between text-xs text-gray-300"><label for="owGap">Abstand</label><span x-text="owCrosshairGap+' px'"></span></div><input id="owGap" type="range" min="0" max="16" x-model.number="owCrosshairGap" class="mt-2 w-full accent-orange-500"></div>
+                    <div><div class="flex justify-between text-xs text-gray-300"><label for="owThickness">Linienstärke</label><span x-text="owCrosshairThickness+' px'"></span></div><input id="owThickness" type="range" min="1" max="6" x-model.number="owCrosshairThickness" class="mt-2 w-full accent-orange-500"></div>
+                    <div class="flex gap-2"><button type="button" @click="owResetCrosshair()" class="rounded-lg bg-csdark-700 px-4 py-2 text-sm font-bold text-gray-200 hover:bg-csdark-600">Zurücksetzen</button><button type="button" @click="owCopySettings()" class="rounded-lg bg-orange-500 px-4 py-2 text-sm font-black text-black hover:bg-orange-400"><i class="fa-solid fa-copy mr-2"></i>Settings kopieren</button></div>
+                </div>
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5">
+                    <h3 class="text-sm font-black uppercase tracking-widest text-gray-400">Live-Vorschau</h3>
+                    <div class="mt-4 min-h-[320px] rounded-xl border border-gray-700 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black relative overflow-hidden flex items-center justify-center">
+                        <div class="absolute inset-0 opacity-20" style="background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:28px 28px"></div>
+                        <div class="relative z-10" :style="'width:'+(owCrosshairType==='Punkt'?owCrosshairThickness*2:owCrosshairSize*2+owCrosshairGap*2)+'px;height:'+(owCrosshairType==='Punkt'?owCrosshairThickness*2:owCrosshairSize*2+owCrosshairGap*2)+'px;display:flex;align-items:center;justify-content:center;'">
+                            <template x-if="owCrosshairType==='Punkt'"><div :style="'width:'+(owCrosshairThickness*2)+'px;height:'+(owCrosshairThickness*2)+'px;background:'+owCrosshairColor+';border-radius:50%;box-shadow:0 0 8px '+owCrosshairColor"></div></template>
+                            <template x-if="owCrosshairType==='Kreis'"><div :style="'width:'+(owCrosshairSize*2)+'px;height:'+(owCrosshairSize*2)+'px;border:'+(owCrosshairThickness)+'px solid '+owCrosshairColor+';border-radius:50%;box-shadow:0 0 7px '+owCrosshairColor"></div></template>
+                            <template x-if="owCrosshairType==='Kreuz'">
+                                <div class="relative" :style="'width:'+(owCrosshairSize*2+owCrosshairGap*2)+'px;height:'+(owCrosshairSize*2+owCrosshairGap*2)+'px'">
+                                    <span class="absolute left-1/2 top-0 -translate-x-1/2" :style="'width:'+owCrosshairThickness+'px;height:'+owCrosshairSize+'px;background:'+owCrosshairColor+';box-shadow:0 0 5px '+owCrosshairColor"></span>
+                                    <span class="absolute left-1/2 bottom-0 -translate-x-1/2" :style="'width:'+owCrosshairThickness+'px;height:'+owCrosshairSize+'px;background:'+owCrosshairColor+';box-shadow:0 0 5px '+owCrosshairColor"></span>
+                                    <span class="absolute left-0 top-1/2 -translate-y-1/2" :style="'height:'+owCrosshairThickness+'px;width:'+owCrosshairSize+'px;background:'+owCrosshairColor+';box-shadow:0 0 5px '+owCrosshairColor"></span>
+                                    <span class="absolute right-0 top-1/2 -translate-y-1/2" :style="'height:'+owCrosshairThickness+'px;width:'+owCrosshairSize+'px;background:'+owCrosshairColor+';box-shadow:0 0 5px '+owCrosshairColor"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="mt-4 rounded-lg border border-orange-500/20 bg-orange-500/5 p-3 text-xs text-gray-300">Die Vorschau dient als Orientierung. Overwatch kann andere interne Skalen und eigene Fadenkreuzoptionen verwenden.</div>
+                </div>
+            </section>
+
+            <section x-show="owTab==='sensitivity'" x-cloak class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5 space-y-4">
+                    <h3 class="text-xl font-black text-white">Sensitivity-Rechner</h3>
+                    <p class="text-sm text-gray-400">Berechne eDPI für Overwatch und erhalte eine grobe Ausgangsbasis für den Vergleich mit CS2.</p>
+                    <label class="block text-sm text-gray-300">Maus-DPI<input type="number" min="100" max="32000" x-model.number="owDpi" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-white"></label>
+                    <label class="block text-sm text-gray-300">Overwatch Sensitivity<input type="number" min="0.01" max="100" step="0.01" x-model.number="owSensitivity" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-white"></label>
+                    <div class="rounded-xl border border-orange-500/30 bg-orange-500/5 p-4"><div class="text-xs text-gray-400">Overwatch eDPI</div><div class="mt-1 text-3xl font-black text-orange-300" x-text="Math.round((Number(owDpi)||0)*(Number(owSensitivity)||0)).toLocaleString('de-DE')"></div><div class="mt-2 text-xs text-gray-400">eDPI = DPI × Ingame-Sensitivität</div></div>
+                    <div class="rounded-xl border border-gray-700 bg-black/20 p-4"><div class="text-xs text-gray-400">Grobe CS2-Sensitivität</div><div class="mt-1 text-2xl font-black text-white" x-text="(Math.max(0,Number(owSensitivity)||0)/3.333).toFixed(3)"></div><p class="mt-2 text-xs text-gray-500">Näherungswert für einen ersten Vergleich, keine exakte 360°- oder FOV-kalibrierte Umrechnung. Für präzise Übertragung sollten cm/360 und FOV berücksichtigt werden.</p></div>
+                </div>
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5">
+                    <h3 class="text-xl font-black text-white">Was du vergleichen solltest</h3>
+                    <ul class="mt-3 space-y-3 text-sm text-gray-300 list-disc pl-5">
+                        <li>Dieselbe Maus-DPI in beiden Spielen verwenden.</li><li>FOV und Zoom-Sensitivität getrennt beachten.</li><li>Eine Umrechnung nur als Startpunkt nutzen und anschließend im Trainingsbereich testen.</li><li>Die passende Sensitivität hängt auch von Heldenrolle, Aim-Stil und persönlicher Präferenz ab.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section x-show="owTab==='settings'" x-cloak class="space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <article class="rounded-2xl border border-gray-800 bg-csdark-800 p-5">
+                        <h3 class="text-xl font-black text-white"><i class="fa-solid fa-display text-orange-400 mr-2"></i>Grafik & FPS</h3>
+                        <ul class="mt-3 space-y-3 text-sm text-gray-300">
+                            <li><strong class="text-white">Display Mode:</strong> Vollbild testen; bei Problemen randloses Fenster vergleichen.</li>
+                            <li><strong class="text-white">V-Sync:</strong> meist aus für möglichst geringe Eingabeverzögerung, sofern Tearing kein Problem ist.</li>
+                            <li><strong class="text-white">Render Scale:</strong> zunächst 100 %, danach bei FPS-Problemen schrittweise reduzieren.</li>
+                            <li><strong class="text-white">Frame Rate:</strong> Limit passend zur Bildwiederholrate setzen und stabile Frametimes priorisieren.</li>
+                            <li><strong class="text-white">Dynamic Render Scale:</strong> nur aktivieren, wenn die dynamische Auflösung für dich akzeptabel ist.</li>
+                        </ul>
+                    </article>
+                    <article class="rounded-2xl border border-gray-800 bg-csdark-800 p-5">
+                        <h3 class="text-xl font-black text-white"><i class="fa-solid fa-headphones text-orange-400 mr-2"></i>Gameplay & Audio</h3>
+                        <ul class="mt-3 space-y-3 text-sm text-gray-300">
+                            <li><strong class="text-white">Sensitivity:</strong> pro Profil notieren und nach größeren Änderungen erneut testen.</li>
+                            <li><strong class="text-white">Crosshair:</strong> gut sichtbare Farbe wählen, die sich vom Map-Hintergrund abhebt.</li>
+                            <li><strong class="text-white">Hero Settings:</strong> individuelle Einstellungen pro Held prüfen, wenn dein Spielprofil das unterstützt.</li>
+                            <li><strong class="text-white">Audio:</strong> Effekte und Voice-Chat so ausbalancieren, dass wichtige Hinweise hörbar bleiben.</li>
+                            <li><strong class="text-white">Accessibility:</strong> Farbenblindheits- und Untertiteloptionen nach Bedarf einstellen.</li>
+                        </ul>
+                    </article>
+                </div>
+                <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 text-sm text-gray-400"><i class="fa-solid fa-circle-info text-orange-400 mr-2"></i>Diese Tipps sind allgemeine Startwerte, keine universell besten Pro-Settings. Änderungen bitte im Spiel selbst vornehmen und nach Patches erneut prüfen.</div>
+            </section>
+        </section>
 
         <!-- TAB: TURNIERBÄUME -->
         <div x-show="activeTab === 'test'" x-cloak class="grid grid-cols-1 gap-5 items-start">
@@ -2702,6 +2883,78 @@
                 },
 
                 activeTab: 'suggestions',
+                owTab: 'overview',
+                owHeroSearch: '',
+                owRoleFilter: 'Alle',
+                owRoles: ['Alle', 'Tank', 'Schaden', 'Support'],
+                owDpi: 800,
+                owSensitivity: 5,
+                owCrosshairType: 'Kreuz',
+                owCrosshairColor: '#ffb000',
+                owCrosshairSize: 5,
+                owCrosshairGap: 3,
+                owCrosshairThickness: 2,
+                owHeroData: [
+                    {name:'D.Va',role:'Tank',style:'Dive',tip:'Hohe Mobilität, kann gegnerische Projektile mit Defensivmatrix abfangen.'},
+                    {name:'Doomfist',role:'Tank',style:'Dive',tip:'Mobiler Frontliner; sucht isolierte Ziele und braucht gutes Timing.'},
+                    {name:'Junker Queen',role:'Tank',style:'Brawl',tip:'Aggressiver Nahkampf-Tank mit Wunden, Ruf und Team-Push.'},
+                    {name:'Mauga',role:'Tank',style:'Brawl',tip:'Dauerfeuer und Druck auf große Ziele; Deckung und Cooldowns bewusst nutzen.'},
+                    {name:'Orisa',role:'Tank',style:'Frontline',tip:'Stark beim Halten von Raum und beim Unterbrechen gegnerischer Angriffe.'},
+                    {name:'Ramattra',role:'Tank',style:'Hybrid',tip:'Wechselt zwischen Distanzdruck und Nahkampf-Form für Raumkontrolle.'},
+                    {name:'Reinhardt',role:'Tank',style:'Brawl',tip:'Schild und Hammer geben dem Team Raum; auf Position und Schildressourcen achten.'},
+                    {name:'Roadhog',role:'Tank',style:'Pick',tip:'Haken-Drohung und Selbstheilung bestrafen schlecht positionierte Gegner.'},
+                    {name:'Sigma',role:'Tank',style:'Poke',tip:'Barrieren, Absorption und Stein für kontrollierte Distanzkämpfe kombinieren.'},
+                    {name:'Winston',role:'Tank',style:'Dive',tip:'Springt auf Backline-Ziele und schafft mit Barriere kurzzeitig Raum.'},
+                    {name:'Wrecking Ball',role:'Tank',style:'Disrupt',tip:'Stört Formationen, zieht Aufmerksamkeit und benötigt gute Routen.'},
+                    {name:'Zarya',role:'Tank',style:'Brawl',tip:'Gut getimte Blasen schützen Verbündete und erhöhen den eigenen Druck.'},
+                    {name:'Ashe',role:'Schaden',style:'Hitscan',tip:'Präzise Distanzschüsse, Dynamit für Flächendruck und B.O.B. zur Raumkontrolle.'},
+                    {name:'Bastion',role:'Schaden',style:'Burst',tip:'Hoher situativer Schaden; Winkel wechseln und nicht statisch stehen bleiben.'},
+                    {name:'Cassidy',role:'Schaden',style:'Hitscan',tip:'Stark auf mittlere Distanz; Cooldown und Deckung gegen Dive nutzen.'},
+                    {name:'Echo',role:'Schaden',style:'Flank',tip:'Vertikale Mobilität und fokussierter Schaden gegen Ziele mit wenig Leben.'},
+                    {name:'Genji',role:'Schaden',style:'Dive',tip:'Mobilität und Deflektion für schnelle Flanken und saubere Finisher einsetzen.'},
+                    {name:'Hanzo',role:'Schaden',style:'Projectile',tip:'Winkel, Sound und Pfeil-Utility nutzen; nicht lange auf derselben Position bleiben.'},
+                    {name:'Junkrat',role:'Schaden',style:'Area denial',tip:'Engstellen kontrollieren und Granaten aus sicherer Deckung einsetzen.'},
+                    {name:'Mei',role:'Schaden',style:'Control',tip:'Wände trennen Teams; Kryo und Verlangsamung defensiv wie offensiv nutzen.'},
+                    {name:'Pharah',role:'Schaden',style:'Air',tip:'Vertikale Winkel ausnutzen und Flugrouten mit Deckung planen.'},
+                    {name:'Reaper',role:'Schaden',style:'Flank',tip:'Kurze Distanzen und Überraschungsangriffe bevorzugen; Rückzug vorher planen.'},
+                    {name:'Sojourn',role:'Schaden',style:'Hitscan',tip:'Primärfeuer für Energie und Railgun für präzise Burst-Fenster kombinieren.'},
+                    {name:'Soldier: 76',role:'Schaden',style:'Hitscan',tip:'Flexibler Allrounder; Sprint, Biotikfeld und kontrollierte Salven nutzen.'},
+                    {name:'Sombra',role:'Schaden',style:'Disrupt',tip:'Isolierte Ziele markieren, Fähigkeiten stören und mit Teamdruck kombinieren.'},
+                    {name:'Symmetra',role:'Schaden',style:'Control',tip:'Teleporter und Geschütze für geplante Setups und Engstellen einsetzen.'},
+                    {name:'Torbjörn',role:'Schaden',style:'Defense',tip:'Geschützturm deckt Flanken; Überladung in wichtigen Teamfights nutzen.'},
+                    {name:'Tracer',role:'Schaden',style:'Dive',tip:'Blink-Ladungen verwalten, Gegner ablenken und Recall nicht verschwenden.'},
+                    {name:'Venture',role:'Schaden',style:'Dive',tip:'Burrow und Drill Dash für überraschende Einstiege und sichere Exits kombinieren.'},
+                    {name:'Widowmaker',role:'Schaden',style:'Sniper',tip:'Sichtlinien und Positionswechsel priorisieren; nicht auf einer Position festkleben.'},
+                    {name:'Ana',role:'Support',style:'Utility',tip:'Heilung und Anti-Heilgranate können Teamfights entscheiden; Sichtlinien sichern.'},
+                    {name:'Baptiste',role:'Support',style:'Utility',tip:'Immortality Field für entscheidende Momente aufheben und hohe Positionen nutzen.'},
+                    {name:'Brigitte',role:'Support',style:'Peel',tip:'Backline schützen und Heilung durch aktives, aber kontrolliertes Mitspielen erzeugen.'},
+                    {name:'Illari',role:'Support',style:'Hitscan',tip:'Heil-Pylon sicher platzieren und Trefferfenster für Schaden nutzen.'},
+                    {name:'Juno',role:'Support',style:'Mobility',tip:'Teamrotation und Tempo mit Mobilität und unterstützenden Fähigkeiten verbessern.'},
+                    {name:'Kiriko',role:'Support',style:'Utility',tip:'Suzu für wichtige gegnerische Effekte aufheben und mit Kunai Druck setzen.'},
+                    {name:'Lifeweaver',role:'Support',style:'Utility',tip:'Pull und Plattform zur Rettung und Positionskontrolle einsetzen.'},
+                    {name:'Lúcio',role:'Support',style:'Tempo',tip:'Geschwindigkeit für Engage oder Rückzug und Sound Barrier gegen Burst nutzen.'},
+                    {name:'Mercy',role:'Support',style:'Pocket',tip:'Bewegung und sichere Flugziele priorisieren; Damage Boost passend zum Fight nutzen.'},
+                    {name:'Moira',role:'Support',style:'Brawl',tip:'Heilressourcen managen und Fade für sichere Ausstiege bereithalten.'},
+                    {name:'Wuyang',role:'Support',style:'Utility',tip:'Unterstützt Teamtempo und Überleben; Fähigkeiten auf Teamfight-Fenster abstimmen.'},
+                    {name:'Zenyatta',role:'Support',style:'Poke',tip:'Discord-Ziel mit dem Team fokussieren und Positionierung für Distanzschaden nutzen.'}
+                ],
+                get owFilteredHeroes() {
+                    const q = (this.owHeroSearch || '').trim().toLowerCase();
+                    return this.owHeroData.filter(hero => (this.owRoleFilter === 'Alle' || hero.role === this.owRoleFilter) && (!q || hero.name.toLowerCase().includes(q) || hero.role.toLowerCase().includes(q) || hero.style.toLowerCase().includes(q) || hero.tip.toLowerCase().includes(q)));
+                },
+                owResetCrosshair() {
+                    this.owCrosshairType = 'Kreuz'; this.owCrosshairColor = '#ffb000'; this.owCrosshairSize = 5; this.owCrosshairGap = 3; this.owCrosshairThickness = 2;
+                },
+                async owCopySettings() {
+                    const text = 'Overwatch Crosshair\nTyp: ' + this.owCrosshairType + '\nFarbe: ' + this.owCrosshairColor + '\nGröße: ' + this.owCrosshairSize + '\nAbstand: ' + this.owCrosshairGap + '\nLinienstärke: ' + this.owCrosshairThickness;
+                    try {
+                        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+                        else {
+                            const area = document.createElement('textarea'); area.value = text; area.style.position = 'fixed'; area.style.opacity = '0'; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove();
+                        }
+                        alert('Overwatch-Crosshair-Einstellungen kopiert.');
+                    } catch (_) { alert('Kopieren nicht möglich. Bitte die Werte manuell übernehmen.'); }
+                },
                 internationalSource: 'hltv',
                 tournamentCalendarOpen: false,
                 tournamentCalendarView: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
