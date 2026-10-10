@@ -284,6 +284,9 @@
             
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
+                <button @click="activeTab = 'suggestions'" :class="activeTab === 'suggestions' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-house"></i> Startseite
+                </button>
                 <button @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-trophy"></i> Turnierbäume
                 </button>
@@ -405,6 +408,58 @@
 
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- TAB: STARTSEITE -->
+        <section x-show="activeTab === 'suggestions'" x-cloak class="space-y-5">
+            <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-5 sm:p-6">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.2em] text-csorange uppercase">Pro Toolkit V2</div>
+                        <h2 class="mt-1 text-2xl font-black text-white"><i class="fa-solid fa-house text-csorange mr-2"></i>Startseite</h2>
+                        <p class="mt-1 text-sm text-gray-400">Deine gespeicherten CS2-Turniere und Matches auf einen Blick.</p>
+                    </div>
+                    <button type="button" @click="activeTab='test'; tournamentCalendarOpen=true" class="rounded-lg bg-csorange px-4 py-2 text-sm font-black text-black hover:bg-csorange-hover">
+                        <i class="fa-solid fa-calendar-days mr-2"></i>Zum Turnierkalender
+                    </button>
+                </div>
+            </div>
+
+            <section class="rounded-2xl border border-csorange/40 bg-csdark-800 p-5" aria-label="Merkliste auf der Startseite">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h3 class="text-xl font-black text-white"><i class="fa-regular fa-bookmark mr-2 text-csorange"></i>Meine Merkliste</h3>
+                        <p class="mt-1 text-sm text-gray-400">Hier findest du alle Einträge, die du im Turnierkalender gespeichert hast.</p>
+                    </div>
+                    <span class="rounded-full bg-csdark-700 px-3 py-1.5 text-sm font-bold text-csorange" x-text="tournamentCalendarWatchlist.length + ' gespeichert'"></span>
+                </div>
+                <template x-if="tournamentCalendarWatchlist.length">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <template x-for="item in tournamentCalendarWatchlist" :key="'home-' + item.id">
+                            <article class="rounded-xl border border-gray-700 bg-csdark-900 p-4 flex flex-col justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="font-black text-white break-words" x-text="item.teams || item.tournament"></div>
+                                    <div class="mt-2 text-sm text-gray-300" x-text="tournamentCalendarSavedDate(item.date)"></div>
+                                    <div class="mt-1 text-xs text-gray-400" x-show="item.time || item.phase">
+                                        <span x-show="item.time" x-text="item.time"></span><span x-show="item.time && item.phase"> · </span><span x-show="item.phase" x-text="tournamentCalendarPhaseLabel(item.phase)"></span>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-500" x-text="item.tournament"></div>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-3 border-t border-gray-800 pt-3">
+                                    <a x-show="item.url" :href="item.url" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-csorange hover:underline">Spielplan / Quelle öffnen ↗</a>
+                                    <button type="button" @click="tournamentCalendarRemoveSaved(item.id)" class="rounded-lg border border-gray-700 px-3 py-2 text-xs text-gray-300 hover:border-red-500 hover:text-red-300">Aus Merkliste entfernen</button>
+                                </div>
+                            </article>
+                        </template>
+                    </div>
+                </template>
+                <div x-show="!tournamentCalendarWatchlist.length" class="rounded-xl border border-dashed border-gray-700 bg-csdark-900/60 p-6 text-center">
+                    <i class="fa-regular fa-bookmark text-2xl text-gray-500"></i>
+                    <p class="mt-2 font-bold text-white">Deine Merkliste ist noch leer</p>
+                    <p class="mt-1 text-sm text-gray-400">Öffne den Turnierkalender, wähle einen Eintrag und klicke auf „Zur Merkliste“.</p>
+                    <button type="button" @click="activeTab='test'; tournamentCalendarOpen=true" class="mt-4 rounded-lg border border-csorange px-4 py-2 text-sm font-bold text-csorange hover:bg-csorange/10">Turniere im Kalender ansehen</button>
+                </div>
+            </section>
+        </section>
 
 
         <!-- TAB: TURNIERBÄUME -->
