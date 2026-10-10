@@ -3636,11 +3636,6 @@ bombSites: [
                 },
                 get matchingCommandCount() { return this.matchingCommands.length; },
                 get filteredCommands() { return this.matchingCommands.slice(0, 100); }
-
- {
-                    if (!this.commandSearch) return this.commands;
-                    return this.matchingCommands.slice(0, 100);
-                }
             }
         }
     </script>
