@@ -895,8 +895,6 @@
                 </div>
                 <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 text-sm text-gray-400"><i class="fa-solid fa-circle-info text-orange-400 mr-2"></i>Diese Tipps sind allgemeine Startwerte, keine universell besten Pro-Settings. Änderungen bitte im Spiel selbst vornehmen und nach Patches erneut prüfen.</div>
             </section>
-        </section>
-
                 <section x-show="owTab==='stats'" x-cloak class="space-y-5">
             <div class="rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-950/30 via-csdark-800 to-csdark-900 p-5 sm:p-7">
                 <div class="flex flex-wrap items-start justify-between gap-4">
@@ -931,6 +929,8 @@
                 <div x-show="owStatComplete" class="rounded-2xl border border-gray-800 bg-csdark-800 p-5"><h4 class="font-black text-white">Detaildaten der Helden</h4><p class="mt-1 text-sm text-gray-400">Zusätzliche Heldendaten sind verfügbar, wenn der Statistikdienst sie für das Profil bereitstellt.</p><pre class="mt-3 max-h-96 overflow-auto rounded-lg bg-black/30 p-3 text-xs text-gray-300" x-text="JSON.stringify(owStatComplete, null, 2)"></pre></div>
             </div>
             <div class="rounded-xl border border-gray-800 bg-csdark-800/60 p-4 text-xs text-gray-500">Datenquelle: OWAPI.EU (inoffizieller Dienst, Daten aus öffentlichen Profilen). Die Verfügbarkeit, Feldnamen und Aktualität können variieren; private Profile lassen sich nicht auslesen. Die Statistiken werden nicht von Blizzard garantiert und können zeitverzögert sein.</div>
+        </section>
+
         </section>
 
         <!-- TAB: TURNIERBÄUME -->
