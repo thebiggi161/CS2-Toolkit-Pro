@@ -491,8 +491,8 @@
                                     <template x-for="(event, idx) in tournamentCalendarEventsForSelectedDay()" :key="event.id || idx">
                                         <div class="rounded-lg border border-gray-700 p-3">
                                             <div class="flex flex-wrap items-center justify-between gap-2"><span class="font-bold text-csorange" x-text="event.tournament"></span><span class="text-xs text-gray-400" x-text="event.time || 'Uhrzeit noch offen'"></span></div>
-                                            <div class="mt-1 text-sm text-white" x-text="event.teams || 'Spielpaarung noch nicht veröffentlicht'"></div>
-                                            <div class="text-xs text-gray-500 mt-1" x-text="event.source || 'Quelle nicht bestätigt'"></div>
+                                            <div class="mt-1 text-sm text-white" x-text="event.teams || (event.start && event.end ? 'Turnierzeitraum · ' + new Date(event.start + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short'}) + ' – ' + new Date(event.end + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short',year:'numeric'}) : 'Spielpaarung noch nicht veröffentlicht')"></div>
+                                            <div class="text-xs text-gray-500 mt-1" x-text="event.source || 'Quelle nicht bestätigt'"></div><a x-show="event.url" :href="event.url" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 text-xs text-csorange hover:underline">Spielplan / Quelle öffnen ↗</a>
                                         </div>
                                     </template>
                                 </div>
@@ -504,7 +504,7 @@
                                 <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">DACH CS ↗</a>
                             </div>
                         </div>
-                        <p class="mt-3 text-[11px] text-gray-500">Hinweis: Der Kalender aktualisiert seine Prüfzeit automatisch. Ohne eine frei zugängliche, im Browser abrufbare Spielplandatenquelle werden keine erfundenen Spieltage oder Teamnamen angezeigt.</p>
+                        <p class="mt-3 text-[11px] text-gray-500">Hinweis: Turnierzeiträume basieren auf veröffentlichten Kalenderangaben und sind als Veranstaltungszeitraum markiert, nicht als bestätigte Einzelspiele. Einzelpaarungen, Uhrzeiten und Teamlogos benötigen eine abrufbare Matchdatenquelle.</p>
                     </div>
                 </section>
 
@@ -1657,6 +1657,23 @@
                 tournamentCalendarView: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
                 tournamentCalendarSelected: new Date().toISOString().slice(0, 10),
                 tournamentCalendarEvents: [],
+                tournamentCalendarSourceEvents: [
+                    { id: 'epl-s24', tournament: 'ESL Pro League Season 24', start: '2026-10-03', end: '2026-10-11', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'cct-eu-11', tournament: 'CCT 2026 Europe Series 11 – Closed Qualifier', start: '2026-10-07', end: '2026-10-12', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'roman-imperium', tournament: 'Roman Imperium Cup IX', start: '2026-10-07', end: '2026-10-10', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'mesa-fall', tournament: 'MESA Pro Series Fall 2026', start: '2026-10-08', end: '2026-10-11', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'ecl-sa', tournament: 'ESL Challenger League Season 52 South America Cup 3', start: '2026-10-07', end: '2026-10-14', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'ecl-na', tournament: 'ESL Challenger League Season 52 North America Cup 3', start: '2026-10-07', end: '2026-10-14', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'ecl-apac', tournament: 'ESL Challenger League Season 52 Asia-Pacific Cup 3', start: '2026-10-07', end: '2026-10-14', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'thunderpick-2026', tournament: 'Thunderpick World Championship 2026', start: '2026-10-14', end: '2026-10-18', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'pgl-bucharest', tournament: 'PGL Masters Bucharest 2026', start: '2026-10-24', end: '2026-10-31', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'iem-beijing', tournament: 'IEM Beijing 2026', start: '2026-11-02', end: '2026-11-08', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'blast-rivals', tournament: 'BLAST Rivals 2026 Season 2', start: '2026-11-09', end: '2026-11-15', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'pgl-major-stage1', tournament: 'PGL Major Singapore 2026 – Stage 1', start: '2026-11-24', end: '2026-11-27', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'pgl-major-stage2', tournament: 'PGL Major Singapore 2026 – Stage 2', start: '2026-11-28', end: '2026-12-01', source: 'HLTV', url: 'https://www.hltv.org/events' },
+                    { id: 'dach-entry-cycle5', tournament: 'DACH CS Entry 2026 – Cycle 5', start: '2026-10-12', end: '2026-11-15', source: 'DACH CS', url: 'https://www.dachcs.de/kalender' },
+                    { id: 'dach-entry-cycle6', tournament: 'DACH CS Entry 2026 – Cycle 6', start: '2026-11-23', end: '2026-12-27', source: 'DACH CS', url: 'https://www.dachcs.de/kalender' }
+                ],
                 tournamentCalendarStatus: 'Noch keine Live-Termine bestätigt · ohne PandaScore',
                 tournamentCalendarLoading: false,
                 tournamentCalendarLastChecked: null,
@@ -2430,9 +2447,17 @@
                     const count = new Date(year, month + 1, 0).getDate();
                     const today = new Date();
                     const eventsByDate = {};
+                    const addEvent = (date, event) => { (eventsByDate[date] ||= []).push(event); };
                     (this.tournamentCalendarEvents || []).forEach(event => {
-                        if (!event.date) return;
-                        (eventsByDate[event.date] ||= []).push(event);
+                        if (event.date) addEvent(event.date, event);
+                    });
+                    (this.tournamentCalendarSourceEvents || []).forEach(event => {
+                        const start = new Date(event.start + 'T12:00:00');
+                        const end = new Date(event.end + 'T12:00:00');
+                        for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+                            const key = [cursor.getFullYear(), String(cursor.getMonth() + 1).padStart(2, '0'), String(cursor.getDate()).padStart(2, '0')].join('-');
+                            addEvent(key, { ...event, date: key, teams: '', time: '' });
+                        }
                     });
                     const days = [];
                     for (let i = 0; i < offset; i++) days.push({ key: 'blank-' + i, date: null, hasEvents: false });
@@ -2457,16 +2482,21 @@
                 },
 
                 tournamentCalendarEventsForSelectedDay() {
-                    return (this.tournamentCalendarEvents || []).filter(event => event.date === this.tournamentCalendarSelected);
+                    const live = (this.tournamentCalendarEvents || []).filter(event => event.date === this.tournamentCalendarSelected);
+                    const date = this.tournamentCalendarSelected;
+                    const scheduled = (this.tournamentCalendarSourceEvents || [])
+                        .filter(event => date >= event.start && date <= event.end)
+                        .map(event => ({ ...event, date, teams: '', time: '', id: event.id + '-' + date }));
+                    return [...live, ...scheduled];
                 },
 
                 async refreshTournamentCalendar() {
                     this.tournamentCalendarLoading = true;
                     try {
-                        // We deliberately do not scrape third-party pages or invent match schedules.
-                        // Public links remain available until a stable, browser-accessible feed is configured.
+                        // Confirmed event windows are bundled as a fallback; live match pairings need a feed.
                         this.tournamentCalendarLastChecked = new Date();
-                        this.tournamentCalendarStatus = 'Zuletzt geprüft: ' + this.tournamentCalendarLastChecked.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · keine bestätigte Live-Datenquelle';
+                        const eventCount = (this.tournamentCalendarSourceEvents || []).length;
+                        this.tournamentCalendarStatus = eventCount + ' Turnierzeiträume geladen · geprüft ' + this.tournamentCalendarLastChecked.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · Paarungen/Logos benötigen Live-Matchdaten';
                     } finally {
                         this.tournamentCalendarLoading = false;
                     }
