@@ -311,6 +311,9 @@
                 <button @click="activeTab = 'weapons'" :class="activeTab === 'weapons' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-gun"></i> Weapons
                 </button>
+                <button @click="activeTab = 'chickens'" :class="activeTab === 'chickens' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-egg"></i> Chicken Lab
+                </button>
 
 
             </nav>
@@ -447,6 +450,29 @@
                     <iframe src="https://www.dachcs.de/coverage/" title="DACH CS Turnierbaum und Coverage" loading="lazy" class="w-full bg-white" style="height: min(70vh, 760px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     <p class="px-4 pb-4 text-xs text-gray-500">Wenn DACH CS oder HLTV das Einbetten technisch blockiert, funktioniert der Link „separat öffnen“ weiterhin. Externe Turnierbäume lassen sich nur dann einzeln anklicken, wenn die jeweilige Quellseite diese Interaktion bereitstellt.</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- TAB: CHICKEN LAB -->
+        <div x-show="activeTab === 'chickens'" x-cloak class="space-y-5">
+            <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.2em] text-csorange uppercase">CS2 Pets · Rush Hour Update</div>
+                        <h2 class="text-2xl font-black text-white mt-1"><i class="fa-solid fa-egg text-csorange mr-2"></i>Chicken Lab</h2>
+                        <p class="text-sm text-gray-400 mt-1">Alle bekannten Hühner-Varianten, Farben, Wachstumsstufen und Photo-Booth-Accessoires in einer eingebetteten Übersicht.</p>
+                    </div>
+                    <a href="https://csskinlab.com/pets" target="_blank" rel="noopener noreferrer" class="shrink-0 text-sm font-bold text-csorange hover:underline">Vollständige Übersicht separat öffnen ↗</a>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1.5 rounded-lg bg-csdark-700 border border-gray-700 text-sm text-gray-200">41 Farbvarianten</span>
+                    <span class="px-3 py-1.5 rounded-lg bg-csdark-700 border border-gray-700 text-sm text-gray-200">3 Hühnerrassen</span>
+                    <span class="px-3 py-1.5 rounded-lg bg-csdark-700 border border-gray-700 text-sm text-gray-200">10 Photo-Booth-Hüte</span>
+                </div>
+                <div class="rounded-xl overflow-hidden border border-gray-800 bg-white">
+                    <iframe src="https://csskinlab.com/pets" title="CS2 Chicken Lab – Hühner-Varianten und Accessoires" loading="lazy" class="w-full" style="height: min(78vh, 900px); min-height: 560px" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">Falls die Webseite das Einbetten technisch blockiert oder im Launcher nicht korrekt lädt, nutze „Vollständige Übersicht separat öffnen“. Die Inhalte und 3D-Ansicht stammen von CSSkinLab, nicht direkt aus dem Toolkit.</p>
             </div>
         </div>
 
