@@ -363,7 +363,7 @@
     </div>
 
     <!-- GLOBAL ESPORTS MINI PLAYER -->
-    <div x-show="esportsMiniVisible && activeTab !== 'esports'" x-cloak class="esports-mini-player"
+    <div x-show="esportsMiniVisible" x-cloak class="esports-mini-player"
          :class="esportsMiniMinimized ? 'is-minimized' : ''"
          :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto; background:rgba(7,7,7,${overlayOpacity});`"
          >
