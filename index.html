@@ -548,10 +548,10 @@
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
 
-                <button type="button" @click.stop="activeTab = 'suggestions'" :class="activeTab !== 'overwatch' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum CS2 Toolkit wechseln">
+                <button type="button" @click.stop="activeTab = 'suggestions'; overlayMode = false; clickThrough = false" :class="activeTab !== 'overwatch' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum CS2 Toolkit wechseln">
                     <i class="fa-solid fa-gamepad"></i> CS2 Toolkit
                 </button>
-                <button type="button" @click.stop="activeTab = 'overwatch'; owTab = 'overview'" :class="activeTab === 'overwatch' ? 'bg-orange-500 text-black font-semibold shadow-md shadow-orange-500/30' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum Overwatch Toolkit wechseln">
+                <button type="button" @click.stop="activeTab = 'overwatch'; owTab = 'overview'; overlayMode = false; clickThrough = false" :class="activeTab === 'overwatch' ? 'bg-orange-500 text-black font-semibold shadow-md shadow-orange-500/30' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum Overwatch Toolkit wechseln">
                     <i class="fa-solid fa-shield-halved"></i> Overwatch
                 </button>
                 <button @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
@@ -5684,8 +5684,33 @@ bombSites: [
       body.v2-overwatch-mode .shisha-counter-closed { display: none !important; }
       @media (max-width: 767px) {
         html, body { max-width: 100%; overflow-x: clip; }
-        header nav { gap: 6px; }
-        header nav button { min-height: 42px; padding: 9px 11px; }
+        /* Keep the game switch and every tab reachable on narrow screens. */
+        header { z-index: 200 !important; }
+        header > div { min-width: 0; }
+        header nav {
+          display: flex !important;
+          flex-wrap: nowrap !important;
+          gap: 6px;
+          width: 100%;
+          max-width: 100%;
+          overflow-x: auto !important;
+          overflow-y: hidden !important;
+          overscroll-behavior-x: contain;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          padding: 2px 2px 8px;
+          position: relative;
+          z-index: 201;
+          pointer-events: auto !important;
+        }
+        header nav button {
+          flex: 0 0 auto !important;
+          white-space: nowrap;
+          min-height: 44px;
+          touch-action: manipulation;
+          pointer-events: auto !important;
+        }
+        header nav button { min-height: 44px; padding: 9px 11px; }
         main { padding-left: 10px !important; padding-right: 10px !important; }
         main button, main [role="button"] { min-height: 40px; }
         input, select, textarea { max-width: 100%; font-size: 16px; }
