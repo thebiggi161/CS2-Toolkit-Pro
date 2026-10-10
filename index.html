@@ -3045,6 +3045,7 @@
                 owEsportsReminderMinutes: 30,
                 owEsportsNotice: '',
                 owEsportsTimer: null,
+                owEsportsNotified: {},
                 owEsportsNow: Date.now(),
                 owEsportsEmbed: 'https://liquipedia.net/overwatch/Overwatch_Champions_Series',
                 get owEsportsFilteredTeams() {
@@ -3069,7 +3070,21 @@
                         const saved = JSON.parse(localStorage.getItem('owcs_esports_events_v1') || '[]');
                         this.owEsportsEvents = Array.isArray(saved) ? saved.filter(e => e && typeof e.id === 'string' && typeof e.title === 'string' && Number.isFinite(Date.parse(e.start))).slice(0,200) : [];
                     } catch (_) { this.owEsportsEvents = []; }
-                    if (!this.owEsportsTimer) this.owEsportsTimer = window.setInterval(() => { this.owEsportsNow = Date.now(); }, 30000);
+                    if (!this.owEsportsTimer) this.owEsportsTimer = window.setInterval(() => { this.owEsportsNow = Date.now(); this.owEsportsCheckReminders(); }, 30000);
+                    this.owEsportsCheckReminders();
+                },
+                owEsportsCheckReminders() {
+                    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+                    const now = Date.now();
+                    this.owEsportsEvents.forEach(event => {
+                        const start = Date.parse(event.start);
+                        if (!Number.isFinite(start)) return;
+                        const trigger = start - Math.max(0, Number(event.reminderMinutes) || 30) * 60000;
+                        if (!this.owEsportsNotified[event.id] && now >= trigger && now < start && now - trigger < 120000) {
+                            try { new Notification('Overwatch Esports startet bald', { body: event.title + (event.teams ? ' · ' + event.teams : ''), tag: event.id }); this.owEsportsNotified[event.id] = true; }
+                            catch (_) {}
+                        }
+                    });
                 },
                 owEsportsSave() {
                     try { localStorage.setItem('owcs_esports_events_v1', JSON.stringify(this.owEsportsEvents)); this.owEsportsNotice = 'Termine lokal in diesem Browser gespeichert.'; }
