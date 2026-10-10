@@ -1631,7 +1631,23 @@
             <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <h2 class="text-xl font-bold text-csorange flex items-center gap-2"><i class="fa-solid fa-terminal"></i> Pro Console Commands & Binds</h2>
-                    <input type="text" x-model="commandSearch" placeholder="Befehl suchen..." class="bg-csdark-900 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-csorange w-full sm:w-64">
+                    <div class="relative w-full sm:w-80" @click.outside="commandSuggestionsOpen = false">
+                        <input type="text" x-model="commandSearch" @focus="commandSuggestionsOpen = true" @input="commandSuggestionsOpen = true" @keydown.escape="commandSuggestionsOpen = false" placeholder="Command suchen … z. B. cl_, bind, fps" autocomplete="off" class="bg-csdark-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-csorange w-full">
+                        <div x-show="commandSuggestionsOpen && commandSearch.trim().length > 0" x-cloak class="absolute z-50 top-full left-0 right-0 mt-1 max-h-96 overflow-y-auto rounded-lg border border-csorange/40 bg-csdark-900 shadow-2xl">
+                            <div class="sticky top-0 bg-csdark-800 px-3 py-2 text-[11px] text-gray-300 border-b border-gray-700" x-text="matchingCommandCount + (matchingCommandCount === 1 ? ' Treffer' : ' Treffer') + ' · Vorschläge auswählen'"></div>
+                            <template x-for="cmd in matchingCommands.slice(0, 12)" :key="'suggest:' + cmd.kind + ':' + cmd.command">
+                                <button type="button" @click="commandSearch = cmd.command; commandSuggestionsOpen = false" class="w-full text-left px-3 py-2 border-b border-gray-800 hover:bg-csdark-700 focus:bg-csdark-700 focus:outline-none transition">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="font-mono text-xs text-csorange break-all" x-text="cmd.command"></span>
+                                        <span class="shrink-0 text-[10px] text-gray-500 border border-gray-700 rounded px-1.5 py-0.5" x-text="cmd.kind"></span>
+                                    </div>
+                                    <div class="text-[11px] text-gray-400 mt-1 line-clamp-2" x-text="cmd.desc"></div>
+                                </button>
+                            </template>
+                            <div x-show="matchingCommandCount === 0" class="px-3 py-4 text-xs text-gray-400">Keine passenden Commands gefunden.</div>
+                            <div x-show="matchingCommandCount > 12" class="px-3 py-2 text-[10px] text-gray-500 border-t border-gray-700" x-text="'Es gibt ' + matchingCommandCount + ' Treffer. Suchbegriff weiter eingrenzen.'"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="bg-csdark-900 border border-csorange/30 rounded-xl p-4 mb-5">
                     <div class="font-bold text-white mb-1"><i class="fa-solid fa-database text-csorange mr-2"></i>Vollständige CS2-Befehlsdatenbank</div>
@@ -3595,6 +3611,7 @@ bombSites: [
                 },
 
                 commandSearch: '',
+                commandSuggestionsOpen: false,
                 commands: [...CS2_COMMAND_DATABASE,
 { command: 'fps_max 0', desc: 'Entfernt das FPS-Limit.' },
                     { command: 'cl_showfps 1', desc: 'Zeigt die aktuellen FPS im Spiel an.' },
