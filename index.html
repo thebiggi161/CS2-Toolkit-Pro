@@ -1633,6 +1633,16 @@
                     <h2 class="text-xl font-bold text-csorange flex items-center gap-2"><i class="fa-solid fa-terminal"></i> Pro Console Commands & Binds</h2>
                     <input type="text" x-model="commandSearch" placeholder="Befehl suchen..." class="bg-csdark-900 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-csorange w-full sm:w-64">
                 </div>
+                <div class="bg-csdark-900 border border-csorange/30 rounded-xl p-4 mb-5">
+                    <div class="font-bold text-white mb-1"><i class="fa-solid fa-database text-csorange mr-2"></i>Vollständige CS2-Befehlsdatenbank</div>
+                    <p class="text-xs text-gray-400 mb-3">CS2 enthält mehrere Tausend Commands und ConVars. Die Liste ändert sich mit Updates und enthält auch Engine-, Entwickler- und Serverbefehle. Deshalb findest du hier zusätzlich die umfangreiche, durchsuchbare Referenzdatenbank.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="https://www.source2.wiki/Convars?game=cs2" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-csorange hover:bg-csorange-hover text-black font-bold px-3 py-2 rounded-lg text-xs transition"><i class="fa-solid fa-list"></i> Alle Commands & ConVars durchsuchen <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                        <a href="https://totalcsgo.com/commands" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-csdark-800 hover:bg-csdark-700 text-gray-200 px-3 py-2 rounded-lg text-xs border border-gray-700 transition">Alternative Befehlsliste <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                    </div>
+                    <p class="text-[11px] text-gray-500 mt-3">Hinweis: Nicht jeder Befehl ist in jedem Modus nutzbar. Manche benötigen Serverrechte oder <code class="text-csorange">sv_cheats 1</code>; veraltete Befehle können nach Updates entfallen.</p>
+                </div>
+                <div class="text-xs text-gray-500 mb-3">Schnellzugriff auf häufig genutzte Befehle und Binds:</div>
                 <div class="grid grid-cols-1 gap-3">
                     <template x-for="cmd in filteredCommands">
                         <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:border-gray-700 transition">
