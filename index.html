@@ -116,8 +116,7 @@
             border-radius: 16px;
         }
         .overlay-click-through .overlay-settings { pointer-events: none; }
-        .overlay-click-through 
-                .esports-mini-player {
+        .esports-mini-player {
             position: fixed;
             left: 18px;
             top: 18px;
@@ -477,6 +476,31 @@
             .map-radar { -webkit-tap-highlight-color: transparent; }
         }
 
+
+        /* Auf der Startseite ist derselbe Player eingebettet; auf anderen Reitern bleibt er schwebend. */
+        .esports-mini-player.is-home {
+            position: relative !important;
+            inset: auto !important;
+            display: block;
+            width: 100% !important;
+            height: clamp(260px, 48vw, 520px) !important;
+            min-width: 0 !important;
+            min-height: 260px !important;
+            max-width: none !important;
+            max-height: none !important;
+            margin: 0 0 1.25rem;
+            z-index: 1 !important;
+            resize: none !important;
+            overflow: visible;
+        }
+        .esports-mini-player.is-home .mini-video {
+            height: calc(100% - 50px);
+            min-height: 210px;
+        }
+        .esports-mini-player.is-home .esports-mini-resize-handle { display: none !important; }
+        @media (max-width: 640px) {
+            .esports-mini-player.is-home { height: 260px !important; min-height: 260px !important; }
+        }
     </style>
 </head>
 <body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()" x-init="init()">
@@ -596,9 +620,12 @@
         </section>
     </div>
 
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
     <!-- GLOBAL ESPORTS MINI PLAYER -->
     <div x-show="esportsMiniVisible" x-cloak class="esports-mini-player"
-         :class="esportsMiniMinimized ? 'is-minimized' : ''"
+         :class="activeTab === 'suggestions' ? 'is-home' : (esportsMiniMinimized ? 'is-minimized' : '')"
          :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto; background:rgba(7,7,7,${overlayOpacity});`"
          >
         <button type="button" x-show="!esportsMiniMinimized" class="esports-mini-resize-handle" aria-label="Live-Player verkleinern oder vergrößern" title="Ziehen zum Verkleinern oder Vergrößern" @pointerdown.stop.prevent="startEsportsResize($event)"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
@@ -635,8 +662,6 @@
         </div>
     </div>
 
-    <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
         <!-- TAB: STARTSEITE -->
         <section x-show="activeTab === 'suggestions'" x-cloak class="space-y-5">
@@ -2994,6 +3019,14 @@
 
                 init() {
                     this.lineupDatabase = this.buildLineupDatabase();
+                    this.$watch('activeTab', (tab) => {
+                        if (tab === 'suggestions') {
+                            this.esportsMiniVisible = true;
+                            this.esportsMiniMinimized = false;
+                        } else if (this.esportsMiniVisible) {
+                            this.esportsMiniMinimized = false;
+                        }
+                    });
                     this.shishaApplyDuration();
                     this.selectedLineupId = this.lineupDatabase[0]?.id ?? null;
                     this.selectedCalloutId = this.calloutsByMap?.[this.selectedMap]?.[0]?.id ?? null;
