@@ -2988,21 +2988,31 @@
                 async loadOwMapImages() {
                     if (this.owMapImagesLoaded) return;
                     this.owMapImagesLoaded = true;
-                    await Promise.all(this.owMapData.map(async (map) => {
-                        try {
-                            const query = encodeURIComponent('Overwatch map ' + map.name);
-                            const response = await fetch('https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=' + query + '&gsrnamespace=0&gsrlimit=5&prop=pageimages&piprop=thumbnail&pithumbsize=800&format=json&origin=*');
-                            if (!response.ok) return;
-                            const data = await response.json();
-                            const pages = Object.values(data.query?.pages || {});
-                            const exact = map.name.toLowerCase().replace(/['’]/g, '');
-                            const match = pages.find(page => page.thumbnail?.source && /overwatch/i.test(page.title) && page.title.toLowerCase().replace(/['’]/g, '').includes(exact));
-                            const best = match || pages.find(page => page.thumbnail?.source && /overwatch/i.test(page.title)) || pages.find(page => page.thumbnail?.source);
-                            if (best?.thumbnail?.source) this.owMapImages[map.slug] = best.thumbnail.source;
-                        } catch (error) {
-                            // Designed gradient remains as a fallback if the external image source is unavailable.
-                        }
-                    }));
+                    // Load real map screenshots rather than search results that can show unrelated artwork.
+                    const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[^\x00-\x7F]/g, '').replace(/[^a-z0-9]/g, '');
+                    try {
+                        const response = await fetch('https://overfast-api.tekrop.fr/maps');
+                        if (!response.ok) throw new Error('Map screenshot service unavailable');
+                        const maps = await response.json();
+                        const byName = new Map(maps.filter(item => item.screenshot).map(item => [normalize(item.name), item.screenshot]));
+                        const aliases = {
+                            'kings-row': ['kingsrow'],
+                            'watchpoint-gibraltar': ['watchpointgibraltar', 'gibraltar'],
+                            'circuit-royal': ['circuitroyal'],
+                            'new-queen-street': ['newqueenstreet'],
+                            'new-junk-city': ['newjunkcity'],
+                            'antarctic-peninsula': ['antarcticpeninsula'],
+                            'shambali-monastery': ['shambalimonastery'],
+                            'lijiang-tower': ['lijiangtower']
+                        };
+                        this.owMapData.forEach(map => {
+                            const keys = [normalize(map.name), ...(aliases[map.slug] || [])];
+                            const image = keys.map(key => byName.get(key)).find(Boolean);
+                            if (image) this.owMapImages[map.slug] = image;
+                        });
+                    } catch (error) {
+                        console.warn('Overwatch map screenshots could not be loaded:', error);
+                    }
                 },
                 owMapData: [
                     {name:"King's Row",slug:'kings-row',mode:'Hybrid',icon:'fa-solid fa-city',info:'Enge Straßen, klare Chokes und starke Nahkampf-Fights.',callouts:['Hotel','Statue / Point A','Clocktower','Arch / Choke','High Ground','Payload Corner'],plan:'Angreifer: erst Hotel und den oberen Winkel sichern, dann gemeinsam durch den Choke drücken. Verteidiger: nicht einzeln in die Straße laufen; Crossfire und Rückzug hinter Cover vorbereiten.',picks:["Reinhardt","Torbjörn","Vendetta","Juno","Zenyatta"]},
