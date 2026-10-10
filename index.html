@@ -419,19 +419,25 @@
                     </div>
                 </div>
                 <div x-show="bracketSource==='international'" class="rounded-2xl border border-gray-800 bg-csdark-900 overflow-hidden">
-                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-800">
-                        <div><div class="font-bold text-white">Internationale Turniere</div><div class="text-xs text-gray-400 mt-1">HLTV-Turnierübersicht – externe Seite, ohne PandaScore/API-Key.</div></div>
-                        <a href="https://www.hltv.org/events" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">HLTV separat öffnen ↗</a>
+                    <div class="p-4 border-b border-gray-800">
+                        <div class="font-bold text-white">Internationale Turniere</div>
+                        <p class="text-xs text-gray-400 mt-1">Wähle oben eine Quelle aus. Die eingebettete Ansicht wechselt mit dem Reiter; falls eine Seite Frames blockiert, öffne sie über den Link rechts.</p>
                     </div>
-                    <iframe src="https://www.hltv.org/events" title="HLTV internationale CS2 Turniere" loading="lazy" class="w-full bg-white" style="height: min(70vh, 760px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                    <div class="p-4 border-t border-gray-800">
-                        <p class="text-xs text-gray-400 mb-3">Falls HLTV das Einbetten blockiert, kannst du die Turnierübersicht separat öffnen. Für einzelne Turnierbäume findest du hier außerdem direkte Quellen:</p>
-                        <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-                            <a href="https://liquipedia.net/counterstrike/Main_Page" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">Liquipedia – Turnierbäume ↗</a>
-                            <a href="https://www.eslproleague.com/" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">ESL Pro League ↗</a>
-                            <a href="https://blast.tv/cs" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">BLAST ↗</a>
+                    <div class="flex flex-wrap gap-2 p-3 border-b border-gray-800" role="tablist" aria-label="Internationale Turnierquellen">
+                        <button @click="internationalSource='hltv'" :class="internationalSource==='hltv' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-3 py-2 text-sm font-bold" role="tab">HLTV</button>
+                        <button @click="internationalSource='esl'" :class="internationalSource==='esl' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-3 py-2 text-sm font-bold" role="tab">ESL Pro League</button>
+                        <button @click="internationalSource='blast'" :class="internationalSource==='blast' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-3 py-2 text-sm font-bold" role="tab">BLAST</button>
+                        <button @click="internationalSource='liquipedia'" :class="internationalSource==='liquipedia' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-3 py-2 text-sm font-bold" role="tab">Liquipedia</button>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-4">
+                        <div>
+                            <div class="font-bold text-white" x-text="internationalSource==='hltv' ? 'HLTV – Events' : (internationalSource==='esl' ? 'ESL Pro League' : (internationalSource==='blast' ? 'BLAST CS' : 'Liquipedia – Counter-Strike'))"></div>
+                            <div class="text-xs text-gray-400 mt-1">Ohne PandaScore-Token.</div>
                         </div>
+                        <a :href="internationalSource==='hltv' ? 'https://www.hltv.org/events' : (internationalSource==='esl' ? 'https://www.eslproleague.com/' : (internationalSource==='blast' ? 'https://blast.tv/cs' : 'https://liquipedia.net/counterstrike/Main_Page'))" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">Quelle separat öffnen ↗</a>
                     </div>
+                    <iframe :key="internationalSource" :src="internationalSource==='hltv' ? 'https://www.hltv.org/events' : (internationalSource==='esl' ? 'https://www.eslproleague.com/' : (internationalSource==='blast' ? 'https://blast.tv/cs' : 'https://liquipedia.net/counterstrike/Main_Page'))" :title="internationalSource==='hltv' ? 'HLTV internationale CS2 Turniere' : (internationalSource==='esl' ? 'ESL Pro League' : (internationalSource==='blast' ? 'BLAST CS' : 'Liquipedia Counter-Strike'))" loading="lazy" class="w-full bg-white" style="height: min(70vh, 760px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                    <p class="px-4 pb-4 text-xs text-gray-500">Hinweis: Manche Anbieter verhindern das Einbetten technisch. In diesem Fall funktioniert „Quelle separat öffnen“; der Reiterwechsel bleibt trotzdem verfügbar.</p>
                 </div>
                 <div x-show="bracketSource==='dach'" class="rounded-2xl border border-gray-800 bg-csdark-900 overflow-hidden">
                     <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-800">
@@ -1561,6 +1567,7 @@
                 },
 
                 activeTab: 'suggestions',
+                internationalSource: 'hltv',
                 testLabCounter: 0,
                 testLabEnabled: false,
 
