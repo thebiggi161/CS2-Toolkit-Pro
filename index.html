@@ -571,6 +571,10 @@
                 </button>
 
 
+                <button @click="activeTab = 'fps-lab'" :class="activeTab === 'fps-lab' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-gauge-high"></i> FPS & Settings Lab
+                </button>
+
             </nav>
         </div>
     </header>
@@ -2102,6 +2106,101 @@
             </div>
         </div>
 
+
+        <!-- TAB: FPS & SETTINGS LAB (additive; existing tabs remain unchanged) -->
+        <section x-show="activeTab === 'fps-lab'" x-cloak class="space-y-5" x-data="fpsSettingsLab()">
+            <div class="rounded-2xl border border-csorange/40 bg-csdark-800 p-5 sm:p-6">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.2em] text-csorange uppercase">Performance Center</div>
+                        <h2 class="mt-1 text-2xl font-black text-white"><i class="fa-solid fa-gauge-high text-csorange mr-2"></i>FPS &amp; Settings Lab</h2>
+                        <p class="mt-1 max-w-3xl text-sm text-gray-400">Competitive-Empfehlungen für CS2 mit NVIDIA-Fokus. Profile sind Vorschläge und ändern keine Windows-, Treiber- oder Spieloptionen automatisch.</p>
+                    </div>
+                    <span class="rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1.5 text-xs font-bold text-green-300"><i class="fa-solid fa-check mr-1"></i>Competitive · FPS</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <div class="xl:col-span-2 space-y-4">
+                    <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div><h3 class="text-lg font-bold"><i class="fa-solid fa-sliders text-csorange mr-2"></i>Grafikprofil</h3><p class="text-xs text-gray-400 mt-1">Ändere die Vorschläge und speichere sie als eigenes Profil.</p></div>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" @click="applyPreset('competitive')" class="rounded-lg bg-csorange px-3 py-2 text-sm font-bold text-black hover:bg-csorange-hover">Competitive</button>
+                                <button type="button" @click="applyPreset('balanced')" class="rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-200 hover:border-csorange">Balanced</button>
+                                <button type="button" @click="applyPreset('quality')" class="rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-200 hover:border-csorange">Quality</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Anzeigemodus</span><select x-model="settings.displayMode" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Vollbild">Vollbild</option><option value="Vollbild im Fenster">Vollbild im Fenster</option><option value="Fenster">Fenster</option></select><span class="block mt-2 text-xs text-gray-500">Vollbild ist ein guter Ausgangspunkt für kompetitives Spielen.</span></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Auflösung</span><select x-model="settings.resolution" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option>1920 × 1080</option><option>1280 × 960 (4:3)</option><option>1440 × 1080 (4:3)</option><option>1680 × 1050</option><option>2560 × 1440</option><option>Native Monitorauflösung</option></select><span class="block mt-2 text-xs text-gray-500">4:3 ist Geschmackssache; es garantiert keinen FPS-Vorteil.</span></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Boost Player Contrast</span><select x-model="settings.playerContrast" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Ein">Ein</option><option value="Aus">Aus</option></select></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">V-Sync</span><select x-model="settings.vsync" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Aus">Aus</option><option value="Ein">Ein</option></select><span class="block mt-2 text-xs text-gray-500">Aus reduziert häufig die Eingabelatenz, kann aber Tearing verursachen.</span></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Global Shadow Quality</span><select x-model="settings.shadows" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Niedrig">Niedrig</option><option value="Mittel">Mittel</option><option value="Hoch">Hoch</option><option value="Sehr hoch">Sehr hoch</option></select><span class="block mt-2 text-xs text-gray-500">Schatten können spielrelevante Informationen liefern; nicht blind minimieren.</span></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Model / Texture Detail</span><select x-model="settings.textures" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Niedrig">Niedrig</option><option value="Mittel">Mittel</option><option value="Hoch">Hoch</option></select></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Shader Detail</span><select x-model="settings.shaders" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Niedrig">Niedrig</option><option value="Mittel">Mittel</option><option value="Hoch">Hoch</option></select></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Particle Detail</span><select x-model="settings.particles" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Niedrig">Niedrig</option><option value="Mittel">Mittel</option><option value="Hoch">Hoch</option></select></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">Ambient Occlusion</span><select x-model="settings.ambientOcclusion" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Deaktiviert">Deaktiviert</option><option value="Niedrig">Niedrig</option><option value="Mittel">Mittel</option><option value="Hoch">Hoch</option></select></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">High Dynamic Range</span><select x-model="settings.hdr" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Performance">Performance</option><option value="Quality">Quality</option></select></label>
+                            <label class="block rounded-lg border border-gray-800 bg-csdark-900 p-3"><span class="block text-sm font-semibold mb-2">NVIDIA Reflex</span><select x-model="settings.reflex" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2 text-sm"><option value="Enabled">Enabled</option><option value="Enabled + Boost">Enabled + Boost</option><option value="Disabled">Disabled</option></select><span class="block mt-2 text-xs text-gray-500">Boost kann mehr Strom und Wärme verbrauchen; vergleiche Stabilität und Frametime.</span></label>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
+                        <h3 class="text-lg font-bold mb-3"><i class="fa-solid fa-list-check text-csorange mr-2"></i>Optimierungs-Checkliste</h3>
+                        <p class="text-xs text-gray-400 mb-4">Hake Schritte ab, nachdem du sie selbst geprüft hast. Es werden keine Systemänderungen automatisch vorgenommen.</p>
+                        <div class="space-y-3">
+                            <template x-for="item in checklist" :key="item.id">
+                                <label class="flex items-start gap-3 rounded-lg bg-csdark-900 border border-gray-800 p-3 cursor-pointer">
+                                    <input type="checkbox" class="mt-1 accent-orange-500" x-model="item.done">
+                                    <span class="flex-1"><span class="block text-sm font-semibold" x-text="item.title"></span><span class="block text-xs text-gray-400 mt-1" x-text="item.detail"></span></span>
+                                    <i x-show="item.done" class="fa-solid fa-check text-green-400 mt-1"></i>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="rounded-xl border border-csorange/40 bg-csdark-800 p-4 sm:p-5">
+                        <h3 class="text-lg font-bold"><i class="fa-solid fa-floppy-disk text-csorange mr-2"></i>Config-Manager</h3>
+                        <p class="text-xs text-gray-400 mt-1 mb-4">Profile lokal im Browser speichern, umbenennen, laden oder als JSON exportieren.</p>
+                        <label class="block text-sm font-semibold mb-2">Profilname</label>
+                        <input x-model="profileName" type="text" maxlength="60" placeholder="z. B. Faceit Competitive" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm mb-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" @click="saveProfile()" class="rounded-lg bg-csorange px-3 py-2 text-sm font-bold text-black hover:bg-csorange-hover"><i class="fa-solid fa-floppy-disk mr-1"></i>Speichern</button>
+                            <button type="button" @click="exportConfig()" class="rounded-lg border border-gray-700 px-3 py-2 text-sm hover:border-csorange"><i class="fa-solid fa-download mr-1"></i>Export</button>
+                        </div>
+                        <label class="block text-sm font-semibold mt-4 mb-2">Gespeicherte Profile</label>
+                        <select x-model="selectedProfileId" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm"><option value="">Profil auswählen …</option><template x-for="p in profiles" :key="p.id"><option :value="p.id" x-text="p.name"></option></template></select>
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <button type="button" @click="loadProfile()" class="rounded-lg border border-gray-700 px-3 py-2 text-sm hover:border-csorange">Laden</button>
+                            <button type="button" @click="deleteProfile()" class="rounded-lg border border-red-900 text-red-300 px-3 py-2 text-sm hover:bg-red-950/50">Löschen</button>
+                        </div>
+                        <label class="block text-sm font-semibold mt-4 mb-2">JSON importieren</label>
+                        <input type="file" accept=".json,application/json" @change="importConfig($event)" class="w-full text-xs text-gray-300">
+                        <p class="text-xs text-gray-500 mt-3">Gespeicherte Profile bleiben in diesem Browser auf diesem Gerät. Exportiere eine Sicherung, wenn du den Browser wechselst.</p>
+                        <p x-show="notice" x-text="notice" role="status" class="mt-3 rounded-lg border border-green-500/30 bg-green-500/10 p-2 text-sm text-green-300"></p>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
+                        <h3 class="text-lg font-bold mb-3"><i class="fa-brands fa-nvidia text-green-400 mr-2"></i>NVIDIA-Hinweise</h3>
+                        <ul class="space-y-3 text-sm text-gray-300">
+                            <li class="flex gap-2"><i class="fa-solid fa-check text-green-400 mt-1"></i><span><strong>Reflex:</strong> Im Spiel testen; Boost ist nicht für jedes System automatisch besser.</span></li>
+                            <li class="flex gap-2"><i class="fa-solid fa-check text-green-400 mt-1"></i><span><strong>Power management:</strong> Zuerst „Normal/Optimal“ beibehalten; nur bei nachgewiesenem Taktproblem pro Spiel testen.</span></li>
+                            <li class="flex gap-2"><i class="fa-solid fa-check text-green-400 mt-1"></i><span><strong>Treiber:</strong> Einen stabilen offiziellen NVIDIA-Treiber nutzen und nach Updates Frametime und Stabilität prüfen.</span></li>
+                            <li class="flex gap-2"><i class="fa-solid fa-check text-green-400 mt-1"></i><span><strong>Messung:</strong> Dieselbe Map und ähnliche Spielsituation vergleichen; Durchschnitts-FPS allein reichen nicht.</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4">
+                        <h3 class="font-bold text-yellow-300"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Wichtig</h3>
+                        <p class="text-xs text-gray-300 mt-2">Keine pauschalen Registry-Tweaks, keine fremden Config-Dateien blind ausführen und keine FPS-Gewinne versprechen. Teste Änderungen einzeln und stelle sie zurück, wenn Stottern oder Abstürze auftreten.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         </main>
 
     <!-- Shisha Counter Mini-Fenster -->
@@ -2222,6 +2321,113 @@
             } catch (_) {
                 return false;
             }
+        }
+
+        function fpsSettingsLab() {
+            const defaults = {
+                displayMode: 'Vollbild', resolution: '1920 × 1080', playerContrast: 'Ein', vsync: 'Aus',
+                shadows: 'Niedrig', textures: 'Niedrig', shaders: 'Niedrig', particles: 'Niedrig',
+                ambientOcclusion: 'Deaktiviert', hdr: 'Performance', reflex: 'Enabled'
+            };
+            const presets = {
+                competitive: { ...defaults },
+                balanced: { ...defaults, shadows: 'Mittel', textures: 'Mittel', shaders: 'Mittel', particles: 'Mittel', ambientOcclusion: 'Niedrig' },
+                quality: { ...defaults, shadows: 'Sehr hoch', textures: 'Hoch', shaders: 'Hoch', particles: 'Hoch', ambientOcclusion: 'Hoch', hdr: 'Quality' }
+            };
+            return {
+                settings: { ...defaults },
+                profileName: 'Competitive NVIDIA FPS',
+                selectedProfileId: '',
+                profiles: [],
+                notice: '',
+                checklist: [
+                    { id: 'refresh', title: 'Monitor-Hz korrekt einstellen', detail: 'Windows und das Spiel auf die unterstützte Bildwiederholrate setzen.', done: false },
+                    { id: 'background', title: 'Hintergrundlast prüfen', detail: 'Unnötige Aufnahme-, Browser- und Overlay-Prozesse testweise schließen.', done: false },
+                    { id: 'driver', title: 'NVIDIA-Treiber und Temperaturen prüfen', detail: 'Offizielle Treiber verwenden und thermisches Drosseln ausschließen.', done: false },
+                    { id: 'reflex', title: 'NVIDIA Reflex im Spiel testen', detail: 'Enabled zuerst vergleichen; Boost nur bei Bedarf gegenprüfen.', done: false },
+                    { id: 'benchmark', title: 'Vorher/Nachher messen', detail: 'Gleiche Map und ähnliche Szene nutzen; Frametime und 1%-Lows notieren.', done: false },
+                    { id: 'backup', title: 'Vor Änderungen eine Sicherung erstellen', detail: 'Bestehende CS2-Konfiguration sichern, bevor du manuell etwas änderst.', done: false }
+                ],
+                init() {
+                    this.loadProfiles();
+                    this.applyPreset('competitive');
+                },
+                applyPreset(name) {
+                    this.settings = { ...(presets[name] || presets.competitive) };
+                    this.notice = 'Profilvorschlag „' + name + '“ geladen. Noch nicht auf den PC angewendet.';
+                },
+                loadProfiles() {
+                    try {
+                        const parsed = JSON.parse(localStorage.getItem('cs2toolkit_fps_profiles_v1') || '[]');
+                        this.profiles = Array.isArray(parsed) ? parsed.filter(p => p && typeof p.id === 'string' && p.settings && typeof p.settings === 'object').slice(0, 30) : [];
+                    } catch (_) { this.profiles = []; }
+                },
+                persistProfiles() {
+                    try {
+                        localStorage.setItem('cs2toolkit_fps_profiles_v1', JSON.stringify(this.profiles));
+                        return true;
+                    } catch (_) {
+                        this.notice = 'Speichern nicht möglich: Browser-Speicher ist blockiert oder voll.';
+                        return false;
+                    }
+                },
+                saveProfile() {
+                    const name = String(this.profileName || '').trim().slice(0, 60);
+                    if (!name) { this.notice = 'Bitte einen Profilnamen eingeben.'; return; }
+                    const id = 'fps-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+                    this.profiles.push({ id, name, settings: { ...this.settings }, savedAt: new Date().toISOString() });
+                    if (this.profiles.length > 30) this.profiles.shift();
+                    if (this.persistProfiles()) {
+                        this.selectedProfileId = id;
+                        this.notice = 'Profil „' + name + '“ lokal gespeichert.';
+                    }
+                },
+                loadProfile() {
+                    const p = this.profiles.find(item => item.id === this.selectedProfileId);
+                    if (!p) { this.notice = 'Bitte zuerst ein gespeichertes Profil auswählen.'; return; }
+                    this.settings = { ...defaults, ...p.settings };
+                    this.profileName = p.name;
+                    this.notice = 'Profil „' + p.name + '“ geladen.';
+                },
+                deleteProfile() {
+                    const p = this.profiles.find(item => item.id === this.selectedProfileId);
+                    if (!p) { this.notice = 'Bitte zuerst ein Profil auswählen.'; return; }
+                    this.profiles = this.profiles.filter(item => item.id !== p.id);
+                    if (this.persistProfiles()) {
+                        this.selectedProfileId = '';
+                        this.notice = 'Profil gelöscht.';
+                    }
+                },
+                exportConfig() {
+                    const payload = { app: 'CS2 Toolkit Pro V2', type: 'fps-settings-profile', version: 1, exportedAt: new Date().toISOString(), name: String(this.profileName || 'FPS Settings').trim(), settings: { ...this.settings }, checklist: this.checklist.map(({id,title,done}) => ({id,title,done})) };
+                    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = 'cs2-fps-settings.json'; document.body.appendChild(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    this.notice = 'JSON-Konfiguration exportiert.';
+                },
+                async importConfig(event) {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+                    try {
+                        if (file.size > 200000) throw new Error('Datei ist zu groß (max. 200 KB).');
+                        const data = JSON.parse(await file.text());
+                        const incoming = data && data.settings && typeof data.settings === 'object' ? data.settings : null;
+                        if (!incoming) throw new Error('Keine gültigen Settings gefunden.');
+                        const allowed = Object.keys(defaults);
+                        const clean = {};
+                        for (const key of allowed) {
+                            if (typeof incoming[key] === 'string' && incoming[key].length <= 80) clean[key] = incoming[key];
+                        }
+                        this.settings = { ...defaults, ...clean };
+                        this.profileName = String(data.name || file.name.replace(/\.json$/i, '')).slice(0, 60);
+                        this.notice = 'Konfiguration importiert. Bitte Werte prüfen und bei Bedarf speichern.';
+                    } catch (error) {
+                        this.notice = 'Import fehlgeschlagen: ' + (error && error.message ? error.message : 'ungültige JSON-Datei');
+                    } finally { event.target.value = ''; }
+                }
+            };
         }
 
         function cs2App() {
