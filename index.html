@@ -2846,10 +2846,9 @@
                 },
 
                 tournamentCalendarPastMatchesForScene(scene) {
-                    const selected = String(this.tournamentCalendarSelectedTournament || '').trim();
                     return this.tournamentCalendarPastMatches().filter(match => {
                         const isDach = this.tournamentCalendarIsDachMatch(match);
-                        return (scene === 'dach' ? isDach : !isDach) && (!selected || match.tournament === selected);
+                        return scene === 'dach' ? isDach : !isDach;
                     });
                 },
 
