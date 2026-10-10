@@ -518,7 +518,19 @@
                                 <template x-for="match in tournamentCalendarPastMatchesForScene('international')" :key="'international-' + match.id">
                                     <button type="button" @click="tournamentCalendarSelectMatch(match)" class="w-full rounded-xl border border-gray-700 bg-csdark-900 p-3 text-left transition hover:border-csorange">
                                         <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400"><span x-text="match.tournament"></span><span x-text="match.time ? tournamentCalendarSavedDate(match.date) + ' · ' + match.time : tournamentCalendarSavedDate(match.date)"></span></div>
-                                        <div class="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 text-sm font-bold text-white"><span class="break-words" x-text="match.team1Name"></span><span class="text-xs text-csorange" x-text="match.score || 'VS'"></span><span class="break-words text-right" x-text="match.team2Name"></span></div>
+                                        <div class="mt-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+                                            <div class="flex min-w-0 items-center gap-2">
+                                                <img x-show="match.team1Logo" :src="match.team1Logo" :alt="match.team1Name + ' Logo'" class="h-9 w-9 shrink-0 rounded-full border border-gray-700 bg-csdark-800 object-contain p-1" loading="lazy">
+                                                <span x-show="!match.team1Logo" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-700 bg-csdark-800 text-gray-500"><i class="fa-solid fa-shield-halved"></i></span>
+                                                <span class="break-words text-sm font-bold text-white" x-text="match.team1Name"></span>
+                                            </div>
+                                            <span class="rounded-md border border-gray-700 px-2 py-1 text-xs font-black text-csorange" x-text="match.score || 'VS'"></span>
+                                            <div class="flex min-w-0 items-center justify-end gap-2">
+                                                <span class="break-words text-right text-sm font-bold text-white" x-text="match.team2Name"></span>
+                                                <img x-show="match.team2Logo" :src="match.team2Logo" :alt="match.team2Name + ' Logo'" class="h-9 w-9 shrink-0 rounded-full border border-gray-700 bg-csdark-800 object-contain p-1" loading="lazy">
+                                                <span x-show="!match.team2Logo" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-700 bg-csdark-800 text-gray-500"><i class="fa-solid fa-shield-halved"></i></span>
+                                            </div>
+                                        </div>
                                         <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] text-gray-500"><span x-text="match.phase || match.status || 'Vergangene Paarung'"></span><span x-text="match.source || 'CSAPI'"></span></div>
                                     </button>
                                 </template>
@@ -591,14 +603,22 @@
                             <label for="tournament-calendar-search" class="block text-xs font-bold text-gray-300 mb-1.5">Turniere durchsuchen</label>
                             <input id="tournament-calendar-search" type="search" x-model="tournamentCalendarSearch" placeholder="Turniername, Phase oder Quelle …" class="w-full rounded-lg border border-gray-700 bg-csdark-800 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-csorange focus:outline-none focus:ring-1 focus:ring-csorange" autocomplete="off">
                             <p class="mt-1 text-[11px] text-gray-500">Suche nach Turnier, Team oder Phase. Treffer verwenden dieselben Matchdaten wie Kalender und Turnierübersicht.</p>
-                        <div x-show="tournamentCalendarSearch.trim() && tournamentCalendarSearchResults().length" class="mt-2 max-h-64 overflow-y-auto rounded-lg border border-gray-700 divide-y divide-gray-800" role="listbox" aria-label="Turnier- und Teamtreffer">
+                        <div x-show="tournamentCalendarSearch.trim() && tournamentCalendarSearchResults().length" class="mt-2 max-h-96 overflow-y-auto rounded-lg border border-gray-700 divide-y divide-gray-800" role="listbox" aria-label="Turnier- und Teamtreffer">
                             <template x-for="result in tournamentCalendarSearchResults()" :key="result.id">
-                                <button type="button" @click="tournamentCalendarSelectSearchResult(result)" class="w-full flex items-center justify-between gap-3 p-3 text-left hover:bg-csdark-700" role="option">
-                                    <span class="min-w-0"><span class="block text-sm font-bold text-white truncate" x-text="result.name"></span><span class="block text-xs text-gray-400 truncate" x-text="result.detail"></span></span>
+                                <button type="button" @click="tournamentCalendarSelectSearchResult(result)" class="w-full flex items-center gap-3 p-3 text-left hover:bg-csdark-700" role="option">
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-700 bg-csdark-900">
+                                        <template x-if="result.type === 'match' && (result.team1Logo || result.team2Logo)">
+                                            <span class="flex items-center -space-x-2"><img x-show="result.team1Logo" :src="result.team1Logo" :alt="result.team1Name + ' Logo'" class="h-7 w-7 rounded-full border border-gray-700 bg-csdark-900 object-contain p-0.5" loading="lazy"><img x-show="result.team2Logo" :src="result.team2Logo" :alt="result.team2Name + ' Logo'" class="h-7 w-7 rounded-full border border-gray-700 bg-csdark-900 object-contain p-0.5" loading="lazy"></span>
+                                        </template>
+                                        <img x-show="result.type !== 'match' && result.logoUrl" :src="result.logoUrl" :alt="result.name + ' Logo'" class="h-full w-full object-contain p-1" loading="lazy">
+                                        <i x-show="!(result.type === 'match' && (result.team1Logo || result.team2Logo)) && !(result.type !== 'match' && result.logoUrl)" class="fa-solid" :class="result.type === 'team' ? 'fa-shield-halved text-csorange' : (result.type === 'player' ? 'fa-user text-sky-400' : 'fa-gamepad text-gray-400')"></i>
+                                    </span>
+                                    <span class="min-w-0 flex-1"><span class="block text-sm font-bold text-white truncate" x-text="result.name"></span><span class="block text-xs text-gray-400" x-text="result.detail"></span></span>
                                     <span class="shrink-0 rounded border border-gray-700 px-2 py-1 text-[10px] font-bold text-csorange" x-text="result.type === 'team' ? 'TEAM' : (result.type === 'player' ? 'SPIELER' : 'MATCH')"></span>
                                 </button>
                             </template>
                         </div>
+                        <p x-show="tournamentCalendarSearch.trim() && !tournamentCalendarSearchResults().length && !tournamentCalendarLoading" class="mt-2 rounded-lg border border-gray-800 p-3 text-xs text-gray-400">Keine Treffer. Prüfe die Schreibweise oder synchronisiere die Team- und Matchdaten erneut.</p>
                         <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-500">
                             <span x-text="tournamentCalendarTeams.length || tournamentCalendarPlayers.length ? tournamentCalendarTeams.length + ' Teams · ' + tournamentCalendarPlayers.length + ' Spieler · ' + tournamentCalendarMatches.length + ' Paarungen' : 'Daten noch nicht synchronisiert'"></span>
                             <button type="button" @click="refreshTournamentCalendar()" class="text-csorange hover:underline" :disabled="tournamentCalendarLoading" x-text="tournamentCalendarLoading ? 'Synchronisiere …' : 'Teams & Paarungen synchronisieren'"></button>
@@ -613,6 +633,17 @@
                                 <button type="button" @click="tournamentCalendarMove(-1)" class="px-3 py-2 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange" aria-label="Vorheriger Monat"><i class="fa-solid fa-chevron-left"></i></button>
                                 <button type="button" @click="tournamentCalendarToday()" class="px-3 py-2 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange text-sm">Heute</button>
                                 <button type="button" @click="tournamentCalendarMove(1)" class="px-3 py-2 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange" aria-label="Nächster Monat"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="mb-4 rounded-xl border border-gray-700 bg-csdark-800 p-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-xs font-bold uppercase tracking-wide text-gray-400">Tagesnavigation</span>
+                                <span class="text-sm font-bold text-white" x-text="tournamentCalendarSelectedLabel()"></span>
+                            </div>
+                            <div class="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+                                <button type="button" @click="tournamentCalendarMoveDay(-1)" class="rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm hover:border-csorange" aria-label="Vorheriger Tag"><i class="fa-solid fa-chevron-left mr-1"></i><span class="hidden sm:inline">Tag zurück</span></button>
+                                <input type="date" :value="tournamentCalendarSelected" @change="tournamentCalendarSelect($event.target.value)" aria-label="Kalendertag auswählen" class="min-w-0 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white focus:border-csorange focus:outline-none">
+                                <button type="button" @click="tournamentCalendarMoveDay(1)" class="rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm hover:border-csorange" aria-label="Nächster Tag"><span class="hidden sm:inline">Tag vor</span><i class="fa-solid fa-chevron-right ml-1"></i></button>
                             </div>
                         </div>
                         <div class="mb-4 rounded-xl border border-gray-700 bg-csdark-800 p-3">
@@ -2754,6 +2785,15 @@
                     this.tournamentCalendarView = new Date(this.tournamentCalendarView.getFullYear(), this.tournamentCalendarView.getMonth() + offset, 1);
                 },
 
+                tournamentCalendarMoveDay(offset) {
+                    const current = this.tournamentCalendarSelected ? new Date(this.tournamentCalendarSelected + 'T12:00:00') : new Date();
+                    current.setDate(current.getDate() + offset);
+                    this.tournamentCalendarSelect(current);
+                    if (current.getFullYear() !== this.tournamentCalendarView.getFullYear() || current.getMonth() !== this.tournamentCalendarView.getMonth()) {
+                        this.tournamentCalendarView = new Date(current.getFullYear(), current.getMonth(), 1);
+                    }
+                },
+
                 tournamentCalendarToday() {
                     const now = new Date();
                     this.tournamentCalendarView = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -2816,38 +2856,56 @@
                 },
 
                 tournamentCalendarSearchResults() {
-                    const query = String(this.tournamentCalendarSearch || '').trim().toLocaleLowerCase('de');
-                    if (!query) return [];
-                    const includesQuery = (value) => String(value || '').toLocaleLowerCase('de').includes(query);
-                    const teams = (this.tournamentCalendarTeams || []).filter(team => includesQuery(team.name)).slice(0, 8).map(team => ({
-                        id: 'team-' + team.id, type: 'team', name: team.name,
-                        detail: (team.region || team.countryName || 'CS2-Team') + ' · ' + ((this.tournamentCalendarMatches || []).filter(match => match.team1Name.toLocaleLowerCase('de') === team.name.toLocaleLowerCase('de') || match.team2Name.toLocaleLowerCase('de') === team.name.toLocaleLowerCase('de')).map(match => match.tournament).filter(Boolean).slice(0, 2).join(', ') || 'Teamdatenbank'),
-                        teamName: team.name
-                    }));
-                    const players = (this.tournamentCalendarPlayers || []).filter(player => includesQuery(player.name) || includesQuery(player.nickname)).slice(0, 8).map(player => ({
-                        id: 'player-' + player.id, type: 'player', name: player.name || player.nickname,
-                        detail: [player.teamName || 'Team nicht zugeordnet', player.countryName || 'CS2-Spieler'].filter(Boolean).join(' · '),
-                        playerName: player.name || player.nickname, teamName: player.teamName || ''
-                    }));
-                    const matches = (this.tournamentCalendarMatches || []).filter(match =>
-                        includesQuery(match.tournament) || includesQuery(match.team1Name) || includesQuery(match.team2Name)
-                    ).slice(0, 8).map(match => ({
-                        id: 'match-' + match.id, type: 'match', name: match.tournament,
-                        detail: match.team1Name + ' vs. ' + match.team2Name + (match.date ? ' · ' + this.tournamentCalendarSavedDate(match.date) : ''),
-                        tournament: match.tournament, match
-                    }));
+                    const rawQuery = String(this.tournamentCalendarSearch || '').trim().toLocaleLowerCase('de');
+                    if (!rawQuery) return [];
+                    const normalize = value => String(value || '').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+                    const query = normalize(rawQuery);
+                    const rank = value => {
+                        const name = normalize(value);
+                        if (!name) return 0;
+                        if (name === query) return 100;
+                        if (name.startsWith(query)) return 75;
+                        if (name.includes(query)) return 55;
+                        const queryWords = query.split(' ').filter(Boolean);
+                        const nameWords = name.split(' ').filter(Boolean);
+                        const shared = queryWords.filter(word => nameWords.some(part => part.includes(word) || word.includes(part))).length;
+                        return queryWords.length ? Math.round(35 * shared / queryWords.length) : 0;
+                    };
+                    const teams = (this.tournamentCalendarTeams || []).map(team => ({ team, relevance: rank(team.name) }))
+                        .filter(item => item.relevance > 0).sort((a,b) => b.relevance-a.relevance || a.team.name.localeCompare(b.team.name,'de')).slice(0, 6).map(({team}) => ({
+                            id: 'team-' + team.id, type: 'team', name: team.name, logoUrl: team.logoUrl || '',
+                            detail: [team.region || team.countryName || 'CS2-Team', (this.tournamentCalendarMatches || []).filter(match => normalize(match.team1Name) === normalize(team.name) || normalize(match.team2Name) === normalize(team.name)).map(match => match.tournament).filter(Boolean).slice(0, 2).join(', ') || 'Teamdatenbank'].filter(Boolean).join(' · '),
+                            teamName: team.name
+                        }));
+                    const players = (this.tournamentCalendarPlayers || []).map(player => ({ player, relevance: Math.max(rank(player.name), rank(player.nickname)) }))
+                        .filter(item => item.relevance > 0).sort((a,b) => b.relevance-a.relevance || a.player.name.localeCompare(b.player.name,'de')).slice(0, 5).map(({player}) => ({
+                            id: 'player-' + player.id, type: 'player', name: player.nickname || player.name, logoUrl: player.logoUrl || '',
+                            detail: [player.teamName || 'Team nicht zugeordnet', player.countryName || 'CS2-Spieler'].filter(Boolean).join(' · '),
+                            playerName: player.name || player.nickname, teamName: player.teamName || ''
+                        }));
+                    const matches = (this.tournamentCalendarMatches || []).map(match => ({ match, relevance: Math.max(rank(match.tournament), rank(match.team1Name), rank(match.team2Name), rank(match.team1Name + ' ' + match.team2Name), rank(match.team2Name + ' ' + match.team1Name)) }))
+                        .filter(item => item.relevance > 0).sort((a,b) => b.relevance-a.relevance || (a.match.date || '').localeCompare(b.match.date || '')).slice(0, 8).map(({match}) => ({
+                            id: 'match-' + match.id, type: 'match', name: match.team1Name + ' vs. ' + match.team2Name,
+                            detail: [match.tournament, match.score || 'Noch kein Ergebnis', match.date ? this.tournamentCalendarSavedDate(match.date) : 'Datum offen'].filter(Boolean).join(' · '),
+                            tournament: match.tournament, match, team1Name: match.team1Name, team2Name: match.team2Name,
+                            team1Logo: match.team1Logo || '', team2Logo: match.team2Logo || ''
+                        }));
                     const unique = new Map();
                     [...teams, ...players, ...matches].forEach(result => { if (!unique.has(result.id)) unique.set(result.id, result); });
-                    return [...unique.values()].slice(0, 20);
+                    return [...unique.values()].slice(0, 19);
                 },
 
                 tournamentCalendarSelectSearchResult(result) {
                     if (result.type === 'team' || result.type === 'player') {
                         const teamName = result.teamName || '';
-                        const match = (this.tournamentCalendarMatches || []).find(item =>
-                            item.team1Name.toLocaleLowerCase('de') === teamName.toLocaleLowerCase('de') ||
-                            item.team2Name.toLocaleLowerCase('de') === teamName.toLocaleLowerCase('de')
-                        );
+                        const normalize = value => String(value || '').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+                        const match = (this.tournamentCalendarMatches || []).filter(item =>
+                            normalize(item.team1Name) === normalize(teamName) || normalize(item.team2Name) === normalize(teamName)
+                        ).sort((a, b) => {
+                            const today = new Date().toISOString().slice(0, 10);
+                            const aFuture = a.date >= today, bFuture = b.date >= today;
+                            return Number(bFuture) - Number(aFuture) || (a.date || '').localeCompare(b.date || '');
+                        })[0];
                         if (match) {
                             this.tournamentCalendarSelectedTournament = match.tournament || '';
                             this.tournamentCalendarSelect(match.date);
@@ -3047,15 +3105,23 @@
 
                 tournamentCalendarPairingsForEvent(event) {
                     if (!event || !event.tournament || !event.date) return [];
-                    const normalize = value => String(value || '').toLocaleLowerCase('de').replace(/[^a-z0-9äöüß]+/gi, ' ').trim();
+                    const normalize = value => String(value || '').toLocaleLowerCase('de')
+                        .replace(/\bseason\b/g, 's').replace(/\bseries\b/g, ' ')
+                        .replace(/[^a-z0-9äöüß]+/gi, ' ').replace(/\s+/g, ' ').trim();
+                    const tokens = value => normalize(value).split(' ').filter(token => token.length > 1 && !['the', 'and', 'cup', 'event'].includes(token));
                     const tournament = normalize(event.tournament);
+                    const eventTokens = tokens(event.tournament);
                     return (this.tournamentCalendarMatches || [])
                         .filter(match => {
                             if (!match.date || match.date !== event.date || !match.team1Name || !match.team2Name) return false;
                             const candidate = normalize(match.tournament);
-                            return candidate === tournament || candidate.includes(tournament) || tournament.includes(candidate);
+                            if (candidate === tournament || candidate.includes(tournament) || tournament.includes(candidate)) return true;
+                            const candidateTokens = tokens(match.tournament);
+                            const shared = eventTokens.filter(token => candidateTokens.includes(token)).length;
+                            const ratio = shared / Math.max(1, Math.min(eventTokens.length, candidateTokens.length));
+                            return shared >= 2 && ratio >= 0.6;
                         })
-                        .sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')))
+                        .sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || a.team1Name.localeCompare(b.team1Name, 'de'))
                         .slice(0, 12);
                 },
 
@@ -3158,7 +3224,7 @@
                             return name ? {
                                 id: String(team?.id ?? team?.teamId ?? team?.team_id ?? name ?? index),
                                 name: String(name).trim(),
-                                logoUrl: team?.logoUrl || team?.logo || team?.image || '',
+                                logoUrl: team?.logoUrl || team?.logo_url || team?.logoURL || team?.logo || team?.imageUrl || team?.image_url || team?.image || team?.avatar || team?.avatarUrl || '',
                                 region: team?.region || team?.countryName || team?.country || '',
                                 countryName: team?.countryName || team?.country || '',
                                 roster: Array.isArray(team?.roster) ? team.roster : (Array.isArray(team?.players) ? team.players : []),
@@ -3182,7 +3248,7 @@
                                 nickname: String(player?.nickname || player?.nick || name).trim(),
                                 teamName: String(teamName || '').trim(),
                                 countryName: String(player?.countryName || player?.country || player?.nationality || '').trim(),
-                                logoUrl: player?.image || player?.picture || player?.picture_url || '',
+                                logoUrl: player?.logoUrl || player?.image || player?.picture || player?.picture_url || player?.avatar || player?.avatarUrl || '',
                                 profileUrl: player?.url || player?.profile_url || '',
                                 source: 'CSAPI'
                             };
@@ -3204,8 +3270,9 @@
                             const team1Name = nameOf(raw.team1Name || raw.team1_name || raw.team1 || raw.homeTeam || raw.home_team);
                             const team2Name = nameOf(raw.team2Name || raw.team2_name || raw.team2 || raw.awayTeam || raw.away_team);
                             const tournament = String(nameOf(raw.event) || raw.eventName || raw.tournament || raw.tournamentName || raw.league || 'CS2 Match').trim();
-                            const rawDate = raw.matchTime || raw.match_time || raw.startTime || raw.start_time || raw.date || raw.timestamp;
-                            const date = localDate(rawDate);
+                            const rawDate = raw.matchTime ?? raw.match_time ?? raw.startTime ?? raw.start_time ?? raw.scheduledAt ?? raw.scheduled_at ?? raw.date ?? raw.timestamp;
+                            const normalizedRawDate = typeof rawDate === 'number' && rawDate > 0 ? new Date(rawDate < 100000000000 ? rawDate * 1000 : rawDate) : rawDate;
+                            const date = localDate(normalizedRawDate);
                             if (!team1Name || !team2Name || !date) return null;
                             [team1Name, team2Name].forEach(name => {
                                 const key = name.toLocaleLowerCase('de');
@@ -3213,14 +3280,14 @@
                             });
                             const score1 = raw.team1Score ?? raw.team1_score ?? raw.score1 ?? raw.homeScore ?? raw.team1?.score;
                             const score2 = raw.team2Score ?? raw.team2_score ?? raw.score2 ?? raw.awayScore ?? raw.team2?.score;
-                            const parsedDate = rawDate ? new Date(rawDate) : null;
+                            const parsedDate = normalizedRawDate ? new Date(normalizedRawDate) : null;
                             return {
                                 id: String(raw.matchId ?? raw.match_id ?? raw.id ?? (tournament + '-' + date + '-' + team1Name + '-' + team2Name + '-' + index)),
                                 tournament, team1Name, team2Name, teams: team1Name + ' vs. ' + team2Name, date,
-                                time: rawDate && parsedDate && !Number.isNaN(parsedDate.getTime()) && !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(rawDate)) ? parsedDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '',
+                                time: rawDate && parsedDate && !Number.isNaN(parsedDate.getTime()) && !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(normalizedRawDate)) ? parsedDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '',
                                 score: score1 != null && score2 != null ? String(score1) + ' : ' + String(score2) : '',
-                                team1Logo: raw.team1Logo || raw.team1_logo || raw.homeTeamLogo || raw.team1?.logo || '',
-                                team2Logo: raw.team2Logo || raw.team2_logo || raw.awayTeamLogo || raw.team2?.logo || '',
+                                team1Logo: raw.team1Logo || raw.team1_logo || raw.homeTeamLogo || raw.home_team_logo || raw.team1?.logoUrl || raw.team1?.logo_url || raw.team1?.logo || teamsByName.get(team1Name.toLocaleLowerCase('de'))?.logoUrl || '',
+                                team2Logo: raw.team2Logo || raw.team2_logo || raw.awayTeamLogo || raw.away_team_logo || raw.team2?.logoUrl || raw.team2?.logo_url || raw.team2?.logo || teamsByName.get(team2Name.toLocaleLowerCase('de'))?.logoUrl || '',
                                 url: raw.matchUrl || raw.match_url || raw.url || '',
                                 phase: raw.phase || raw.stage || '', status: raw.status || (raw.isLive ? 'LIVE' : ''), source: 'CSAPI', rawUpdatedAt: raw.lastUpdated || raw.updated_at || ''
                             };
