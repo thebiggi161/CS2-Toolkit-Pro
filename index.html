@@ -442,6 +442,72 @@
                     <iframe :key="internationalSource" :src="internationalSource==='hltv' ? 'https://www.hltv.org/events' : (internationalSource==='esl' ? 'https://www.eslproleague.com/' : (internationalSource==='blast' ? 'https://blast.tv/cs' : 'https://liquipedia.net/counterstrike/Main_Page'))" :title="internationalSource==='hltv' ? 'HLTV internationale CS2 Turniere' : (internationalSource==='esl' ? 'ESL Pro League' : (internationalSource==='blast' ? 'BLAST CS' : 'Liquipedia Counter-Strike'))" loading="lazy" class="w-full bg-white" style="height: min(70vh, 760px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     <p class="px-4 pb-4 text-xs text-gray-500">Hinweis: Manche Anbieter verhindern das Einbetten technisch. In diesem Fall funktioniert „Quelle separat öffnen“; der Reiterwechsel bleibt trotzdem verfügbar.</p>
                 </div>
+
+                <!-- Ausfahrbarer Turnierkalender -->
+                <section class="mt-5 rounded-2xl border border-gray-800 bg-csdark-900 overflow-hidden">
+                    <button type="button" @click="tournamentCalendarOpen = !tournamentCalendarOpen" class="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-csdark-800 transition" :aria-expanded="tournamentCalendarOpen">
+                        <span class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-csdark-700 border border-gray-700 flex items-center justify-center text-csorange"><i class="fa-regular fa-calendar-days"></i></span>
+                            <span><span class="block font-black text-white">Turnierkalender</span><span class="block text-xs text-gray-400">Internationale Turniere &amp; DACH CS</span></span>
+                        </span>
+                        <i class="fa-solid text-csorange" :class="tournamentCalendarOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    </button>
+                    <div x-show="tournamentCalendarOpen" x-collapse class="border-t border-gray-800 p-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div>
+                                <div class="font-bold text-white" x-text="tournamentCalendarMonthLabel()"></div>
+                                <div class="text-xs text-gray-500" x-text="tournamentCalendarStatus"></div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" @click="tournamentCalendarMove(-1)" class="px-3 py-2 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange" aria-label="Vorheriger Monat"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button type="button" @click="tournamentCalendarToday()" class="px-3 py-2 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange text-sm">Heute</button>
+                                <button type="button" @click="tournamentCalendarMove(1)" class="px-3 py-2 rounded-lg bg-csdark-700 border border-gray-700 hover:border-csorange" aria-label="Nächster Monat"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3 text-xs text-gray-400 mb-3">
+                            <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-csorange"></span> Spieltag / Turnier</span>
+                            <span class="inline-flex items-center gap-2"><span class="w-3 h-3 rounded-sm border border-white/60 bg-csdark-800"></span> Kein Termin hinterlegt</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5 mb-2 text-center text-[10px] sm:text-xs font-bold text-gray-500">
+                            <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5">
+                            <template x-for="day in tournamentCalendarDays()" :key="day.key">
+                                <button type="button" @click="tournamentCalendarSelect(day.date)" :disabled="!day.date" class="min-h-[66px] sm:min-h-[88px] p-1.5 rounded-lg border text-left transition overflow-hidden" :class="!day.date ? 'border-transparent bg-transparent cursor-default' : (day.hasEvents ? 'bg-csorange/90 border-csorange text-black hover:bg-csorange' : (day.isToday ? 'bg-csdark-700 border-csorange text-white' : 'bg-csdark-800 border-white/30 text-gray-300 hover:border-csorange'))" :aria-label="day.date ? day.aria : 'Leeres Kalenderfeld'">
+                                    <span class="block text-xs font-black" x-text="day.date ? day.date.getDate() : ''"></span>
+                                    <template x-if="day.hasEvents">
+                                        <span class="mt-1 block text-[9px] sm:text-[10px] leading-tight font-bold" x-text="day.preview"></span>
+                                    </template>
+                                </button>
+                            </template>
+                        </div>
+                        <div class="mt-4 rounded-xl border border-gray-800 bg-csdark-800 p-4">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                <div class="font-bold text-white" x-text="tournamentCalendarSelectedLabel()"></div>
+                                <button type="button" @click="refreshTournamentCalendar()" class="text-xs font-bold text-csorange hover:underline" :disabled="tournamentCalendarLoading"><i class="fa-solid fa-rotate mr-1" :class="tournamentCalendarLoading ? 'fa-spin' : ''"></i><span x-text="tournamentCalendarLoading ? 'Aktualisiere…' : 'Termine prüfen'"></span></button>
+                            </div>
+                            <template x-if="tournamentCalendarEventsForSelectedDay().length">
+                                <div class="space-y-2">
+                                    <template x-for="(event, idx) in tournamentCalendarEventsForSelectedDay()" :key="event.id || idx">
+                                        <div class="rounded-lg border border-gray-700 p-3">
+                                            <div class="flex flex-wrap items-center justify-between gap-2"><span class="font-bold text-csorange" x-text="event.tournament"></span><span class="text-xs text-gray-400" x-text="event.time || 'Uhrzeit noch offen'"></span></div>
+                                            <div class="mt-1 text-sm text-white" x-text="event.teams || 'Spielpaarung noch nicht veröffentlicht'"></div>
+                                            <div class="text-xs text-gray-500 mt-1" x-text="event.source || 'Quelle nicht bestätigt'"></div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <p x-show="!tournamentCalendarEventsForSelectedDay().length" class="text-sm text-gray-400">Für diesen Tag sind noch keine bestätigten Begegnungen im Kalender hinterlegt. Nutze die Turnierquellen oben, um veröffentlichte Spielpläne aufzurufen.</p>
+                            <div class="flex flex-wrap gap-3 mt-3 text-xs">
+                                <a href="https://www.hltv.org/events" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">HLTV Spielplan ↗</a>
+                                <a href="https://liquipedia.net/counterstrike/Main_Page" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">Liquipedia ↗</a>
+                                <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">DACH CS ↗</a>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-[11px] text-gray-500">Hinweis: Der Kalender aktualisiert seine Prüfzeit automatisch. Ohne eine frei zugängliche, im Browser abrufbare Spielplandatenquelle werden keine erfundenen Spieltage oder Teamnamen angezeigt.</p>
+                    </div>
+                </section>
+
                 <div x-show="bracketSource==='dach'" class="rounded-2xl border border-gray-800 bg-csdark-900 overflow-hidden">
                     <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-800">
                         <div><div class="font-bold text-white">DACH CS</div><div class="text-xs text-gray-400 mt-1">Offizielle Coverage und Spielstände</div></div>
@@ -1587,6 +1653,13 @@
 
                 activeTab: 'suggestions',
                 internationalSource: 'hltv',
+                tournamentCalendarOpen: false,
+                tournamentCalendarView: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                tournamentCalendarSelected: new Date().toISOString().slice(0, 10),
+                tournamentCalendarEvents: [],
+                tournamentCalendarStatus: 'Noch keine Live-Termine bestätigt · ohne PandaScore',
+                tournamentCalendarLoading: false,
+                tournamentCalendarLastChecked: null,
                 testLabCounter: 0,
                 testLabEnabled: false,
 
@@ -2319,6 +2392,84 @@
                     this.googleClientId = localStorage.getItem('cs2toolkit_google_client_id') || this.googleClientId || '';
                     this.googleInit();
                     this.googleLoadSession();
+                    this.refreshTournamentCalendar();
+                    window.setInterval(() => {
+                        if (this.tournamentCalendarOpen) this.refreshTournamentCalendar();
+                    }, 5 * 60 * 1000);
+                },
+
+                tournamentCalendarMonthLabel() {
+                    return this.tournamentCalendarView.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+                },
+
+                tournamentCalendarMove(offset) {
+                    this.tournamentCalendarView = new Date(this.tournamentCalendarView.getFullYear(), this.tournamentCalendarView.getMonth() + offset, 1);
+                },
+
+                tournamentCalendarToday() {
+                    const now = new Date();
+                    this.tournamentCalendarView = new Date(now.getFullYear(), now.getMonth(), 1);
+                    this.tournamentCalendarSelect(now);
+                },
+
+                tournamentCalendarSelect(date) {
+                    if (!date) return;
+                    const d = date instanceof Date ? date : new Date(date + 'T12:00:00');
+                    this.tournamentCalendarSelected = [
+                        d.getFullYear(),
+                        String(d.getMonth() + 1).padStart(2, '0'),
+                        String(d.getDate()).padStart(2, '0')
+                    ].join('-');
+                },
+
+                tournamentCalendarDays() {
+                    const year = this.tournamentCalendarView.getFullYear();
+                    const month = this.tournamentCalendarView.getMonth();
+                    const first = new Date(year, month, 1);
+                    const offset = (first.getDay() + 6) % 7;
+                    const count = new Date(year, month + 1, 0).getDate();
+                    const today = new Date();
+                    const eventsByDate = {};
+                    (this.tournamentCalendarEvents || []).forEach(event => {
+                        if (!event.date) return;
+                        (eventsByDate[event.date] ||= []).push(event);
+                    });
+                    const days = [];
+                    for (let i = 0; i < offset; i++) days.push({ key: 'blank-' + i, date: null, hasEvents: false });
+                    for (let n = 1; n <= count; n++) {
+                        const date = new Date(year, month, n);
+                        const key = [year, String(month + 1).padStart(2, '0'), String(n).padStart(2, '0')].join('-');
+                        const matches = eventsByDate[key] || [];
+                        days.push({
+                            key, date, hasEvents: matches.length > 0,
+                            isToday: date.toDateString() === today.toDateString(),
+                            preview: matches.map(e => e.teams || e.tournament).filter(Boolean).join(' · '),
+                            aria: key + (matches.length ? ': ' + matches.map(e => e.tournament + (e.teams ? ' ' + e.teams : '')).join(', ') : '')
+                        });
+                    }
+                    while (days.length % 7) days.push({ key: 'blank-end-' + days.length, date: null, hasEvents: false });
+                    return days;
+                },
+
+                tournamentCalendarSelectedLabel() {
+                    if (!this.tournamentCalendarSelected) return 'Spieltag auswählen';
+                    return new Date(this.tournamentCalendarSelected + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+                },
+
+                tournamentCalendarEventsForSelectedDay() {
+                    return (this.tournamentCalendarEvents || []).filter(event => event.date === this.tournamentCalendarSelected);
+                },
+
+                async refreshTournamentCalendar() {
+                    this.tournamentCalendarLoading = true;
+                    try {
+                        // We deliberately do not scrape third-party pages or invent match schedules.
+                        // Public links remain available until a stable, browser-accessible feed is configured.
+                        this.tournamentCalendarLastChecked = new Date();
+                        this.tournamentCalendarStatus = 'Zuletzt geprüft: ' + this.tournamentCalendarLastChecked.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' · keine bestätigte Live-Datenquelle';
+                    } finally {
+                        this.tournamentCalendarLoading = false;
+                    }
                 },
 
                 googleSaveClientId() {
