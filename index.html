@@ -3478,13 +3478,13 @@ bombSites: [
                     const shadow = this.chOutline ? '0 0 0 1px #000000' : 'none';
 
                     if (side === 'left') {
-                        return `width:${length}px;height:${thickness}px;background:${color};box-shadow:${shadow};transform:translateX(calc(-100% - ${gap}px)) translateY(-50%);`;
+                        return `width:${length}px;height:${thickness}px;background:${color};box-shadow:${shadow};transform:translateX(calc(-100% + ${-gap}px)) translateY(-50%);`;
                     }
                     if (side === 'right') {
                         return `width:${length}px;height:${thickness}px;background:${color};box-shadow:${shadow};transform:translateX(${gap}px) translateY(-50%);`;
                     }
                     if (side === 'top') {
-                        return `width:${thickness}px;height:${length}px;background:${color};box-shadow:${shadow};transform:translateY(calc(-100% - ${gap}px)) translateX(-50%);`;
+                        return `width:${thickness}px;height:${length}px;background:${color};box-shadow:${shadow};transform:translateY(calc(-100% + ${-gap}px)) translateX(-50%);`;
                     }
                     return `width:${thickness}px;height:${length}px;background:${color};box-shadow:${shadow};transform:translateY(${gap}px) translateX(-50%);`;
                 },
@@ -3517,9 +3517,9 @@ bombSites: [
                     const length = size * 5;
                     const color = preset.color || '#ffffff';
                     const shadow = preset.outline ? '0 0 0 1px #000000' : 'none';
-                    if (side === 'left') return 'width:' + length + 'px;height:' + thickness + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateX(calc(-100% - ' + gap + 'px)) translateY(-50%);';
+                    if (side === 'left') return 'width:' + length + 'px;height:' + thickness + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateX(calc(-100% + ' + (-gap) + 'px)) translateY(-50%);';
                     if (side === 'right') return 'width:' + length + 'px;height:' + thickness + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateX(' + gap + 'px) translateY(-50%);';
-                    if (side === 'top') return 'width:' + thickness + 'px;height:' + length + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateY(calc(-100% - ' + gap + 'px)) translateX(-50%);';
+                    if (side === 'top') return 'width:' + thickness + 'px;height:' + length + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateY(calc(-100% + ' + (-gap) + 'px)) translateX(-50%);';
                     return 'width:' + thickness + 'px;height:' + length + 'px;background:' + color + ';box-shadow:' + shadow + ';transform:translateY(' + gap + 'px) translateX(-50%);';
                 },
 
