@@ -2679,7 +2679,7 @@ bombSites: [
                     ],
                     nuke: [
                         {id:'nuke-tspawn',name:'T Spawn',x:17.0,y:60.0,layer:'upper'},
-                        {id:'nuke-outside',name:'Outside',x:55.0,y:66.0,layer:'upper'},
+                        {id:'nuke-outside',name:'Outside',x:46.0,y:65.0,layer:'upper'},
                         {id:'nuke-silo',name:'Silo',x:47.0,y:68.0,layer:'upper'},
                         {id:'nuke-ramp',name:'Ramp',x:59.0,y:29.0,layer:'upper'},
                         {id:'nuke-lobby',name:'Lobby',x:47.0,y:48.0,layer:'upper'},
@@ -2752,7 +2752,9 @@ bombSites: [
                 },
 
                 calloutRadarImage() {
-                    return this.calloutRadarImages[this.selectedMap] || this.maps[this.selectedMap].radar;
+                    // Callout-Marker und Radar müssen dieselbe Bildgrundlage verwenden,
+                    // sonst verschieben sich die prozentualen Koordinaten sichtbar.
+                    return this.calloutRadar();
                 },
 
                 visibleCallouts() {
