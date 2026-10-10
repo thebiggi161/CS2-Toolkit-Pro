@@ -3110,7 +3110,8 @@
                 get owFilteredTournamentArchive() {
                     const q = String(this.owTournamentArchiveSearch || '').trim().toLowerCase();
                     const filtered = this.owTournamentArchive.filter(t => (!this.owTournamentArchiveYear || t.year === Number(this.owTournamentArchiveYear)) && (!q || (t.name + ' ' + t.category + ' ' + t.year + ' ' + t.note).toLowerCase().includes(q)));
-                    const statusRank = t => { const status = String(t.status || '').toLowerCase(); if (status.includes('läuft') || status.includes('startet')) return 0; if (status.includes('kommend') || status.includes('geplant') || status.includes('upcoming')) return 1; if (status.includes('beendet') || status.includes('abgeschlossen')) return 2; return 2; };\n                    return filtered.sort((a,b) => statusRank(a)-statusRank(b) || (this.owTournamentArchiveSort === 'oldest' ? a.year-b.year || a.name.localeCompare(b.name) : this.owTournamentArchiveSort === 'name' ? a.name.localeCompare(b.name) : b.year-a.year || a.name.localeCompare(b.name)));
+                    const statusRank = t => { const status = String(t.status || '').toLowerCase(); if (status.includes('läuft') || status.includes('startet')) return 0; if (status.includes('kommend') || status.includes('geplant') || status.includes('upcoming')) return 1; if (status.includes('beendet') || status.includes('abgeschlossen')) return 2; return 2; };
+                    return filtered.sort((a,b) => statusRank(a)-statusRank(b) || (this.owTournamentArchiveSort === 'oldest' ? a.year-b.year || a.name.localeCompare(b.name) : this.owTournamentArchiveSort === 'name' ? a.name.localeCompare(b.name) : b.year-a.year || a.name.localeCompare(b.name)));
                 },
 
                 owHeroSearch: '',
