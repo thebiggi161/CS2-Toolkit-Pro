@@ -1057,7 +1057,7 @@
                             Utility-Datenbank mit Smoke, Flash, Molotov und HE. Jede Karte enthält Beschreibung, Schrittfolge und eine animierte GIF-Style-Wurfvorschau.
                         </p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-2" x-show="activeMapPanel !== 'bombwave'" x-cloak>
                         <template x-for="(mapData, mapName) in maps" :key="mapName">
                             <button
                                 type="button"
