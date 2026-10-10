@@ -1054,7 +1054,7 @@
                             <i class="fa-solid fa-map"></i> Maps & Nades
                         </h2>
                         <p class="text-sm text-gray-400 mt-1">
-                            Utility-Datenbank mit Smoke, Flash, Molotov und HE. Jede Karte enthält Beschreibung, Schrittfolge und eine animierte GIF-Style-Wurfvorschau.
+                            Turnier-Lineups und Bombenwellen-Tools für CS2.
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-2" x-show="activeMapPanel !== 'bombwave'" x-cloak>
@@ -1079,22 +1079,10 @@
                         <i class="fa-solid fa-film mr-1"></i> Lineup-Datenbank
                     </button>
                     <button type="button"
-                        @click="activeMapPanel = 'smokes'"
-                        :class="activeMapPanel === 'smokes' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
-                        class="px-4 py-2 rounded-lg text-xs transition">
-<i class="fa-solid fa-bomb mr-1"></i> Smokes
-                    </button>
-                    <button type="button"
                         @click="activeMapPanel = 'bombwave'"
                         :class="activeMapPanel === 'bombwave' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
                         class="px-4 py-2 rounded-lg text-xs transition">
                         <i class="fa-solid fa-circle-radiation mr-1"></i> Bombenwelle / Liquid-Bomb
-                    </button>
-                    <button type="button"
-                        @click="activeMapPanel = 'flashes'"
-                        :class="activeMapPanel === 'flashes' ? 'bg-csorange text-black font-bold' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'"
-                        class="px-4 py-2 rounded-lg text-xs transition">
-                        <i class="fa-solid fa-bolt mr-1"></i> Flashes
                     </button>
                 </div>
 
