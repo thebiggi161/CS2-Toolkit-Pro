@@ -2443,7 +2443,7 @@
                 {name:'cl_crosshairusealpha',value:'1',category:'HUD',selected:false},
                 {name:'cl_crosshair_t',value:'0',category:'HUD',selected:false},
                 {name:'cl_crosshairgap_useweaponvalue',value:'0',category:'HUD',selected:false},
-                {name:'cl_hud_color',value:'0',category:'HUD',selected:false},
+
                 {name:'cl_show_team_equipment',value:'1',category:'HUD',selected:false},
                 {name:'cl_draw_only_deathnotices',value:'0',category:'HUD',selected:false},
                 {name:'cl_teamid_overhead_colors_show',value:'1',category:'HUD',selected:false},
@@ -2561,9 +2561,10 @@
                 generateConfigEditor() {
                     const commands = this.buildConsoleConfig();
                     const custom = String(this.configEditor || '').trim();
+                    const lines = Array.from(new Set([commands, custom].filter(Boolean).join('\n').split(/\r?\n/).map(line => line.trim()).filter(Boolean)));
                     const header = '// CS2 Toolkit Pro V2 - Console / HUD Config\n// Startoptionen und Grafik-Menüoptionen gehören nicht in diese .cfg.\n// Vor dem Einsatz jede Zeile im Spiel prüfen.\n';
-                    this.configEditor = header + [commands, custom].filter(Boolean).join('\n') + (commands || custom ? '\n' : '');
-                    this.notice = commands || custom ? 'Config-Inhalt erstellt/ergänzt. Du kannst die Zeilen bearbeiten und als .cfg herunterladen.' : 'Keine Befehle ausgewählt. Wähle Commands oder füge eigene Zeilen ein.';
+                    this.configEditor = header + lines.join('\n') + (lines.length ? '\n' : '');
+                    this.notice = lines.length ? 'Config erstellt/ergänzt. Du kannst die Zeilen bearbeiten und als .cfg herunterladen.' : 'Keine Befehle ausgewählt. Wähle Commands oder füge eigene Zeilen ein.';
                 },
                 async copyConfigEditor() {
                     const value = String(this.configEditor || '').trim();
@@ -2615,9 +2616,9 @@
                     const commands = this.buildConsoleConfig();
                     const edited = String(this.configEditor || '').trim();
                     const header = '// CS2 Toolkit Pro V2 - exportierte Client-Settings\n// Grafik-Menüoptionen und Steam-Startoptionen werden separat im Profil gespeichert.\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\n';
-                    const combined = [commands, edited].filter(Boolean).join('\n');
+                    const combined = Array.from(new Set([commands, edited].filter(Boolean).join('\n').split(/\r?\n/).map(line => line.trim()).filter(Boolean))).join('\n');
                     if (!combined.trim()) { this.notice = 'Wähle Console-/HUD-Befehle aus oder füge Config-Zeilen in den Editor ein.'; return; }
-                    const content = header + combined.replace(/\n{3,}/g, '\n\n').trim() + '\n';
+                    const content = header + combined + '\n';
                     const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
