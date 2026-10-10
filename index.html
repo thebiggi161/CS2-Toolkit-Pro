@@ -37,6 +37,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         [x-cloak] { display: none !important; }
+
+        /* Ambient fire and ember background */
+        #ember-fire-bg { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:.72; }
+        body > *:not(#ember-fire-bg) { position:relative; }
+        body > header { z-index:50; }
+        @media (prefers-reduced-motion: reduce) { #ember-fire-bg { opacity:.28; } }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #070707; }
         ::-webkit-scrollbar-thumb { background: #ff5500; border-radius: 4px; }
@@ -254,6 +261,8 @@
     </style>
 </head>
 <body class="bg-csdark-900 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-csorange selection:text-white" x-data="cs2App()" x-init="init()">
+    <canvas id="ember-fire-bg" aria-hidden="true"></canvas>
+
 
     <!-- Header -->
     <header class="bg-csdark-800 border-b border-csorange/30 sticky top-0 z-50 shadow-lg shadow-black/50">
@@ -3612,5 +3621,65 @@ bombSites: [
             }
         }
     </script>
+
+<script>
+(() => {
+    const canvas = document.getElementById('ember-fire-bg');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let w = 0, h = 0, dpr = 1, raf = 0, last = 0;
+    const embers = [];
+    const rand = (a,b) => a + Math.random() * (b-a);
+    function makeEmber(initial) {
+        return {x:rand(0,w||innerWidth),y:initial?rand(0,h||innerHeight):(h||innerHeight)+rand(4,50),vx:rand(-.22,.22),vy:rand(.35,1.25),size:rand(.7,2.1),phase:rand(0,Math.PI*2)};
+    }
+    function resize() {
+        dpr=Math.min(window.devicePixelRatio||1,1.5); w=innerWidth; h=innerHeight;
+        canvas.width=Math.floor(w*dpr); canvas.height=Math.floor(h*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
+        const count=reduced?12:Math.min(70,Math.floor(w/19));
+        while(embers.length<count) embers.push(makeEmber(true));
+        embers.length=count;
+    }
+    function flame(x,y,scale,time) {
+        const flicker=.82+Math.sin(time*.003+x)*.12+Math.sin(time*.006+y)*.07;
+        ctx.save(); ctx.translate(x,y); ctx.scale(scale*flicker,scale);
+        const glow=ctx.createRadialGradient(0,-12,1,0,-12,100);
+        glow.addColorStop(0,'rgba(255,76,0,.12)'); glow.addColorStop(1,'rgba(255,50,0,0)');
+        ctx.fillStyle=glow; ctx.beginPath(); ctx.ellipse(0,-12,100,110,0,0,Math.PI*2); ctx.fill();
+        for(let i=0;i<5;i++){
+            const fx=(i-2)*13+Math.sin(time*.004+i*2)*5, height=(30+(i%3)*15)*flicker;
+            const g=ctx.createLinearGradient(0,0,fx,-height);
+            g.addColorStop(0,'rgba(255,55,0,.20)'); g.addColorStop(.55,'rgba(255,110,12,.13)'); g.addColorStop(1,'rgba(255,190,40,0)');
+            ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(fx-12,0);
+            ctx.quadraticCurveTo(fx-18,-height*.45,fx+Math.sin(time*.005+i)*5,-height);
+            ctx.quadraticCurveTo(fx+18,-height*.45,fx+12,0); ctx.closePath(); ctx.fill();
+        }
+        ctx.restore();
+    }
+    function frame(time) {
+        raf=0;
+        if(reduced && time-last<800){raf=requestAnimationFrame(frame);return;}
+        last=time; ctx.clearRect(0,0,w,h);
+        flame(0,h+4,1.25,time); flame(w,h+4,1.25,time+900); flame(w*.5,h+10,.55,time+300);
+        embers.forEach((p,i)=>{
+            p.phase+=.03;
+            if(!reduced){p.x+=p.vx+Math.sin(p.phase)*.25;p.y-=p.vy;}
+            const alpha=(.25+(Math.sin(p.phase)+1)*.25)*(reduced?.5:1);
+            const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*4);
+            g.addColorStop(0,'rgba(255,205,105,'+alpha+')'); g.addColorStop(1,'rgba(255,80,0,0)');
+            ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,p.size*4,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle='rgba(255,155,45,'+alpha+')'; ctx.fillRect(p.x,p.y,p.size,p.size*1.8);
+            if(p.y < -10 || p.x < -10 || p.x > w+10) embers[i]=makeEmber(false);
+        });
+        if(!reduced) raf=requestAnimationFrame(frame);
+    }
+    window.addEventListener('resize',resize,{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){if(raf)cancelAnimationFrame(raf);raf=0;}else if(!reduced&&!raf)raf=requestAnimationFrame(frame);});
+    resize(); frame(0);
+})();
+</script>
+
 </body>
 </html>
