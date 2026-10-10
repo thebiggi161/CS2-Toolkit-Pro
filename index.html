@@ -491,7 +491,16 @@
                                     <template x-for="(event, idx) in tournamentCalendarEventsForSelectedDay()" :key="event.id || idx">
                                         <div class="rounded-lg border border-gray-700 p-3">
                                             <div class="flex flex-wrap items-center justify-between gap-2"><span class="font-bold text-csorange" x-text="event.tournament"></span><span class="text-xs text-gray-400" x-text="event.time || 'Uhrzeit noch offen'"></span></div>
-                                            <div class="mt-1 text-sm text-white" x-text="event.teams || (event.start && event.end ? 'Turnierzeitraum · ' + new Date(event.start + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short'}) + ' – ' + new Date(event.end + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short',year:'numeric'}) : 'Spielpaarung noch nicht veröffentlicht')"></div>
+                                            <template x-if="event.team1Name && event.team2Name">
+                                                <div class="mt-2 flex items-center gap-2 text-sm text-white">
+                                                    <img x-show="event.team1Logo" :src="event.team1Logo" :alt="event.team1Name + ' Logo'" class="w-7 h-7 rounded-full object-contain bg-black/30" loading="lazy">
+                                                    <span x-text="event.team1Name" class="font-semibold"></span>
+                                                    <span class="text-gray-500">vs.</span>
+                                                    <img x-show="event.team2Logo" :src="event.team2Logo" :alt="event.team2Name + ' Logo'" class="w-7 h-7 rounded-full object-contain bg-black/30" loading="lazy">
+                                                    <span x-text="event.team2Name" class="font-semibold"></span>
+                                                </div>
+                                            </template>
+                                            <div x-show="!event.team1Name || !event.team2Name" class="mt-1 text-sm text-white" x-text="event.teams || (event.start && event.end ? 'Turnierzeitraum · ' + new Date(event.start + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short'}) + ' – ' + new Date(event.end + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short',year:'numeric'}) : 'Spielpaarung noch nicht veröffentlicht')"></div>
                                             <div class="text-xs text-gray-500 mt-1" x-text="event.source || 'Quelle nicht bestätigt'"></div><a x-show="event.url" :href="event.url" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 text-xs text-csorange hover:underline">Spielplan / Quelle öffnen ↗</a>
                                         </div>
                                     </template>
