@@ -506,6 +506,54 @@
             </div>
         </div>
 
+            <div class="mt-6 border-t border-gray-800 pt-5">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <div class="text-xs font-black tracking-[0.2em] text-csorange uppercase">Turniere & Ergebnisse</div>
+                        <h3 class="text-xl font-black text-white mt-1">CS2 Turnier-Center</h3>
+                        <p class="text-sm text-gray-400 mt-1">Turnierstände zentral ansehen. Daten werden automatisch alle 5 Minuten aktualisiert, sobald eine Datenquelle verbunden ist.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button @click="bracketSource='dach'" :class="bracketSource==='dach' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="rounded-lg px-3 py-2 text-sm font-bold">DACH CS</button>
+                        <button @click="bracketSource='international'" :class="bracketSource==='international' ? 'bg-csorange text-black' : 'bg-csdark-700 text-gray-300'" class="rounded-lg px-3 py-2 text-sm font-bold">Internationale Turniere</button>
+                    </div>
+                </div>
+
+                <div x-show="bracketSource==='dach'" class="rounded-2xl border border-gray-800 bg-csdark-800 overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-800">
+                        <div><div class="font-bold text-white">DACH CS Masters</div><div class="text-xs text-gray-400">Offizielle Coverage und Spielstände</div></div>
+                        <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">Coverage separat öffnen ↗</a>
+                    </div>
+                    <iframe src="https://www.dachcs.de/coverage/" title="DACH CS Masters Coverage" loading="lazy" class="w-full bg-white" style="height: min(68vh, 680px); min-height: 420px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                    <p class="px-4 pb-4 text-xs text-gray-500">Falls die Liga das Einbetten im Browser blockiert, nutze bitte „Coverage separat öffnen“.</p>
+                </div>
+
+                <div x-show="bracketSource==='international'" class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 space-y-4">
+                    <div class="text-sm text-gray-300">Für automatisch aktualisierte Turnierbäume und Ergebnisse nutzen wir PandaScore. Die API stellt Turnier-, Match- und Bracket-Endpunkte bereit; dafür wird ein persönlicher API-Token benötigt.</div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <label class="flex-1"><span class="block text-xs text-gray-400 mb-1">PandaScore API-Token</span><input type="password" x-model="bracketApiTokenInput" autocomplete="off" placeholder="Token hier einfügen" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white focus:border-csorange focus:outline-none"></label>
+                        <button @click="saveBracketToken()" class="self-end rounded-lg bg-csorange px-4 py-2 text-sm font-black text-black">Verbinden</button>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button @click="refreshBrackets()" :disabled="bracketLoading" class="rounded-lg bg-csdark-700 hover:bg-csdark-600 px-3 py-2 text-sm font-bold text-white disabled:opacity-50"><i class="fa-solid fa-rotate mr-1"></i> Jetzt aktualisieren</button>
+                        <span class="text-xs text-gray-500" x-text="bracketStatus"></span>
+                    </div>
+                    <div x-show="bracketError" x-text="bracketError" class="rounded-lg border border-amber-700/60 bg-amber-900/20 p-3 text-sm text-amber-200" role="status"></div>
+                    <div x-show="bracketTournaments.length" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <template x-for="tournament in bracketTournaments" :key="tournament.id">
+                            <div class="rounded-xl border border-gray-700 bg-csdark-900 p-4">
+                                <div class="text-xs uppercase tracking-wider text-csorange" x-text="tournament.league && tournament.league.name ? tournament.league.name : 'CS2 Turnier'"></div>
+                                <div class="mt-1 font-bold text-white" x-text="tournament.name"></div>
+                                <div class="mt-2 text-xs text-gray-400" x-text="tournament.begin_at ? new Date(tournament.begin_at).toLocaleString('de-DE') : 'Termin noch offen'"></div>
+                                <a :href="'https://www.google.com/search?q='+encodeURIComponent((tournament.name||'CS2 tournament')+' bracket results')" target="_blank" rel="noopener noreferrer" class="inline-block mt-3 text-sm font-bold text-csorange hover:underline">Turnierbaum / Ergebnisse ↗</a>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="!bracketTournaments.length" class="rounded-xl border border-dashed border-gray-700 p-4 text-sm text-gray-400">Verbinde einen PandaScore-Token, um aktuelle internationale CS2-Turniere abzurufen. Die fünf großen Turniere werden anhand der verfügbaren API-Daten ausgewählt; Verfügbarkeit und Bracket-Details hängen vom API-Zugang ab.</div>
+                    <div class="text-xs text-gray-500">Aktualisierung: alle 5 Minuten, solange diese Seite geöffnet ist. Der Token wird nur in diesem Browser gespeichert. Für eine öffentliche Website ist ein serverseitiger Proxy sicherer, damit kein API-Token im Frontend liegt.</div>
+                </div>
+            </div>
+
         <!-- TAB: WEAPONS DATABASE -->
         <div x-show="activeTab === 'weapons'" x-cloak class="space-y-6">
             <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
@@ -1701,6 +1749,59 @@
                 weaponSearch: '',
                 weaponCategory: 'all',
                 weaponSide: 'all',
+                bracketSource: 'dach',
+                bracketApiTokenInput: localStorage.getItem('cs2toolkit_pandascore_token') || '',
+                bracketTournaments: [],
+                bracketLoading: false,
+                bracketStatus: 'Noch nicht verbunden',
+                bracketError: '',
+                bracketRefreshTimer: null,
+
+                saveBracketToken() {
+                    const token = (this.bracketApiTokenInput || '').trim();
+                    if (!token) {
+                        this.bracketError = 'Bitte gib zuerst deinen PandaScore-API-Token ein.';
+                        return;
+                    }
+                    localStorage.setItem('cs2toolkit_pandascore_token', token);
+                    this.bracketError = '';
+                    this.refreshBrackets();
+                    if (this.bracketRefreshTimer) window.clearInterval(this.bracketRefreshTimer);
+                    this.bracketRefreshTimer = window.setInterval(() => {
+                        if (document.visibilityState === 'visible' && this.bracketSource === 'international') this.refreshBrackets();
+                    }, 300000);
+                },
+
+                async refreshBrackets() {
+                    const token = (this.bracketApiTokenInput || localStorage.getItem('cs2toolkit_pandascore_token') || '').trim();
+                    if (!token) {
+                        this.bracketError = 'Für internationale Live-Daten wird ein PandaScore-API-Token benötigt. Die DACH-Coverage ist ohne Token verfügbar.';
+                        this.bracketStatus = 'Nicht verbunden';
+                        return;
+                    }
+                    this.bracketLoading = true;
+                    this.bracketError = '';
+                    this.bracketStatus = 'Aktualisiere …';
+                    try {
+                        const response = await fetch('https://api.pandascore.co/csgo/tournaments/upcoming?per_page=100&token=' + encodeURIComponent(token), { headers: { 'Accept': 'application/json' } });
+                        if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? 'Der API-Token wurde abgelehnt oder hat keinen Zugriff auf diese Daten.' : 'Die Datenquelle antwortet mit HTTP ' + response.status + '.');
+                        const data = await response.json();
+                        const priority = ['iem', 'esl pro league', 'blast', 'major', 'pgl', 'epl'];
+                        const filtered = (Array.isArray(data) ? data : []).filter(t => {
+                            const name = ((t.name || '') + ' ' + (t.league && t.league.name || '') + ' ' + (t.series && t.series.name || '')).toLowerCase();
+                            return priority.some(term => name.includes(term));
+                        });
+                        this.bracketTournaments = filtered.slice(0, 10);
+                        this.bracketStatus = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
+                        if (!this.bracketTournaments.length) this.bracketError = 'Die API-Verbindung funktioniert, aber in den kommenden API-Daten wurden keine der gesuchten großen Turnier-Reihen gefunden. Prüfe später erneut oder nutze die Turnierlinks.';
+                    } catch (error) {
+                        this.bracketError = error && error.message ? error.message : 'Turnierdaten konnten nicht geladen werden. Prüfe die Verbindung und den API-Zugang.';
+                        this.bracketStatus = 'Aktualisierung fehlgeschlagen';
+                    } finally {
+                        this.bracketLoading = false;
+                    }
+                },
+
                 esportsStream: 'iem',
                 esportsMiniVisible: true,
                 esportsMiniMinimized: false,
