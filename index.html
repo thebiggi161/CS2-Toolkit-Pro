@@ -769,6 +769,7 @@
                 <button type="button" @click="owTab='sensitivity'" :class="owTab==='sensitivity' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-computer-mouse mr-2"></i>Sensitivity</button>
                 <button type="button" @click="owTab='settings'" :class="owTab==='settings' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-sliders mr-2"></i>Settings & Guides</button>
                 <button type="button" @click="owTab='stats'" :class="owTab==='stats' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-chart-line mr-2"></i>Stat Tracking</button>
+                <button type="button" @click="owTab='esports'" :class="owTab==='esports' ? 'bg-orange-500 text-black shadow-lg shadow-orange-500/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="rounded-lg px-4 py-2 text-sm font-bold"><i class="fa-solid fa-trophy mr-2"></i>Esports</button>
             </div>
 
             <section x-show="owTab==='overview'" class="space-y-4">
@@ -1001,6 +1002,36 @@
                     </article>
                 </div>
                 <div class="rounded-xl border border-gray-800 bg-csdark-800/70 p-4 text-xs leading-relaxed text-gray-500"><i class="fa-solid fa-circle-info mr-1 text-orange-400"></i>Hinweis: Falls Counterwatch das Einbetten in einem Fenster blockiert, lässt sich die jeweilige Ansicht über „Öffnen ↗“ direkt auf Counterwatch nutzen. Die eingebetteten Community-Stats sind keine persönliche Profilabfrage; persönliche Matchdaten können nur verfügbar sein, wenn Counterwatch sie für dein Konto erfasst.</div>
+            </section>
+
+            <!-- TAB: OVERWATCH ESPORTS -->
+            <section x-show="owTab==='esports'" x-cloak class="space-y-5" x-init="owEsportsInit()">
+                <div class="rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-950/30 via-csdark-800 to-csdark-900 p-5">
+                    <div class="flex flex-wrap items-start justify-between gap-3"><div><div class="text-xs font-black uppercase tracking-widest text-orange-400">Overwatch Champions Series</div><h3 class="mt-1 text-2xl font-black text-white"><i class="fa-solid fa-trophy mr-2 text-orange-400"></i>Overwatch Esports Center</h3><p class="mt-2 max-w-3xl text-sm text-gray-300">Teamverzeichnis, Turnierübersicht, eigener Terminkalender und Erinnerungen. Externe Quellen öffnen Teamprofile und aktuelle Ergebnisse.</p></div><button type="button" @click="owEsportsEnableNotifications()" class="rounded-lg border border-orange-400/40 px-3 py-2 text-sm font-bold text-orange-300 hover:bg-orange-500/10"><i class="fa-regular fa-bell mr-2"></i>Browser-Erinnerungen erlauben</button></div>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3"><div class="rounded-xl border border-white/10 bg-black/20 p-3"><div class="text-xs text-gray-400">Teams im Verzeichnis</div><div class="text-2xl font-black text-white" x-text="owEsportsTeams.length"></div></div><div class="rounded-xl border border-white/10 bg-black/20 p-3"><div class="text-xs text-gray-400">Eigene Termine</div><div class="text-2xl font-black text-white" x-text="owEsportsEvents.length"></div></div><div class="rounded-xl border border-white/10 bg-black/20 p-3"><div class="text-xs text-gray-400">Nächster Termin</div><div class="text-sm font-black text-orange-300 mt-1" x-text="owEsportsCountdown(owEsportsNextEvent)"></div></div></div>
+                </div>
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                    <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 sm:p-5"><div class="flex flex-wrap items-center justify-between gap-3"><div><h4 class="text-lg font-black text-white">Teamverzeichnis & Stats</h4><p class="text-xs text-gray-400 mt-1">Teamprofile, Platzierungen und Matchhistorie in der verlinkten Quelle.</p></div><input type="search" x-model="owEsportsSearch" placeholder="Team suchen…" class="w-full sm:w-48 rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"></div>
+                        <div class="flex flex-wrap gap-2 mt-3"><template x-for="region in ['Alle','EMEA','EMEA / International','Americas','Asia']" :key="region"><button type="button" @click="owEsportsRegion=region" :class="owEsportsRegion===region ? 'bg-orange-500 text-black' : 'bg-csdark-700 text-gray-300'" class="rounded-lg px-3 py-1.5 text-xs font-bold" x-text="region"></button></template></div>
+                        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2"><template x-for="team in owEsportsFilteredTeams" :key="team.name"><article class="rounded-xl border border-gray-700 bg-csdark-900 p-3"><div class="flex items-start justify-between gap-2"><div><h5 class="font-black text-white" x-text="team.name"></h5><p class="text-xs text-gray-400 mt-1" x-text="team.region"></p></div><i class="fa-solid fa-chart-simple text-orange-400"></i></div><div class="mt-3 rounded-lg bg-black/20 p-2 text-xs text-gray-400">Aktuelle Siege/Niederlagen und Turnierplatzierungen siehe Teamprofil.</div><a :href="team.source" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex text-xs font-bold text-orange-300 hover:text-orange-200">Team-Stats & Turnierhistorie öffnen ↗</a></article></template></div>
+                        <p class="mt-3 text-xs text-gray-500">Startverzeichnis, keine bestätigte vollständige Teilnehmerliste 2026. Es werden keine unbestätigten Winrates angezeigt.</p>
+                    </div>
+                    <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 sm:p-5"><h4 class="text-lg font-black text-white">Turnierbaum & Kalenderquelle</h4><p class="mt-1 text-xs text-gray-400">Die Fremdseite kann Einbettungen blockieren; falls das passiert, nutze den externen Link.</p><div class="mt-3 overflow-hidden rounded-xl border border-gray-700 bg-black"><iframe :src="owEsportsEmbed" title="Overwatch Champions Series Turnierübersicht" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" class="w-full h-[420px] border-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe></div><a href="https://liquipedia.net/overwatch/Overwatch_Champions_Series" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex rounded-lg border border-orange-400/40 px-3 py-2 text-sm font-bold text-orange-300 hover:bg-orange-500/10">Turnierbaum extern öffnen ↗</a><a href="https://owcs.gg/" target="_blank" rel="noopener noreferrer" class="ml-2 inline-flex rounded-lg border border-gray-700 px-3 py-2 text-sm font-bold text-gray-300 hover:bg-csdark-700">OWCS Website ↗</a></div>
+                </div>
+                <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 sm:p-5"><div><h4 class="text-xl font-black text-white">Eigener Terminkalender & Erinnerungstimer</h4><p class="mt-1 text-sm text-gray-400">Trage bestätigte Matches oder Turnierstarts ein. Der Countdown aktualisiert sich automatisch; Termine lassen sich als Google-Calendar-Link oder .ics mit Alarm exportieren.</p></div>
+                    <form @submit.prevent="owEsportsAddEvent()" class="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                        <label class="text-xs font-bold text-gray-300">Match / Turniername<input required x-model="owEsportsEventTitle" maxlength="160" placeholder="OWCS Stage – Team A vs Team B" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"></label>
+                        <label class="text-xs font-bold text-gray-300">Teams<input x-model="owEsportsEventTeams" maxlength="200" placeholder="Team A vs Team B" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"></label>
+                        <label class="text-xs font-bold text-gray-300">Phase<select x-model="owEsportsEventStage" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"><option>Match</option><option>Qualifikation</option><option>Playoffs</option><option>Finale</option><option>Turnierstart</option></select></label>
+                        <label class="text-xs font-bold text-gray-300">Startzeit (lokal)<input required type="datetime-local" x-model="owEsportsEventStart" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"></label>
+                        <label class="text-xs font-bold text-gray-300">Endzeit (optional)<input type="datetime-local" x-model="owEsportsEventEnd" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"></label>
+                        <label class="text-xs font-bold text-gray-300">Erinnerung<select x-model.number="owEsportsReminderMinutes" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"><option :value="5">5 Minuten</option><option :value="15">15 Minuten</option><option :value="30">30 Minuten</option><option :value="60">1 Stunde</option><option :value="1440">1 Tag</option></select></label>
+                        <label class="text-xs font-bold text-gray-300 md:col-span-2">Match-/Turnierlink (optional)<input type="url" x-model="owEsportsEventUrl" placeholder="https://…" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white"></label><div class="flex items-end"><button type="submit" class="w-full rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-black text-black hover:bg-orange-400"><i class="fa-solid fa-plus mr-2"></i>Termin speichern</button></div>
+                    </form>
+                    <div x-show="owEsportsNotice" x-text="owEsportsNotice" class="mt-3 rounded-lg border border-orange-400/20 bg-orange-500/5 p-3 text-sm text-orange-200" aria-live="polite"></div>
+                    <div class="mt-4 space-y-3"><template x-for="event in owEsportsSortedEvents" :key="event.id"><article class="rounded-xl border border-gray-700 bg-csdark-900 p-4"><div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3"><div class="min-w-0"><div class="text-[10px] font-black uppercase tracking-widest text-orange-400" x-text="event.stage || 'Esports'"></div><h5 class="mt-1 text-lg font-black text-white" x-text="event.title"></h5><p class="mt-1 text-sm text-gray-300" x-text="event.teams || 'Teams nicht angegeben'"></p><p class="mt-2 text-xs text-gray-400" x-text="new Date(event.start).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'})"></p><p class="mt-2 text-sm font-bold text-orange-300" x-text="owEsportsCountdown(event)"></p></div><div class="flex flex-wrap gap-2 shrink-0"><a :href="owEsportsGoogleLink(event)" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-csdark-700 px-3 py-2 text-xs font-bold text-white hover:bg-csdark-600">Google Calendar</a><button type="button" @click="owEsportsExportEvent(event)" class="rounded-lg border border-gray-600 px-3 py-2 text-xs font-bold text-gray-200 hover:bg-csdark-700">.ics / Apple</button><button type="button" @click="owEsportsDeleteEvent(event.id)" class="rounded-lg border border-red-900/60 px-3 py-2 text-xs font-bold text-red-300 hover:bg-red-950/40">Löschen</button></div></div></article></template><div x-show="owEsportsSortedEvents.length===0" class="rounded-xl border border-dashed border-gray-700 p-8 text-center"><i class="fa-regular fa-calendar text-3xl text-gray-500"></i><p class="mt-3 font-bold text-gray-300">Noch keine eigenen Termine</p><p class="mt-1 text-sm text-gray-500">Trage ein bestätigtes Match ein, um Countdown und Kalenderexport zu nutzen.</p></div></div>
+                    <div class="mt-4 rounded-xl border border-gray-700 bg-csdark-900 p-4 text-xs leading-relaxed text-gray-400"><strong class="text-white">Kalenderzugriff:</strong> Diese GitHub-Pages-Version liest keine privaten Google-/Apple-Kalender aus und schreibt nicht automatisch hinein. Google-Links öffnen einen vorausgefüllten Termin; .ics kann in Apple Kalender oder Google Kalender importiert werden. Für echten Kontozugriff braucht es OAuth und eine Kalender-API-Anbindung. <a class="text-orange-300 underline" href="https://support.google.com/calendar/answer/37118?hl=de" target="_blank" rel="noopener noreferrer">Google-Anleitung</a> · <a class="text-orange-300 underline" href="https://support.apple.com/guide/calendar/import-or-export-calendars-icl1023/mac" target="_blank" rel="noopener noreferrer">Apple-Anleitung</a></div>
+                </div>
             </section>
         </section>
 
@@ -2992,6 +3023,87 @@
 
                 activeTab: 'suggestions',
                 owTab: 'overview',
+                owEsportsSearch: '',
+                owEsportsRegion: 'Alle',
+                owEsportsTeams: [
+                    {name:'Team Falcons',region:'EMEA / International',source:'https://liquipedia.net/overwatch/Team_Falcons'},
+                    {name:'Twisted Minds',region:'EMEA',source:'https://liquipedia.net/overwatch/Twisted_Minds'},
+                    {name:'Spacestation Gaming',region:'Americas',source:'https://liquipedia.net/overwatch/Spacestation_Gaming'},
+                    {name:'Toronto Defiant',region:'Americas',source:'https://liquipedia.net/overwatch/Toronto_Defiant'},
+                    {name:'Crazy Raccoon',region:'Asia',source:'https://liquipedia.net/overwatch/Crazy_Raccoon'},
+                    {name:'T1',region:'Asia',source:'https://liquipedia.net/overwatch/T1'},
+                    {name:'ZETA DIVISION',region:'Asia',source:'https://liquipedia.net/overwatch/ZETA_DIVISION'},
+                    {name:'Team CC',region:'Asia',source:'https://liquipedia.net/overwatch/Team_CC'}
+                ],
+                owEsportsEvents: [],
+                owEsportsEventTitle: '',
+                owEsportsEventStart: '',
+                owEsportsEventEnd: '',
+                owEsportsEventStage: 'Match',
+                owEsportsEventTeams: '',
+                owEsportsEventUrl: '',
+                owEsportsReminderMinutes: 30,
+                owEsportsNotice: '',
+                owEsportsTimer: null,
+                owEsportsNow: Date.now(),
+                owEsportsEmbed: 'https://liquipedia.net/overwatch/Overwatch_Champions_Series',
+                get owEsportsFilteredTeams() {
+                    const q = String(this.owEsportsSearch || '').trim().toLowerCase();
+                    return this.owEsportsTeams.filter(t => (this.owEsportsRegion === 'Alle' || t.region === this.owEsportsRegion) && (!q || (t.name + ' ' + t.region).toLowerCase().includes(q)));
+                },
+                get owEsportsSortedEvents() {
+                    return [...this.owEsportsEvents].filter(e => e && Number.isFinite(Date.parse(e.start))).sort((a,b) => Date.parse(a.start)-Date.parse(b.start));
+                },
+                get owEsportsNextEvent() {
+                    return this.owEsportsSortedEvents.find(e => Date.parse(e.start) >= this.owEsportsNow) || null;
+                },
+                owEsportsCountdown(event) {
+                    if (!event) return 'Kein kommender Termin';
+                    const ms = Date.parse(event.start) - this.owEsportsNow;
+                    if (ms <= 0) return 'Läuft / startet jetzt';
+                    const days = Math.floor(ms / 86400000), hours = Math.floor((ms % 86400000) / 3600000), mins = Math.floor((ms % 3600000) / 60000);
+                    return (days ? days + 'T ' : '') + hours + ' Std. ' + mins + ' Min.';
+                },
+                owEsportsInit() {
+                    try {
+                        const saved = JSON.parse(localStorage.getItem('owcs_esports_events_v1') || '[]');
+                        this.owEsportsEvents = Array.isArray(saved) ? saved.filter(e => e && typeof e.id === 'string' && typeof e.title === 'string' && Number.isFinite(Date.parse(e.start))).slice(0,200) : [];
+                    } catch (_) { this.owEsportsEvents = []; }
+                    if (!this.owEsportsTimer) this.owEsportsTimer = window.setInterval(() => { this.owEsportsNow = Date.now(); }, 30000);
+                },
+                owEsportsSave() {
+                    try { localStorage.setItem('owcs_esports_events_v1', JSON.stringify(this.owEsportsEvents)); this.owEsportsNotice = 'Termine lokal in diesem Browser gespeichert.'; }
+                    catch (_) { this.owEsportsNotice = 'Speichern nicht möglich: Browser-Speicher ist blockiert oder voll.'; }
+                },
+                owEsportsAddEvent() {
+                    const title = String(this.owEsportsEventTitle || '').trim(), start = this.owEsportsEventStart;
+                    if (!title || !start || !Number.isFinite(Date.parse(start))) { this.owEsportsNotice = 'Bitte Titel und gültigen Starttermin eintragen.'; return; }
+                    let end = this.owEsportsEventEnd;
+                    if (!end || !Number.isFinite(Date.parse(end)) || Date.parse(end) <= Date.parse(start)) end = new Date(Date.parse(start) + 7200000).toISOString().slice(0,16);
+                    const event = {id:'owcs-'+Date.now().toString(36),title,stage:this.owEsportsEventStage,teams:String(this.owEsportsEventTeams||'').trim(),start:new Date(start).toISOString(),end:new Date(end).toISOString(),url:String(this.owEsportsEventUrl||'').trim(),reminderMinutes:Number(this.owEsportsReminderMinutes)||30};
+                    this.owEsportsEvents.push(event); this.owEsportsEvents.sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
+                    this.owEsportsEventTitle=''; this.owEsportsEventTeams=''; this.owEsportsEventUrl=''; this.owEsportsSave();
+                },
+                owEsportsDeleteEvent(id) { this.owEsportsEvents = this.owEsportsEvents.filter(e => e.id !== id); this.owEsportsSave(); },
+                owEsportsGoogleLink(event) {
+                    const dates = d => new Date(d).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
+                    const details = [event.stage || 'Overwatch Esports',event.teams || '',event.url || ''].filter(Boolean).join('\n');
+                    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(event.title)+'&dates='+dates(event.start)+'/'+dates(event.end)+'&details='+encodeURIComponent(details)+'&ctz=Europe%2FBerlin';
+                },
+                owEsportsIcsEscape(value) { return String(value || '').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;'); },
+                owEsportsExportEvent(event) {
+                    const stamp = d => new Date(d).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
+                    const description = [event.stage || '',event.teams || '',event.url || '', 'Erinnerung: '+(event.reminderMinutes || 30)+' Minuten vorher.'].filter(Boolean).join('\n');
+                    const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CS2 Toolkit Pro//Overwatch Esports//DE','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:'+event.id+'@cs2-toolkit-pro','DTSTAMP:'+stamp(new Date()),'DTSTART:'+stamp(event.start),'DTEND:'+stamp(event.end),'SUMMARY:'+this.owEsportsIcsEscape(event.title),'DESCRIPTION:'+this.owEsportsIcsEscape(description),'URL:'+String(event.url || 'https://liquipedia.net/overwatch/Overwatch_Champions_Series').replace(/[\r\n]/g,''),'BEGIN:VALARM','TRIGGER:-PT'+Math.max(0,Number(event.reminderMinutes)||30)+'M','ACTION:DISPLAY','DESCRIPTION:'+this.owEsportsIcsEscape('Overwatch Esports: '+event.title),'END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+                    const url = URL.createObjectURL(new Blob([ics],{type:'text/calendar;charset=utf-8'}));
+                    const a = document.createElement('a'); a.href=url; a.download=(event.title||'overwatch-esports').replace(/[^a-z0-9_-]+/gi,'-')+'.ics'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+                    this.owEsportsNotice = 'ICS-Termin mit Erinnerungsalarm exportiert. In Apple Kalender öffnen oder in Google Kalender importieren.';
+                },
+                async owEsportsEnableNotifications() {
+                    if (!('Notification' in window)) { this.owEsportsNotice = 'Dieser Browser unterstützt keine Desktop-Benachrichtigungen.'; return; }
+                    const result = await Notification.requestPermission();
+                    this.owEsportsNotice = result === 'granted' ? 'Browser-Erinnerungen erlaubt. Lass die Toolkit-Seite für lokale Hinweise geöffnet.' : 'Benachrichtigungen wurden nicht freigegeben.';
+                },
                 owHeroSearch: '',
                 owMapSearch: '',
                 owMapMode: 'Alle',
