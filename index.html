@@ -455,10 +455,6 @@
                 </div>
             </div>
             <aside id="tournament-calendar" class="lg:sticky lg:top-24 min-w-0">
-                <div class="mb-2 flex items-center justify-between gap-2">
-                    <span class="text-xs font-black uppercase tracking-widest text-gray-500">Kalender · Seitenpanel</span>
-                    <button type="button" @click="window.open(window.location.href.split('#')[0] + '#tournament-calendar', '_blank', 'noopener')" class="text-xs font-bold text-csorange hover:underline">In neuem Tab öffnen ↗</button>
-                </div>
                 <!-- Ausfahrbarer Turnierkalender -->
                 <section class="mt-5 rounded-2xl border border-gray-800 bg-csdark-900 overflow-hidden">
                     <button type="button" @click="tournamentCalendarOpen = !tournamentCalendarOpen" class="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-csdark-800 transition" :aria-expanded="tournamentCalendarOpen">
@@ -576,6 +572,7 @@
                                 <a href="https://liquipedia.net/counterstrike/Main_Page" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">Liquipedia ↗</a>
                                 <a href="https://www.dachcs.de/coverage/" target="_blank" rel="noopener noreferrer" class="text-csorange hover:underline">DACH CS ↗</a>
                             </div>
+                        </div>
                             <section class="mt-5 rounded-xl border border-csorange/40 bg-csdark-800 p-4" aria-label="Persönliche Match-Merkliste">
                                 <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                                     <div>
@@ -603,7 +600,6 @@
                                 </template>
                                 <p x-show="!tournamentCalendarWatchlist.length" class="text-sm text-gray-400">Noch nichts gespeichert. Wähle oben einen Kalendertag und klicke bei einem Eintrag auf „Zur Merkliste“.</p>
                             </section>
-                        </div>
                         <p class="mt-3 text-[11px] text-gray-500">Hinweis: Turnierzeiträume basieren auf veröffentlichten Kalenderangaben und sind als Veranstaltungszeitraum markiert, nicht als bestätigte Einzelspiele. Gruppenphase, Achtelfinale, Viertelfinale, Halbfinale und Finaltag haben eigene visuelle Kennzeichnungen; eine Phase wird erst konkret angezeigt, wenn die Quelle sie bestätigt. Einzelpaarungen, Uhrzeiten und Teamlogos benötigen eine abrufbare Matchdatenquelle.</p>
                     </div>
                 </section>
