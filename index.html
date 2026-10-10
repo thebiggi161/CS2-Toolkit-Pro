@@ -1463,6 +1463,40 @@
                 </button>
             </div>
 
+            <section class="rounded-2xl border border-gray-800 bg-csdark-800 p-5" aria-label="CS2 Esports Team- und Spielersuche">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-black text-white"><i class="fa-solid fa-magnifying-glass text-csorange mr-2"></i>Team-, Spieler- &amp; Matchsuche</h3>
+                        <p class="mt-1 text-xs text-gray-400">Die synchronisierte CS2-Datenbank wird mit Turnierbäumen und Kalender geteilt.</p>
+                    </div>
+                    <button type="button" @click="refreshTournamentCalendar()" :disabled="tournamentCalendarLoading" class="rounded-lg border border-gray-700 px-3 py-2 text-xs font-bold text-csorange hover:border-csorange disabled:opacity-50">
+                        <i class="fa-solid fa-rotate mr-1" :class="tournamentCalendarLoading ? 'fa-spin' : ''"></i>
+                        <span x-text="tournamentCalendarLoading ? 'Synchronisiere …' : 'Daten aktualisieren'"></span>
+                    </button>
+                </div>
+                <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div class="rounded-lg border border-gray-700 bg-csdark-900 p-3"><div class="text-[10px] uppercase tracking-wider text-gray-500">Teams</div><div class="text-xl font-black text-white" x-text="tournamentCalendarTeams.length"></div></div>
+                    <div class="rounded-lg border border-gray-700 bg-csdark-900 p-3"><div class="text-[10px] uppercase tracking-wider text-gray-500">Spieler</div><div class="text-xl font-black text-white" x-text="tournamentCalendarPlayers.length"></div></div>
+                    <div class="rounded-lg border border-gray-700 bg-csdark-900 p-3"><div class="text-[10px] uppercase tracking-wider text-gray-500">Matches</div><div class="text-xl font-black text-white" x-text="tournamentCalendarMatches.length"></div></div>
+                </div>
+                <p class="mt-2 text-[11px] text-gray-500" role="status" x-text="tournamentCalendarStatus || (tournamentCalendarLoading ? 'CS2-Esports-Daten werden geladen …' : 'Noch keine Daten geladen.')"></p>
+                <label class="mt-4 block text-xs font-bold text-gray-300" for="cs2-esports-search">Datenbank durchsuchen</label>
+                <input id="cs2-esports-search" type="search" x-model="tournamentCalendarSearch" placeholder="Team, Spieler oder Match eingeben …" autocomplete="off" class="mt-1 w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-3 text-sm text-white placeholder-gray-500 focus:border-csorange focus:outline-none">
+                <div x-show="tournamentCalendarSearch.trim() && tournamentCalendarSearchResults().length" class="mt-2 max-h-80 overflow-y-auto rounded-lg border border-gray-700 divide-y divide-gray-800">
+                    <template x-for="result in tournamentCalendarSearchResults()" :key="'esports-'+result.id">
+                        <button type="button" @click="tournamentCalendarSelectSearchResult(result); activeTab = 'test'; tournamentCalendarOpen = true" class="flex w-full items-center gap-3 p-3 text-left hover:bg-csdark-700">
+                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-csdark-900">
+                                <img x-show="result.type !== 'match' && result.logoUrl" :src="result.logoUrl" :alt="result.name + ' Logo'" class="h-full w-full object-contain p-1" loading="lazy">
+                                <i x-show="!(result.type !== 'match' && result.logoUrl)" class="fa-solid" :class="result.type === 'team' ? 'fa-shield-halved text-csorange' : (result.type === 'player' ? 'fa-user text-sky-400' : 'fa-gamepad text-gray-400')"></i>
+                            </span>
+                            <span class="min-w-0 flex-1"><span class="block truncate text-sm font-bold text-white" x-text="result.name"></span><span class="block truncate text-xs text-gray-400" x-text="result.detail"></span></span>
+                            <span class="shrink-0 rounded border border-gray-700 px-2 py-1 text-[10px] font-bold text-csorange" x-text="result.type === 'team' ? 'TEAM' : (result.type === 'player' ? 'SPIELER' : 'MATCH')"></span>
+                        </button>
+                    </template>
+                </div>
+                <p x-show="tournamentCalendarSearch.trim() && !tournamentCalendarSearchResults().length && !tournamentCalendarLoading" class="mt-3 text-sm text-gray-400">Keine Treffer. Prüfe die Schreibweise oder aktualisiere die Daten.</p>
+            </section>
+
             <div class="bg-csdark-800 border border-gray-800 rounded-2xl p-5">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
