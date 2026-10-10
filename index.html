@@ -5775,9 +5775,18 @@ bombSites: [
 
         const panels = Array.from(main.querySelectorAll(':scope > [x-show]'));
         const getTabFromButton = (button) => {
-          const expression = button.getAttribute('@click') || button.getAttribute('x-on:click') || '';
+          // Alpine event attributes may include modifiers, e.g. @click.stop.
+          const eventAttribute = button.getAttributeNames().find(name =>
+            name === 'x-on:click' || name.startsWith('@click.') || name === '@click' ||
+            name.startsWith('x-on:click.')
+          );
+          const expression = eventAttribute ? (button.getAttribute(eventAttribute) || '') : '';
           const match = expression.match(/(?:^|[;\s])activeTab\s*=\s*['"]([^'"]+)['"]/);
-          return match ? match[1] : null;
+          if (match) return match[1];
+          const title = (button.getAttribute('title') || '').toLowerCase();
+          if (title.includes('cs2 toolkit')) return 'suggestions';
+          if (title.includes('overwatch toolkit')) return 'overwatch';
+          return null;
         };
         const showTab = (tab) => {
           if (!tab) return;
