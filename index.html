@@ -2502,12 +2502,13 @@
                 },
 
                 tournamentCalendarIsVisible(name) {
+                    if (this.tournamentCalendarVisibleIds.includes('__none__')) return false;
                     return this.tournamentCalendarVisibleIds.length === 0 || this.tournamentCalendarVisibleIds.includes(name);
                 },
 
                 tournamentCalendarToggleFilter(name) {
                     const allNames = this.tournamentCalendarFilters().map(filter => filter.name);
-                    let visible = this.tournamentCalendarVisibleIds.length === 0 ? [...allNames] : [...this.tournamentCalendarVisibleIds];
+                    let visible = this.tournamentCalendarVisibleIds.includes('__none__') ? [] : (this.tournamentCalendarVisibleIds.length === 0 ? [...allNames] : [...this.tournamentCalendarVisibleIds]);
                     visible = visible.includes(name) ? visible.filter(item => item !== name) : [...visible, name];
                     this.tournamentCalendarVisibleIds = visible.length === allNames.length ? [] : visible;
                     localStorage.setItem('cs2_calendar_visible_tournaments', JSON.stringify(this.tournamentCalendarVisibleIds));
@@ -2519,9 +2520,7 @@
                 },
 
                 tournamentCalendarHideAll() {
-                    this.tournamentCalendarVisibleIds = [];
-                    const allNames = this.tournamentCalendarFilters().map(filter => filter.name);
-                    this.tournamentCalendarVisibleIds = ['__none__', ...allNames];
+                    this.tournamentCalendarVisibleIds = ['__none__'];
                     localStorage.setItem('cs2_calendar_visible_tournaments', JSON.stringify(this.tournamentCalendarVisibleIds));
                 },
 
