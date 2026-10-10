@@ -5667,5 +5667,77 @@ bombSites: [
 })();
 </script>
 
+
+    <!-- V2 targeted fixes: game-specific Shisha window, mobile touch and click reliability -->
+    <style id="v2-targeted-fixes">
+      /* Keep interactive controls reachable on touch devices without changing desktop layout. */
+      button, [role="button"], a, input, select, textarea, summary {
+        touch-action: manipulation;
+      }
+      button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+      button:not(:disabled) { cursor: pointer; }
+      button:disabled { cursor: not-allowed; }
+      /* Decorative backgrounds must never intercept clicks. */
+      #ember-fire-bg, body::before, body::after { pointer-events: none !important; }
+      /* The Shisha timer belongs to CS2 only, including its minimized/open launcher. */
+      body.v2-overwatch-mode .shisha-counter-window,
+      body.v2-overwatch-mode .shisha-counter-closed { display: none !important; }
+      @media (max-width: 767px) {
+        html, body { max-width: 100%; overflow-x: clip; }
+        header nav { gap: 6px; }
+        header nav button { min-height: 42px; padding: 9px 11px; }
+        main { padding-left: 10px !important; padding-right: 10px !important; }
+        main button, main [role="button"] { min-height: 40px; }
+        input, select, textarea { max-width: 100%; font-size: 16px; }
+        .esports-mini-player, .ow-esports-mini-player {
+          left: 8px !important; right: 8px !important; top: auto !important;
+          bottom: 8px !important; width: auto !important;
+          max-width: none !important; max-height: 42dvh !important;
+          z-index: 80 !important;
+        }
+        .esports-mini-player.is-minimized, .ow-esports-mini-player.is-minimized {
+          left: auto !important; right: 8px !important; bottom: 8px !important;
+          width: min(220px, calc(100vw - 16px)) !important;
+        }
+        .shisha-counter-window {
+          left: 8px !important; right: 8px !important; top: 64px !important;
+          width: auto !important; max-width: none !important;
+          max-height: calc(100dvh - 80px) !important; overflow-y: auto !important;
+          z-index: 120 !important;
+        }
+        .shisha-counter-closed { top: 8px !important; right: 8px !important; z-index: 120 !important; }
+        iframe, video, canvas { max-width: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; }
+      }
+    </style>
+    <script id="v2-game-visibility-and-touch-fixes">
+      (() => {
+        const syncGameVisibility = () => {
+          try {
+            const root = document.querySelector('body[x-data]');
+            const state = root && window.Alpine && Alpine.$data(root);
+            const isOverwatch = !!(state && state.activeTab === 'overwatch');
+            document.body.classList.toggle('v2-overwatch-mode', isOverwatch);
+          } catch (_) { /* Retry next tick if Alpine is still initializing. */ }
+        };
+        document.addEventListener('alpine:initialized', syncGameVisibility);
+        document.addEventListener('alpine:initialized', () => {
+          syncGameVisibility();
+          window.setInterval(syncGameVisibility, 300);
+        }, { once: true });
+        document.addEventListener('DOMContentLoaded', syncGameVisibility);
+        /* Avoid accidental double activation on touch while preserving Alpine handlers. */
+        document.addEventListener('click', (event) => {
+          const control = event.target && event.target.closest &&
+            event.target.closest('button, [role="button"], a');
+          if (!control || control.disabled || control.getAttribute('aria-disabled') === 'true') return;
+          control.classList.add('v2-interaction-active');
+          window.setTimeout(() => control.classList.remove('v2-interaction-active'), 180);
+        }, true);
+      })();
+    </script>
+
 </body>
 </html>
