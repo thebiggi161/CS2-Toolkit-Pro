@@ -1005,7 +1005,7 @@
             </section>
 
             <!-- TAB: OVERWATCH ESPORTS -->
-            <section x-show="owTab==='esports'" x-cloak class="space-y-5" >
+            <section x-show="owTab==='esports'" x-cloak class="space-y-5" x-init="loadOwTeamLogos()">
                 <div class="rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-950/30 via-csdark-800 to-csdark-900 p-5">
                     <div class="flex flex-wrap items-start justify-between gap-3"><div><div class="text-xs font-black uppercase tracking-widest text-orange-400">Overwatch Champions Series</div><h3 class="mt-1 text-2xl font-black text-white"><i class="fa-solid fa-trophy mr-2 text-orange-400"></i>Overwatch Esports Center</h3> <p class="mt-2 max-w-3xl text-sm text-gray-300">Teamverzeichnis, Result-Profile, OWCS-Turnierbaum und historisches Archiv sind über gemeinsame Suchbegriffe miteinander verknüpft.</p></div></div>
                     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3"><div class="rounded-xl border border-white/10 bg-black/20 p-3"><div class="text-xs text-gray-400">Teams im Verzeichnis</div><div class="text-2xl font-black text-white" x-text="owEsportsTeams.length"></div></div><div class="rounded-xl border border-white/10 bg-black/20 p-3"><div class="text-xs text-gray-400">Historische Turniere</div><div class="text-2xl font-black text-white" x-text="owTournamentArchive.length"></div></div></div>
@@ -3041,6 +3041,26 @@
                     return this.owEsportsTeams.filter(team => (this.owEsportsRegion === 'Alle' || team.region === this.owEsportsRegion) && (!q || (team.name+' '+team.region+' '+team.searchKey).toLowerCase().includes(q)));
                 },
                 owEsportsEmbed: 'https://liquipedia.net/overwatch/Overwatch_Champions_Series',
+                owEsportsLogosLoaded: false,
+                async loadOwTeamLogos() {
+                    if (this.owEsportsLogosLoaded) return;
+                    this.owEsportsLogosLoaded = true;
+                    const requests = this.owEsportsTeams.map(async team => {
+                        try {
+                            const page = encodeURIComponent(team.name.replace(/ /g, '_'));
+                            const endpoint = 'https://liquipedia.net/overwatch/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=96&titles=' + page;
+                            const response = await fetch(endpoint, {headers:{'Accept':'application/json'}});
+                            if (!response.ok) return;
+                            const data = await response.json();
+                            const pages = Object.values((data.query && data.query.pages) || {});
+                            const image = pages.map(item => item.thumbnail && item.thumbnail.source).find(Boolean);
+                            if (image) team.logo = image;
+                        } catch (error) {
+                            // Team initials remain visible if Liquipedia blocks the image API.
+                        }
+                    });
+                    await Promise.all(requests);
+                },
 
                 owTournamentArchiveSearch: '',
                 owTournamentArchiveYear: 0,
