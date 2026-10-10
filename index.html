@@ -481,7 +481,7 @@
                         </div>
                         <div class="grid grid-cols-7 gap-1.5">
                             <template x-for="day in tournamentCalendarDays()" :key="day.key">
-                                <button type="button" @click="tournamentCalendarSelect(day.date)" :disabled="!day.date" class="min-h-[66px] sm:min-h-[88px] p-1.5 rounded-lg border text-left transition overflow-hidden" :class="!day.date ? 'border-transparent bg-transparent cursor-default' : (day.hasEvents ? 'bg-csorange/90 border-csorange text-black hover:bg-csorange' : (day.isToday ? 'bg-csdark-700 border-csorange text-white' : 'bg-csdark-800 border-white/30 text-gray-300 hover:border-csorange'))" :aria-label="day.date ? day.aria : 'Leeres Kalenderfeld'">
+                                <button type="button" @click="tournamentCalendarSelect(day.date)" :disabled="!day.date" class="min-h-[66px] sm:min-h-[88px] p-1.5 rounded-lg border text-left transition overflow-hidden" :class="!day.date ? 'border-transparent bg-transparent cursor-default' : (day.hasEvents ? tournamentCalendarPhaseCellClass(day.phase) : (day.isToday ? 'bg-csdark-700 border-csorange text-white' : 'bg-csdark-800 border-white/30 text-gray-300 hover:border-csorange'))" :aria-label="day.date ? day.aria : 'Leeres Kalenderfeld'">
                                     <span class="block text-xs font-black" x-text="day.date ? day.date.getDate() : ''"></span>
                                     <template x-if="day.hasEvents">
                                         <span class="mt-1 block text-[9px] sm:text-[10px] leading-tight font-bold" x-text="day.preview"></span>
@@ -2493,8 +2493,9 @@
                         days.push({
                             key, date, hasEvents: matches.length > 0,
                             isToday: date.toDateString() === today.toDateString(),
-                            preview: matches.map(e => e.teams || e.tournament).filter(Boolean).join(' · '),
-                            aria: key + (matches.length ? ': ' + matches.map(e => e.tournament + (e.teams ? ' ' + e.teams : '')).join(', ') : '')
+                            preview: matches.map(e => (e.phase ? this.tournamentCalendarPhaseLabel(e.phase) + ': ' : '') + (e.teams || e.tournament)).filter(Boolean).join(' · '),
+                            phase: (matches.find(e => e.phase) || {}).phase || 'tournament',
+                            aria: key + (matches.length ? ': ' + matches.map(e => (e.phase ? this.tournamentCalendarPhaseLabel(e.phase) + ', ' : '') + e.tournament + (e.teams ? ' ' + e.teams : '')).join(', ') : '')
                         });
                     }
                     while (days.length % 7) days.push({ key: 'blank-end-' + days.length, date: null, hasEvents: false });
@@ -2512,6 +2513,19 @@
                         tournament: 'Turnierzeitraum'
                     };
                     return labels[phase] || 'Phase noch nicht bestätigt';
+                },
+
+                tournamentCalendarPhaseCellClass(phase) {
+                    const classes = {
+                        groups: 'bg-sky-900/80 border-sky-500 text-sky-100 hover:bg-sky-800',
+                        round_of_16: 'bg-violet-900/80 border-violet-500 text-violet-100 hover:bg-violet-800',
+                        quarterfinal: 'bg-indigo-900/80 border-indigo-500 text-indigo-100 hover:bg-indigo-800',
+                        semifinal: 'bg-fuchsia-900/80 border-fuchsia-500 text-fuchsia-100 hover:bg-fuchsia-800',
+                        final_day: 'bg-csorange/90 border-csorange text-black hover:bg-csorange',
+                        playoff: 'bg-purple-900/80 border-purple-500 text-purple-100 hover:bg-purple-800',
+                        tournament: 'bg-csorange/90 border-csorange text-black hover:bg-csorange'
+                    };
+                    return classes[phase] || classes.tournament;
                 },
 
                 tournamentCalendarPhaseClass(phase) {
