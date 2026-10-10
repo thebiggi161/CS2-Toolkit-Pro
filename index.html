@@ -64,6 +64,7 @@
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
+            overscroll-behavior: contain;
         }
         .smoke-marker {
             transform: translate(-50%, -50%);
@@ -115,7 +116,7 @@
             border-radius: 16px;
         }
         .overlay-click-through .overlay-settings { pointer-events: none; }
-        .overlay-click-through .overlay-gear { pointer-events: auto; }
+        .overlay-click-through 
                 .esports-mini-player {
             position: fixed;
             left: 18px;
@@ -265,7 +266,17 @@
         }
         .shisha-drag-handle { cursor: grab; user-select: none; touch-action: none; }
         .shisha-drag-handle:active { cursor: grabbing; }
-        .shisha-resize-handle { position:absolute; right:4px; bottom:4px; width:18px; height:18px; cursor:nwse-resize; border-right:2px solid rgba(255,255,255,.45); border-bottom:2px solid rgba(255,255,255,.45); }
+        .shisha-resize-handle {
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            width: 30px;
+            height: 30px;
+            cursor: nwse-resize;
+            border-right: 2px solid rgba(255,255,255,.45);
+            border-bottom: 2px solid rgba(255,255,255,.45);
+            touch-action: none;
+        }
         .shisha-counter-progress {
             height: 5px;
             border-radius: 999px;
@@ -290,19 +301,7 @@
         button, [role="button"] { touch-action: manipulation; }
         input, select, textarea { max-width: 100%; }
         table { max-width: 100%; }
-        .esports-mini-drag-handle, .shisha-drag-handle, .shisha-resize-handle {
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: none;
-        }
-        .shisha-resize-handle {
-            width: 28px;
-            height: 28px;
-            right: 3px;
-            bottom: 3px;
-            touch-action: none;
-        }
-
+        .esports-mini-drag-handle, .shisha-drag-handle,         
         @media (max-width: 767px) {
             body { font-size: 14px; }
             main, main > *, .container, [x-data] { min-width: 0; }
@@ -344,7 +343,6 @@
                 left: 12px;
                 top: 12px;
                 overflow: hidden;
-                resize: both;
                 touch-action: auto;
             }
             .esports-mini-player .mini-video { min-height: 0; }
@@ -378,7 +376,7 @@
             }
             .overlay-gear { left: 8px; bottom: 8px; width: 48px; height: 48px; }
             /* Prevent fixed-width widgets and embedded panels from pushing the page sideways. */
-            .map-radar { max-width: 100%; }
+            
             iframe { max-width: 100%; }
         }
 
@@ -396,12 +394,7 @@
         }
 
         /* Feinschliff für Touch-Bedienung in den einzelnen Toolkit-Modulen */
-        .map-radar {
-            touch-action: none;
-            -webkit-user-select: none;
-            user-select: none;
-            overscroll-behavior: contain;
-        }
+        
         #tournament-calendar { scroll-margin-top: 16px; }
         #tournament-calendar button,
         #tournament-calendar a,
