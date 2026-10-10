@@ -2988,6 +2988,9 @@
                 async loadOwMapImages() {
                     if (this.owMapImagesLoaded) return;
                     this.owMapImagesLoaded = true;
+                    // Official Blizzard map previews for newer maps not yet exposed by the screenshot API.
+                    this.owMapImages['grimsvotn'] = 'https://bnetcmsus-a.akamaihd.net/cms/gallery/RX3QWMYOFLJH1790794796527.png';
+                    this.owMapImages['neon-junction'] = 'https://bnetcmsus-a.akamaihd.net/cms/page_media/fk/FKMOU1K95QU91781145184691.png';
                     // Load real map screenshots rather than search results that can show unrelated artwork.
                     const normalize = value => String(value || '').toLowerCase().normalize('NFD').replace(/[^\x00-\x7F]/g, '').replace(/[^a-z0-9]/g, '');
                     try {
