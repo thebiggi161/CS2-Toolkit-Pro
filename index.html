@@ -577,7 +577,7 @@
                             </template>
                         </div>
                         <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-500">
-                            <span x-text="tournamentCalendarTeams.length ? tournamentCalendarTeams.length + ' Teams · ' + tournamentCalendarMatches.length + ' Paarungen im Datensatz' : 'Teamdaten noch nicht synchronisiert'"></span>
+                            <span x-text="tournamentCalendarTeams.length ? tournamentCalendarTeams.length + ' Teams · ' + tournamentCalendarMatches.length + ' Paarungen im Datensatz · Community-Datenquelle' : 'Teamdaten noch nicht synchronisiert'"></span>
                             <button type="button" @click="refreshTournamentCalendar()" class="text-csorange hover:underline" :disabled="tournamentCalendarLoading" x-text="tournamentCalendarLoading ? 'Synchronisiere …' : 'Teams & Paarungen synchronisieren'"></button>
                         </div>
                         </div>
@@ -2956,7 +2956,11 @@
                         };
                         const unwrapRows = (payload, keys) => {
                             if (Array.isArray(payload)) return payload;
-                            for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
+                            if (Array.isArray(payload?.data)) return payload.data;
+                            for (const key of keys) {
+                                if (Array.isArray(payload?.[key])) return payload[key];
+                                if (Array.isArray(payload?.data?.[key])) return payload.data[key];
+                            }
                             if (Array.isArray(payload?.data?.items)) return payload.data.items;
                             if (Array.isArray(payload?.data?.results)) return payload.data.results;
                             return [];
