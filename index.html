@@ -2036,7 +2036,20 @@
                     <p class="text-[11px] text-gray-500 mt-3">Hinweis: Nicht jeder Befehl ist in jedem Modus nutzbar. Manche benötigen Serverrechte oder <code class="text-csorange">sv_cheats 1</code>; veraltete Befehle können nach Updates entfallen.</p>
                 </div>
                 <div class="text-xs text-gray-500 mb-3">Schnellzugriff auf häufig genutzte Befehle und Binds:</div>
-                <div class="text-xs text-gray-400 mb-3" x-text="'Treffer: ' + matchingCommandCount + ' · Angezeigt: ' + Math.min(matchingCommandCount, 100) + ' von ' + matchingCommandCount + (matchingCommandCount > 100 ? ' – Suchbegriff eingeben, um einzugrenzen.' : '')"></div>
+                <div class="flex flex-wrap gap-2 mb-4" role="group" aria-label="Console-Kategorien">
+                    <template x-for="category in commandCategories" :key="'category:' + category">
+                        <button type="button"
+                            @click="commandCategoryFilter = category"
+                            :class="commandCategoryFilter === category ? 'bg-csorange text-black border-csorange' : 'bg-csdark-900 text-gray-300 border-gray-700 hover:border-csorange/60 hover:text-white'"
+                            class="rounded-lg border px-3 py-2 text-xs font-bold transition"
+                            x-text="category"></button>
+                    </template>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 mb-3 text-[11px] text-gray-500">
+                    <span class="text-gray-400">Filter:</span>
+                    <span class="rounded-full border border-gray-700 bg-csdark-900 px-2 py-1" x-text="commandCategoryFilter"></span>
+                    <span x-text="'Treffer: ' + matchingCommandCount + ' · Angezeigt: ' + Math.min(matchingCommandCount, 100) + ' von ' + matchingCommandCount + (matchingCommandCount > 100 ? ' – Suchbegriff eingeben, um einzugrenzen.' : '')"></span>
+                </div>
                 <div class="grid grid-cols-1 gap-3">
                     <template x-for="cmd in filteredCommands" :key="cmd.kind + ':' + cmd.command">
                         <div class="bg-csdark-900 p-4 rounded-lg border border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:border-gray-700 transition">
@@ -4355,6 +4368,8 @@ bombSites: [
 
                 commandSearch: '',
                 commandSuggestionsOpen: false,
+                commandCategoryFilter: 'Alle',
+                commandCategories: ['Alle', 'Grafik', 'Gameplay', 'HUD', 'Netzwerk', 'Audio', 'Binds', 'Server / Dev'],
                 commands: [...CS2_COMMAND_DATABASE.map(entry => Array.isArray(entry) ? ({
                     command: String(entry[0] || ''),
                     desc: String(entry[1] || 'Keine Beschreibung verfügbar.'),
@@ -4401,10 +4416,36 @@ bombSites: [
                     { command: 'bind "mwheeldown" "+jump"', desc: 'Bindet Springen an das Mausrad.' }
                 ],
 
+                commandCategory(command) {
+                    const text = [
+                        command?.command || '',
+                        command?.desc || '',
+                        command?.kind || '',
+                        command?.flags || ''
+                    ].join(' ').toLowerCase();
+                    const cmd = String(command?.command || '').toLowerCase();
+
+                    if (/\\b(bind|unbind|alias|exec)\\b|\\bbind[ _]/.test(text)) return 'Binds';
+                    if (/\\b(hud|radar|crosshair|reticle|scoreboard|health|armor|telemetry|killfeed|deathnotice|cl_show|cl_hud|cl_radar)/.test(text)) return 'HUD';
+                    if (/\\b(mat_|r_|shader|texture|model|shadow|lighting|ambient|particle|vulkan|directx|dx11|fps|frame.?time|render|display|monitor|resolution|brightness|gamma|contrast|aa_|msaa|taa|fsr|nvidia|reflex)/.test(text) || /^(mat_|r_|gpu_)/.test(cmd)) return 'Grafik';
+                    if (/\\b(net_|network|packet|ping|latency|tick|rate|interp|interpolate|clientport|serverport|download|upload|misdelivery|jitter)/.test(text) || /^(net_|mm_|cl_net|cl_updaterate|cl_cmdrate)/.test(cmd)) return 'Netzwerk';
+                    if (/\\b(volume|sound|audio|music|voice|snd_|speaker|microphone|mute|radio)/.test(text) || /^(snd_|voice_|volume)/.test(cmd)) return 'Audio';
+                    if (/\\b(sv_|server|cheat|developer|debug|developmentonly|gamedll|clientdll|engine|diagnostic|test)/.test(text) || /^(sv_|host_|developer|debug_)/.test(cmd)) return 'Server / Dev';
+                    return 'Gameplay';
+                },
                 get matchingCommands() {
                     const q = (this.commandSearch || '').trim().toLowerCase();
-                    if (!q) return this.commands;
-                    return this.commands.filter(c => (c.command || '').toLowerCase().includes(q) || (c.desc || '').toLowerCase().includes(q) || (c.kind || '').toLowerCase().includes(q) || (c.flags || '').toLowerCase().includes(q) || String(c.defaultValue || '').toLowerCase().includes(q));
+                    const category = this.commandCategoryFilter;
+                    return this.commands.filter(c => {
+                        const matchesCategory = category === 'Alle' || this.commandCategory(c) === category;
+                        if (!matchesCategory) return false;
+                        if (!q) return true;
+                        return (c.command || '').toLowerCase().includes(q) ||
+                            (c.desc || '').toLowerCase().includes(q) ||
+                            (c.kind || '').toLowerCase().includes(q) ||
+                            (c.flags || '').toLowerCase().includes(q) ||
+                            String(c.defaultValue || '').toLowerCase().includes(q);
+                    });
                 },
                 get matchingCommandCount() { return this.matchingCommands.length; },
                 get filteredCommands() { return this.matchingCommands.slice(0, 100); }
