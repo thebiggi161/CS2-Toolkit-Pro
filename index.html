@@ -139,6 +139,17 @@
             user-select: none;
         }
         .esports-mini-player.is-minimized { width: auto; height: auto; min-width: 0; min-height: 0; resize: none; }
+        .ow-esports-mini-player {
+            position: fixed; left: 18px; top: 18px; width: 420px; height: 360px;
+            min-width: 400px; min-height: 330px; max-width: min(75vw, 900px); max-height: 80vh;
+            z-index: 9998; background: rgba(7,7,7,.9); border: 1px solid rgba(249,115,22,.65);
+            border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.65);
+            backdrop-filter: blur(12px); resize: both; user-select: none;
+        }
+        .ow-esports-mini-player.is-minimized { width: auto; height: auto; min-width: 0; min-height: 0; resize: none; }
+        .ow-esports-mini-player .ow-mini-drag-handle { cursor: grab; touch-action: none; }
+        .ow-esports-mini-player .ow-mini-drag-handle:active { cursor: grabbing; }
+        .ow-esports-mini-player button { pointer-events: auto; }
         .esports-mini-drag-handle { cursor: grab; touch-action: none; }
         .esports-mini-drag-handle:active { cursor: grabbing; }
         .esports-mini-player button, .esports-mini-player iframe { cursor: default; }
@@ -626,7 +637,7 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
 
     <!-- GLOBAL ESPORTS MINI PLAYER -->
-    <div x-show="esportsMiniVisible" x-cloak class="esports-mini-player"
+    <div x-show="esportsMiniVisible && activeTab !== 'overwatch'" x-cloak class="esports-mini-player"
          :class="activeTab === 'suggestions' ? 'is-home' : (esportsMiniMinimized ? 'is-minimized' : '')"
          :style="`left:${esportsMiniX}px; top:${esportsMiniY}px; right:auto; bottom:auto; background:rgba(7,7,7,${overlayOpacity});`"
          >
@@ -661,6 +672,32 @@
                 <iframe class="w-full h-full" :src="esportsStreamUrl()" :title="esportsStreamLabel() + ' Counter-Strike Live'" frameborder="0" allowfullscreen></iframe>
             </template>
             <span class="esports-resize-hint"></span>
+        </div>
+    </div>
+
+    <!-- OVERWATCH TWITCH MINI PLAYER: sichtbar nur im Overwatch-Toolkit -->
+    <div x-show="owMiniVisible && activeTab === 'overwatch'" x-cloak
+         class="ow-esports-mini-player" :class="owMiniMinimized ? 'is-minimized' : ''"
+         :style="`left:${owMiniX}px;top:${owMiniY}px;right:auto;bottom:auto;`">
+        <div class="ow-mini-drag-handle px-3 py-2 bg-csdark-800 border-b border-orange-500/30 flex items-center justify-between gap-2"
+             @pointerdown="startOwMiniDrag($event)">
+            <div class="min-w-0 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-orange-500 text-black flex items-center justify-center"><i class="fa-brands fa-twitch"></i></span>
+                <span x-show="!owMiniMinimized" class="min-w-0">
+                    <span class="block text-[10px] uppercase tracking-widest text-orange-400 font-black">Overwatch Esports Live</span>
+                    <span class="block text-xs font-bold text-white truncate">twitch.tv/ow_esports</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+                <button type="button" @pointerdown.stop @click.stop="owMiniMinimized=!owMiniMinimized" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300" :title="owMiniMinimized ? 'Player öffnen' : 'Minimieren'"><i class="fa-solid" :class="owMiniMinimized ? 'fa-expand' : 'fa-minus'"></i></button>
+                <a href="https://www.twitch.tv/ow_esports" target="_blank" rel="noopener noreferrer" @pointerdown.stop class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-csdark-600 text-gray-300 flex items-center justify-center" title="Auf Twitch öffnen"><i class="fa-solid fa-up-right-from-square"></i></a>
+                <button type="button" @pointerdown.stop @click.stop="owMiniVisible=false" class="w-7 h-7 rounded-lg bg-csdark-700 hover:bg-red-900/50 text-gray-400 hover:text-white" title="Overwatch-Player schließen"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div x-show="!owMiniMinimized" class="bg-black w-full" style="height:calc(100% - 45px);min-height:285px">
+            <iframe class="w-full h-full border-0" src="https://player.twitch.tv/?channel=ow_esports&amp;parent=thebiggi161.github.io&amp;autoplay=false&amp;muted=true"
+                    title="Overwatch Esports Twitch Live" loading="lazy" allowfullscreen
+                    allow="autoplay; fullscreen; picture-in-picture"></iframe>
         </div>
     </div>
 
@@ -3487,6 +3524,35 @@
                 weaponCategory: 'all',
                 weaponSide: 'all',
                 bracketSource: 'dach',
+
+                owMiniVisible: true,
+                owMiniMinimized: false,
+                owMiniX: 18,
+                owMiniY: 90,
+                owMiniDragging: false,
+                owMiniDragOffsetX: 0,
+                owMiniDragOffsetY: 0,
+                startOwMiniDrag(event) {
+                    if (event.button !== undefined && event.button !== 0) return;
+                    if (event.target && event.target.closest && event.target.closest('button,a')) return;
+                    this.owMiniDragging = true;
+                    this.owMiniDragOffsetX = event.clientX - this.owMiniX;
+                    this.owMiniDragOffsetY = event.clientY - this.owMiniY;
+                    const move = (e) => {
+                        if (!this.owMiniDragging) return;
+                        this.owMiniX = Math.max(0, Math.min(window.innerWidth - (this.owMiniMinimized ? 180 : 400), e.clientX - this.owMiniDragOffsetX));
+                        this.owMiniY = Math.max(0, Math.min(window.innerHeight - 60, e.clientY - this.owMiniDragOffsetY));
+                    };
+                    const stop = () => {
+                        this.owMiniDragging = false;
+                        window.removeEventListener('pointermove', move);
+                        window.removeEventListener('pointerup', stop);
+                        window.removeEventListener('pointercancel', stop);
+                    };
+                    window.addEventListener('pointermove', move);
+                    window.addEventListener('pointerup', stop);
+                    window.addEventListener('pointercancel', stop);
+                },
 
                 esportsStream: 'iem',
                 esportsMiniVisible: true,
