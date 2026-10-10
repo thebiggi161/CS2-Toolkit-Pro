@@ -714,6 +714,38 @@
                                                 </div>
                                             </template>
                                             <div x-show="!event.team1Name || !event.team2Name" class="mt-1 text-sm text-white" x-text="event.teams || (event.start && event.end ? 'Turnierzeitraum · ' + new Date(event.start + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short'}) + ' – ' + new Date(event.end + 'T12:00:00').toLocaleDateString('de-DE', {day:'2-digit',month:'short',year:'numeric'}) : 'Spielpaarung noch nicht veröffentlicht')"></div>
+                                            <template x-if="!event.team1Name || !event.team2Name">
+                                                <div x-show="tournamentCalendarPairingsForEvent(event).length" class="mt-4 border-t border-gray-800 pt-3">
+                                                    <div class="mb-2 flex items-center justify-between gap-2">
+                                                        <span class="text-xs font-black uppercase tracking-wide text-gray-300">Paarungen dieses Turniers</span>
+                                                        <span class="text-[10px] text-gray-500" x-text="tournamentCalendarPairingsForEvent(event).length + ' Spiele am ' + tournamentCalendarSavedDate(event.date)"></span>
+                                                    </div>
+                                                    <div class="space-y-2">
+                                                        <template x-for="match in tournamentCalendarPairingsForEvent(event)" :key="'calendar-pairing-' + match.id">
+                                                            <div class="rounded-lg border border-gray-800 bg-csdark-800/80 p-3">
+                                                                <div class="mb-2 flex flex-wrap items-center justify-between gap-2 text-[10px] text-gray-500">
+                                                                    <span x-text="match.time || 'Uhrzeit offen'"></span>
+                                                                    <span x-show="match.phase || match.status" class="rounded border border-gray-700 px-2 py-0.5" x-text="match.phase || match.status"></span>
+                                                                </div>
+                                                                <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3">
+                                                                    <div class="flex min-w-0 items-center gap-2">
+                                                                        <img x-show="match.team1Logo" :src="match.team1Logo" :alt="match.team1Name + ' Logo'" class="h-8 w-8 shrink-0 rounded-full bg-black/30 object-contain p-1" loading="lazy">
+                                                                        <span x-show="!match.team1Logo" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-700 bg-csdark-900 text-gray-400"><i class="fa-solid fa-shield-halved"></i></span>
+                                                                        <span class="min-w-0 break-words text-xs sm:text-sm font-bold text-white" x-text="match.team1Name"></span>
+                                                                    </div>
+                                                                    <span class="rounded-md border border-gray-700 px-2 py-1 text-xs font-black text-csorange" x-text="match.score || 'VS'"></span>
+                                                                    <div class="flex min-w-0 items-center justify-end gap-2">
+                                                                        <span class="min-w-0 break-words text-right text-xs sm:text-sm font-bold text-white" x-text="match.team2Name"></span>
+                                                                        <img x-show="match.team2Logo" :src="match.team2Logo" :alt="match.team2Name + ' Logo'" class="h-8 w-8 shrink-0 rounded-full bg-black/30 object-contain p-1" loading="lazy">
+                                                                        <span x-show="!match.team2Logo" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-700 bg-csdark-900 text-gray-400"><i class="fa-solid fa-shield-halved"></i></span>
+                                                                    </div>
+                                                                </div>
+                                                                <a x-show="match.url" :href="match.url" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-[10px] text-csorange hover:underline">Matchdetails öffnen ↗</a>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
                                             <div class="text-xs text-gray-500 mt-1" x-text="event.source || 'Quelle nicht bestätigt'"></div>
                                             <div class="mt-3 flex flex-wrap items-center gap-3">
                                                 <a x-show="event.url" :href="event.url" target="_blank" rel="noopener noreferrer" class="text-xs text-csorange hover:underline">Spielplan / Quelle öffnen ↗</a>
@@ -3011,6 +3043,20 @@
                         .filter(event => this.tournamentCalendarIsVisible(event.tournament) && this.tournamentCalendarMatchesSearch(event) && /^\d{4}-\d{2}-\d{2}$/.test(event.start || '') && /^\d{4}-\d{2}-\d{2}$/.test(event.end || '') && event.start <= event.end && date >= event.start && date <= event.end)
                         .map(event => ({ ...event, date, teams: '', time: '', id: event.id + '-' + date }));
                     return [...live, ...scheduled].sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')) || String(a.tournament || '').localeCompare(String(b.tournament || ''), 'de'));
+                },
+
+                tournamentCalendarPairingsForEvent(event) {
+                    if (!event || !event.tournament || !event.date) return [];
+                    const normalize = value => String(value || '').toLocaleLowerCase('de').replace(/[^a-z0-9äöüß]+/gi, ' ').trim();
+                    const tournament = normalize(event.tournament);
+                    return (this.tournamentCalendarMatches || [])
+                        .filter(match => {
+                            if (!match.date || match.date !== event.date || !match.team1Name || !match.team2Name) return false;
+                            const candidate = normalize(match.tournament);
+                            return candidate === tournament || candidate.includes(tournament) || tournament.includes(candidate);
+                        })
+                        .sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')))
+                        .slice(0, 12);
                 },
 
                 tournamentCalendarIsSaved(event) {
