@@ -792,7 +792,7 @@
             <section x-show="owTab==='heroes'" x-cloak class="space-y-4">
                 <div class="rounded-2xl border border-gray-800 bg-csdark-800 p-4 sm:p-5">
                     <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-                        <div><h3 class="text-xl font-black text-white">Helden-Datenbank</h3><p class="mt-1 text-sm text-gray-400">Durchsuchbare Übersicht mit Rollen und kurzen Einsatzhinweisen.</p></div>
+                        <div><h3 class="text-xl font-black text-white">Helden-Datenbank</h3><p class="mt-1 text-sm text-gray-400">Alle Helden mit Rollen, Spielstil und sieben Vergleichswerten. Werte von 1–10 sind Toolkit-Einschätzungen, keine offiziellen Ingame-Stats. „Aim/ADS“ bewertet Präzision bzw. Zoom-Zielspiel, sofern vorhanden.</p></div>
                         <input x-model="owHeroSearch" type="search" placeholder="Held suchen …" class="w-full md:max-w-xs rounded-lg border border-gray-700 bg-csdark-900 px-3 py-2 text-sm text-white focus:border-orange-400 focus:outline-none">
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">
@@ -810,6 +810,14 @@
                                 <span class="rounded-lg bg-black/30 px-2 py-1 text-xs font-bold text-orange-300" x-text="hero.style"></span>
                             </div>
                             <p class="mt-2 text-sm text-gray-400" x-text="hero.tip"></p>
+                            <div class="mt-3 grid grid-cols-2 gap-x-3 gap-y-2">
+                                <template x-for="stat in [{key:'aim',label:'Aim / ADS'},{key:'speed',label:'Speed'},{key:'strength',label:'Stärke'},{key:'fireRate',label:'Feuerrate'},{key:'skill',label:'Skill / Utility'},{key:'tank',label:'Tankiness'},{key:'movement',label:'Movement'}]" :key="stat.key">
+                                    <div>
+                                        <div class="mb-1 flex items-center justify-between gap-2 text-[11px]"><span class="text-gray-400" x-text="stat.label"></span><span class="font-bold text-gray-200" x-text="hero.stats[stat.key]+'/10'"></span></div>
+                                        <div class="h-1.5 overflow-hidden rounded-full bg-gray-700"><div class="h-full rounded-full bg-orange-400" :style="'width:'+(hero.stats[stat.key]*10)+'%'"></div></div>
+                                    </div>
+                                </template>
+                            </div>
                         </article>
                     </template>
                     <div x-show="owFilteredHeroes.length===0" class="col-span-full rounded-xl border border-gray-800 bg-csdark-800 p-8 text-center text-gray-400">Keine passenden Helden gefunden.</div>
@@ -3063,8 +3071,11 @@
                 owCrosshairGap: 3,
                 owCrosshairThickness: 2,
                 owHeroData: [
+                    {name:'D.Mon',role:'Tank',style:'Stalwart',tip:'Robuster Frontline-Tank; Winkel halten und defensive Ressourcen fürs Teamtiming nutzen.'},
                     {name:'D.Va',role:'Tank',style:'Dive',tip:'Hohe Mobilität, kann gegnerische Projektile mit Defensivmatrix abfangen.'},
+                    {name:'Domina',role:'Tank',style:'Poke',tip:'Kontrolliert Distanz und Sichtlinien mit Barrieren; stark beim Halten vorbereiteter Winkel.'},
                     {name:'Doomfist',role:'Tank',style:'Dive',tip:'Mobiler Frontliner; sucht isolierte Ziele und braucht gutes Timing.'},
+                    {name:'Hazard',role:'Tank',style:'Dive',tip:'Aggressiver Initiator mit Wand- und Sprungdruck; Engstellen und Rückzugswege planen.'},
                     {name:'Junker Queen',role:'Tank',style:'Brawl',tip:'Aggressiver Nahkampf-Tank mit Wunden, Ruf und Team-Push.'},
                     {name:'Mauga',role:'Tank',style:'Brawl',tip:'Dauerfeuer und Druck auf große Ziele; Deckung und Cooldowns bewusst nutzen.'},
                     {name:'Orisa',role:'Tank',style:'Frontline',tip:'Stark beim Halten von Raum und beim Unterbrechen gegnerischer Angriffe.'},
@@ -3075,37 +3086,69 @@
                     {name:'Winston',role:'Tank',style:'Dive',tip:'Springt auf Backline-Ziele und schafft mit Barriere kurzzeitig Raum.'},
                     {name:'Wrecking Ball',role:'Tank',style:'Disrupt',tip:'Stört Formationen, zieht Aufmerksamkeit und benötigt gute Routen.'},
                     {name:'Zarya',role:'Tank',style:'Brawl',tip:'Gut getimte Blasen schützen Verbündete und erhöhen den eigenen Druck.'},
+                    {name:'Anran',role:'Schaden',style:'Flank / Feuer',tip:'Feuerbasierter Nah- bis Mittelstrecken-Druck; Combos und sichere Einstiege timen.'},
                     {name:'Ashe',role:'Schaden',style:'Hitscan',tip:'Präzise Distanzschüsse, Dynamit für Flächendruck und B.O.B. zur Raumkontrolle.'},
                     {name:'Bastion',role:'Schaden',style:'Burst',tip:'Hoher situativer Schaden; Winkel wechseln und nicht statisch stehen bleiben.'},
                     {name:'Cassidy',role:'Schaden',style:'Hitscan',tip:'Stark auf mittlere Distanz; Cooldown und Deckung gegen Dive nutzen.'},
                     {name:'Echo',role:'Schaden',style:'Flank',tip:'Vertikale Mobilität und fokussierter Schaden gegen Ziele mit wenig Leben.'},
+                    {name:'Emre',role:'Schaden',style:'Burst / Rifle',tip:'Gewehrdruck mit explosiver Utility verbinden; Burst-Fenster gezielt ausnutzen.'},
+                    {name:'Freja',role:'Schaden',style:'Projectile',tip:'Präzise explosive Bolzen und schnelle Dashes; Distanz und Fluchtweg planen.'},
                     {name:'Genji',role:'Schaden',style:'Dive',tip:'Mobilität und Deflektion für schnelle Flanken und saubere Finisher einsetzen.'},
                     {name:'Hanzo',role:'Schaden',style:'Projectile',tip:'Winkel, Sound und Pfeil-Utility nutzen; nicht lange auf derselben Position bleiben.'},
                     {name:'Junkrat',role:'Schaden',style:'Area denial',tip:'Engstellen kontrollieren und Granaten aus sicherer Deckung einsetzen.'},
                     {name:'Mei',role:'Schaden',style:'Control',tip:'Wände trennen Teams; Kryo und Verlangsamung defensiv wie offensiv nutzen.'},
                     {name:'Pharah',role:'Schaden',style:'Air',tip:'Vertikale Winkel ausnutzen und Flugrouten mit Deckung planen.'},
                     {name:'Reaper',role:'Schaden',style:'Flank',tip:'Kurze Distanzen und Überraschungsangriffe bevorzugen; Rückzug vorher planen.'},
+                    {name:'Shion',role:'Schaden',style:'Flank',tip:'Schnelle Flanken und Zielwechsel belohnen gutes Timing; nicht ohne Exit committen.'},
+                    {name:'Sierra',role:'Schaden',style:'Recon',tip:'Information und präziser Druck helfen beim Aufdecken und Fokussieren verwundbarer Ziele.'},
                     {name:'Sojourn',role:'Schaden',style:'Hitscan',tip:'Primärfeuer für Energie und Railgun für präzise Burst-Fenster kombinieren.'},
                     {name:'Soldier: 76',role:'Schaden',style:'Hitscan',tip:'Flexibler Allrounder; Sprint, Biotikfeld und kontrollierte Salven nutzen.'},
                     {name:'Sombra',role:'Schaden',style:'Disrupt',tip:'Isolierte Ziele markieren, Fähigkeiten stören und mit Teamdruck kombinieren.'},
                     {name:'Symmetra',role:'Schaden',style:'Control',tip:'Teleporter und Geschütze für geplante Setups und Engstellen einsetzen.'},
                     {name:'Torbjörn',role:'Schaden',style:'Defense',tip:'Geschützturm deckt Flanken; Überladung in wichtigen Teamfights nutzen.'},
                     {name:'Tracer',role:'Schaden',style:'Dive',tip:'Blink-Ladungen verwalten, Gegner ablenken und Recall nicht verschwenden.'},
+                    {name:'Vendetta',role:'Schaden',style:'Melee / Flank',tip:'Nahkampf-Druck über Flanken aufbauen; Timing und Rückzug nach dem Engage sichern.'},
                     {name:'Venture',role:'Schaden',style:'Dive',tip:'Burrow und Drill Dash für überraschende Einstiege und sichere Exits kombinieren.'},
                     {name:'Widowmaker',role:'Schaden',style:'Sniper',tip:'Sichtlinien und Positionswechsel priorisieren; nicht auf einer Position festkleben.'},
                     {name:'Ana',role:'Support',style:'Utility',tip:'Heilung und Anti-Heilgranate können Teamfights entscheiden; Sichtlinien sichern.'},
                     {name:'Baptiste',role:'Support',style:'Utility',tip:'Immortality Field für entscheidende Momente aufheben und hohe Positionen nutzen.'},
                     {name:'Brigitte',role:'Support',style:'Peel',tip:'Backline schützen und Heilung durch aktives, aber kontrolliertes Mitspielen erzeugen.'},
+                    {name:'Doctrine',role:'Support',style:'Utility',tip:'Team-Utility und Fähigkeitentiming priorisieren; Positionierung an den Frontline-Abstand anpassen.'},
                     {name:'Illari',role:'Support',style:'Hitscan',tip:'Heil-Pylon sicher platzieren und Trefferfenster für Schaden nutzen.'},
+                    {name:'Jetpack Cat',role:'Support',style:'Air / Mobility',tip:'Luftbewegung für sichere Rotationen und Rettungen nutzen; nicht ohne Teamunterstützung isolieren.'},
                     {name:'Juno',role:'Support',style:'Mobility',tip:'Teamrotation und Tempo mit Mobilität und unterstützenden Fähigkeiten verbessern.'},
                     {name:'Kiriko',role:'Support',style:'Utility',tip:'Suzu für wichtige gegnerische Effekte aufheben und mit Kunai Druck setzen.'},
                     {name:'Lifeweaver',role:'Support',style:'Utility',tip:'Pull und Plattform zur Rettung und Positionskontrolle einsetzen.'},
                     {name:'Lúcio',role:'Support',style:'Tempo',tip:'Geschwindigkeit für Engage oder Rückzug und Sound Barrier gegen Burst nutzen.'},
                     {name:'Mercy',role:'Support',style:'Pocket',tip:'Bewegung und sichere Flugziele priorisieren; Damage Boost passend zum Fight nutzen.'},
+                    {name:'Mizuki',role:'Support',style:'Utility',tip:'Heilung und Kontrolle auf Teamfight-Fenster abstimmen; sichere Winkel für Fähigkeiten suchen.'},
                     {name:'Moira',role:'Support',style:'Brawl',tip:'Heilressourcen managen und Fade für sichere Ausstiege bereithalten.'},
                     {name:'Wuyang',role:'Support',style:'Utility',tip:'Unterstützt Teamtempo und Überleben; Fähigkeiten auf Teamfight-Fenster abstimmen.'},
                     {name:'Zenyatta',role:'Support',style:'Poke',tip:'Discord-Ziel mit dem Team fokussieren und Positionierung für Distanzschaden nutzen.'}
-                ],
+                ].map(hero => {
+                    const ratings = {
+                        'D.Mon':[6,8,8,7,7,9,8], 'D.Va':[6,9,8,8,7,8,10], 'Domina':[8,4,7,6,8,9,4],
+                        'Doomfist':[5,9,9,5,9,7,10], 'Hazard':[6,8,8,7,8,8,9], 'Junker Queen':[6,7,8,7,8,7,7],
+                        'Mauga':[6,4,9,10,7,9,4], 'Orisa':[7,3,8,8,7,10,3], 'Ramattra':[6,4,8,7,9,9,4],
+                        'Reinhardt':[3,4,9,3,8,10,5], 'Roadhog':[5,3,9,5,8,10,3], 'Sigma':[8,3,8,6,9,9,3],
+                        'Winston':[4,8,7,7,8,9,8], 'Wrecking Ball':[4,10,7,5,8,8,10], 'Zarya':[6,4,8,9,8,9,4],
+                        'Anran':[6,7,8,7,9,2,8], 'Ashe':[9,3,8,6,7,1,3], 'Bastion':[6,2,10,10,6,2,2],
+                        'Cassidy':[9,3,8,7,6,2,3], 'Echo':[7,9,9,7,10,1,9], 'Emre':[8,4,8,8,7,2,4],
+                        'Freja':[8,8,8,6,8,1,9], 'Genji':[6,10,8,7,8,1,10], 'Hanzo':[9,4,9,5,7,1,5],
+                        'Junkrat':[5,3,9,8,8,1,4], 'Mei':[6,3,7,6,9,4,3], 'Pharah':[6,8,9,7,8,1,8],
+                        'Reaper':[5,5,10,8,7,2,5], 'Shion':[6,9,8,7,8,1,9], 'Sierra':[8,6,8,7,8,1,6],
+                        'Sojourn':[9,6,9,8,7,1,7], 'Soldier: 76':[8,7,7,9,6,2,7], 'Sombra':[6,9,7,6,10,1,9],
+                        'Symmetra':[5,3,8,8,9,2,4], 'Torbjörn':[6,3,8,7,7,3,3], 'Tracer':[6,10,7,8,7,1,10],
+                        'Vendetta':[5,9,9,6,8,2,9], 'Venture':[5,9,8,6,9,2,9], 'Widowmaker':[10,3,10,4,6,1,3],
+                        'Ana':[10,2,6,5,10,1,2], 'Baptiste':[8,5,7,8,8,3,5], 'Brigitte':[4,4,6,5,8,6,4],
+                        'Doctrine':[6,4,6,5,9,2,4], 'Illari':[9,4,8,6,7,1,4], 'Jetpack Cat':[4,10,4,3,8,1,10],
+                        'Juno':[6,9,6,7,8,1,9], 'Kiriko':[9,8,7,6,10,1,8], 'Lifeweaver':[4,6,4,3,9,1,6],
+                        'Lúcio':[4,10,5,5,8,2,10], 'Mercy':[3,9,3,2,8,1,9], 'Mizuki':[5,5,5,4,9,2,5],
+                        'Moira':[4,6,6,7,8,2,6], 'Wuyang':[6,6,6,5,9,2,6], 'Zenyatta':[9,2,8,6,8,1,2]
+                    };
+                    const v = ratings[hero.name] || [5,5,5,5,5,5,5];
+                    return {...hero, stats:{aim:v[0],speed:v[1],strength:v[2],fireRate:v[3],skill:v[4],tank:v[5],movement:v[6]}};
+                }),
                 get owFilteredHeroes() {
                     const q = (this.owHeroSearch || '').trim().toLowerCase();
                     return this.owHeroData.filter(hero => (this.owRoleFilter === 'Alle' || hero.role === this.owRoleFilter) && (!q || hero.name.toLowerCase().includes(q) || hero.role.toLowerCase().includes(q) || hero.style.toLowerCase().includes(q) || hero.tip.toLowerCase().includes(q)));
