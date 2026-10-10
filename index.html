@@ -2162,6 +2162,7 @@
                                 <button type="button" @click="consoleCategory='Alle'" :class="consoleCategory==='Alle' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Alle</button>
                                 <button type="button" @click="consoleCategory='Grafik / FPS'" :class="consoleCategory==='Grafik / FPS' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Grafik / FPS</button>
                                 <button type="button" @click="consoleCategory='HUD'" :class="consoleCategory==='HUD' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">HUD</button>
+                                <button type="button" @click="consoleCategory='Gameplay'" :class="consoleCategory==='Gameplay' ? 'bg-csorange text-black' : 'border border-gray-700 text-gray-300'" class="rounded-lg px-3 py-2 text-xs font-bold">Gameplay</button>
                             </div>
                         </div>
                         <div class="space-y-2 max-h-[440px] overflow-y-auto pr-1">
@@ -2412,7 +2413,51 @@
                 {name:'cl_teamid_overhead_mode',value:'2',category:'HUD',selected:false},
                 {name:'cl_autohelp',value:'0',category:'HUD',selected:false},
                 {name:'cl_showloadout',value:'1',category:'HUD',selected:false},
-                {name:'engine_low_latency_sleep_after_client_tick',value:'0',category:'Grafik / FPS',selected:false}
+                {name:'engine_low_latency_sleep_after_client_tick',value:'0',category:'Grafik / FPS',selected:false},
+                {name:'cl_disablehtmlmotd',value:'1',category:'Gameplay',selected:false},
+                {name:'cl_use_opens_buy_menu',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_buywheel_nonumberpurchasing',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_buywheel_donate_key',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_dm_buyrandomweapons',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_sniper_auto_rezoom',value:'1',category:'Gameplay',selected:false},
+                {name:'cl_crosshair_recoil',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshair_drawoutline',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshairalpha',value:'255',category:'HUD',selected:false},
+                {name:'cl_crosshairdot',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshairgap',value:'-2',category:'HUD',selected:false},
+                {name:'cl_crosshairsize',value:'2',category:'HUD',selected:false},
+                {name:'cl_crosshairstyle',value:'4',category:'HUD',selected:false},
+                {name:'cl_crosshairthickness',value:'0.5',category:'HUD',selected:false},
+                {name:'cl_crosshairusealpha',value:'1',category:'HUD',selected:false},
+                {name:'cl_crosshair_t',value:'0',category:'HUD',selected:false},
+                {name:'cl_crosshairgap_useweaponvalue',value:'0',category:'HUD',selected:false},
+                {name:'cl_hud_color',value:'0',category:'HUD',selected:false},
+                {name:'cl_show_team_equipment',value:'1',category:'HUD',selected:false},
+                {name:'cl_draw_only_deathnotices',value:'0',category:'HUD',selected:false},
+                {name:'cl_teamid_overhead_colors_show',value:'1',category:'HUD',selected:false},
+                {name:'cl_teamid_overhead_mode',value:'2',category:'HUD',selected:false},
+                {name:'cl_radar_icon_scale_min',value:'0.6',category:'HUD',selected:false},
+                {name:'cl_radar_square_with_scoreboard',value:'1',category:'HUD',selected:false},
+                {name:'cl_hud_playercount_showcount',value:'1',category:'HUD',selected:false},
+                {name:'cl_hud_playercount_pos',value:'0',category:'HUD',selected:false},
+                {name:'cl_hud_bomb_under_radar',value:'1',category:'HUD',selected:false},
+                {name:'cl_hud_healthammo_style',value:'0',category:'HUD',selected:false},
+                {name:'cl_hud_background_alpha',value:'0.5',category:'HUD',selected:false},
+                {name:'cl_hud_color',value:'0',category:'HUD',selected:false},
+                {name:'cl_viewmodel_shift_left_amt',value:'1.5',category:'HUD',selected:false},
+                {name:'cl_viewmodel_shift_right_amt',value:'0.75',category:'HUD',selected:false},
+                {name:'viewmodel_fov',value:'68',category:'HUD',selected:false},
+                {name:'viewmodel_offset_x',value:'2.5',category:'HUD',selected:false},
+                {name:'viewmodel_offset_y',value:'0',category:'HUD',selected:false},
+                {name:'viewmodel_offset_z',value:'-1.5',category:'HUD',selected:false},
+                {name:'sensitivity',value:'1',category:'Gameplay',selected:false},
+                {name:'zoom_sensitivity_ratio',value:'1',category:'Gameplay',selected:false},
+                {name:'cl_autowepswitch',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_mute_enemy_team',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_mute_all_but_friends_and_party',value:'0',category:'Gameplay',selected:false},
+                {name:'cl_color',value:'0',category:'HUD',selected:false},
+                {name:'cl_prefer_lefthanded',value:'0',category:'HUD',selected:false},
+                {name:'fps_max_ui',value:'120',category:'Grafik / FPS',selected:false}
             ];
             const buildConsoleCommands = () => commandSpecs.map(spec => {
                 const row = (Array.isArray(CS2_COMMAND_DATABASE) ? CS2_COMMAND_DATABASE : []).find(entry => Array.isArray(entry) && entry[0] === spec.name);
@@ -2465,7 +2510,7 @@
                     this.notice = 'FPS-Basisbefehle ausgewählt. Bitte Werte prüfen und dann exportieren.';
                 },
                 buildConsoleConfig() {
-                    return this.selectedConsoleCommands.map(cmd => cmd.name + ' ' + String(cmd.value).trim()).join('\\n');
+                    return this.selectedConsoleCommands.map(cmd => cmd.name + ' ' + String(cmd.value).trim()).join('\n');
                 },
                 async importCfgFile(event) {
                     const file = event.target.files && event.target.files[0];
@@ -2480,8 +2525,10 @@
                 },
                 generateConfigEditor() {
                     const commands = this.buildConsoleConfig();
-                    this.configEditor = '// CS2 Toolkit Pro V2 - Console / HUD Config\\n// Vor dem Einsatz jede Zeile im Spiel prüfen.\\n' + (commands ? commands + '\\n' : '');
-                    this.notice = 'Config-Editor aus den ausgewählten Commands erstellt. Du kannst die Zeilen jetzt bearbeiten.';
+                    const custom = String(this.configEditor || '').trim();
+                    const header = '// CS2 Toolkit Pro V2 - Console / HUD Config\n// Startoptionen und Grafik-Menüoptionen gehören nicht in diese .cfg.\n// Vor dem Einsatz jede Zeile im Spiel prüfen.\n';
+                    this.configEditor = header + [commands, custom].filter(Boolean).join('\n') + (commands || custom ? '\n' : '');
+                    this.notice = commands || custom ? 'Config-Inhalt erstellt/ergänzt. Du kannst die Zeilen bearbeiten und als .cfg herunterladen.' : 'Keine Befehle ausgewählt. Wähle Commands oder füge eigene Zeilen ein.';
                 },
                 async copyConfigEditor() {
                     const value = String(this.configEditor || '').trim();
@@ -2532,13 +2579,21 @@
                 exportAutoexec() {
                     const commands = this.buildConsoleConfig();
                     const edited = String(this.configEditor || '').trim();
-                    if (!commands && !edited) { this.notice = 'Wähle Console-Befehle aus oder füge eine Config in den Editor ein.'; return; }
-                    const content = '// CS2 Toolkit Pro V2 – exportierte Client-Settings\\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\\n' + (edited || commands) + '\\n';
+                    const header = '// CS2 Toolkit Pro V2 - exportierte Client-Settings\n// Grafik-Menüoptionen und Steam-Startoptionen werden separat im Profil gespeichert.\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\n';
+                    const combined = [commands, edited].filter(Boolean).join('\n');
+                    if (!combined.trim()) { this.notice = 'Wähle Console-/HUD-Befehle aus oder füge Config-Zeilen in den Editor ein.'; return; }
+                    const content = header + combined.replace(/\n{3,}/g, '\n\n').trim() + '\n';
                     const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
                     const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a'); a.href = url; a.download = 'cs2-toolkit-settings.cfg';
-                    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-                    this.notice = 'CS2-Config als .cfg exportiert.';
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = (String(this.profileName || 'cs2-config').trim().replace(/[^a-z0-9_-]+/gi, '-').replace(/^-+|-+$/g, '') || 'cs2-config') + '.cfg';
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+                    this.notice = 'Download gestartet: ' + a.download + '. Prüfe die Datei im Download-Ordner.';
                 },
                 loadProfiles() {
                     try {
