@@ -536,11 +536,21 @@
             
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
+
                 <button @click="activeTab = 'suggestions'" :class="activeTab === 'suggestions' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-house"></i> Startseite
                 </button>
+                <button @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-trophy"></i> Esports
+                </button>
                 <button @click="activeTab = 'test'" :class="activeTab === 'test' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-trophy"></i> Turnierbäume
+                </button>
+                <button @click="activeTab = 'fps-lab'" :class="activeTab === 'fps-lab' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-gauge-high"></i> FPS & Settings Lab
+                </button>
+                <button @click="activeTab = 'crosshair'" :class="activeTab === 'crosshair' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-crosshairs"></i> Crosshair
                 </button>
                 <button @click="activeTab = 'maps-nades'" :class="activeTab === 'maps-nades' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-map"></i> Maps & Nades
@@ -548,20 +558,11 @@
                 <button @click="activeTab = 'callouts'" :class="activeTab === 'callouts' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-location-dot"></i> Callouts
                 </button>
-                <button @click="activeTab = 'crosshair'" :class="activeTab === 'crosshair' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-crosshairs"></i> Crosshair
-                </button>
-                <button @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-calculator"></i> Economy
-                </button>
                 <button @click="activeTab = 'commands'" :class="activeTab === 'commands' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-terminal"></i> Console
                 </button>
-                <button @click="activeTab = 'aim-trainer'" :class="activeTab === 'aim-trainer' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-crosshairs"></i> Aim Trainer
-                </button>
-                <button @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-trophy"></i> Esports
+                <button @click="activeTab = 'buy-economy'" :class="activeTab === 'buy-economy' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-calculator"></i> Economy
                 </button>
                 <button @click="activeTab = 'weapons'" :class="activeTab === 'weapons' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-gun"></i> Weapons
@@ -569,12 +570,6 @@
                 <button @click="activeTab = 'chickens'" :class="activeTab === 'chickens' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
                     <i class="fa-solid fa-egg"></i> Chicken Lab
                 </button>
-
-
-                <button @click="activeTab = 'fps-lab'" :class="activeTab === 'fps-lab' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-gauge-high"></i> FPS & Settings Lab
-                </button>
-
             </nav>
         </div>
     </header>
@@ -2070,42 +2065,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- TAB 6: AIM TRAINER -->
-        <div x-show="activeTab === 'aim-trainer'" x-cloak class="space-y-6">
-            <div class="bg-csdark-800 border border-csorange/30 rounded-xl p-6 shadow-lg">
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
-                    <div>
-                        <h2 class="text-xl font-bold text-csorange flex items-center gap-2"><i class="fa-solid fa-crosshairs"></i> CS2 Aim Trainer</h2>
-                        <p class="text-sm text-gray-400 mt-1">Externe Browser-Integration – direkt im Toolkit nutzbar.</p>
-                    </div>
-                    <a href="https://aimtraining.gitlab.io/" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center gap-2 bg-csorange hover:bg-csorange-hover text-black font-bold px-4 py-2 rounded-lg text-xs transition">
-                        <i class="fa-solid fa-up-right-from-square"></i> Extern öffnen
-                    </a>
-                </div>
-                <div class="bg-csdark-900 border border-gray-800 rounded-xl overflow-hidden">
-                    <iframe src="https://aimtraining.gitlab.io/" title="Externer CS2 Aim Trainer" loading="lazy"
-                        allow="fullscreen; pointer-lock" referrerpolicy="strict-origin-when-cross-origin"
-                        class="w-full h-[760px] border-0 bg-black"></iframe>
-                </div>
-                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
-                        <div class="text-csorange font-bold mb-1">Browser-basiert</div>
-                        <div class="text-gray-400">Kein zusätzlicher Download im Toolkit.</div>
-                    </div>
-                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
-                        <div class="text-csorange font-bold mb-1">CS2-Sensitivität</div>
-                        <div class="text-gray-400">Die externe Seite bietet eine CS2-Sensitivitätsabstimmung.</div>
-                    </div>
-                    <div class="bg-csdark-900 border border-gray-800 rounded-lg p-3">
-                        <div class="text-csorange font-bold mb-1">Fallback</div>
-                        <div class="text-gray-400">Falls die Einbettung blockiert wird, oben einfach „Extern öffnen“ nutzen.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
 
         <!-- TAB: FPS & SETTINGS LAB (additive; existing tabs remain unchanged) -->
         <section x-show="activeTab === 'fps-lab'" x-cloak class="space-y-5" x-data="fpsSettingsLab()">
