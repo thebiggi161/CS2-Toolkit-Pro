@@ -534,10 +534,17 @@
                         <p class="text-sm text-gray-400 mt-1">Öffne aktuelle Turnierübersichten direkt bei etablierten CS2-Quellen. Die Seiten selbst liefern die neuesten Paarungen und Ergebnisse; wir benötigen dafür keinen API-Token.</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <a href="https://www.hltv.org/events" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
-                            <div class="font-bold text-white">HLTV – Turniere & Matches ↗</div>
-                            <div class="text-xs text-gray-400 mt-1">Turnierkalender, Begegnungen, Ergebnisse und Event-Seiten.</div>
-                        </a>
+                        <div class="rounded-xl border border-gray-700 bg-csdark-900 overflow-hidden md:col-span-2">
+                            <div class="flex flex-wrap items-center justify-between gap-2 p-4">
+                                <div>
+                                    <div class="font-bold text-white">HLTV – Turniere & Matches</div>
+                                    <div class="text-xs text-gray-400 mt-1">Eingebettete Ansicht, sofern HLTV das Laden in einem Frame zulässt.</div>
+                                </div>
+                                <a href="https://www.hltv.org/events" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-csorange hover:underline">In neuem Tab öffnen ↗</a>
+                            </div>
+                            <iframe src="https://www.hltv.org/events" title="HLTV CS2 Turnierkalender" loading="lazy" class="w-full bg-white" style="height: min(68vh, 720px); min-height: 480px" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            <p class="px-4 pb-4 text-xs text-gray-500">Wenn HLTV die Einbettung technisch blockiert, nutze bitte den Link oben. Die Seite lässt sich nicht durch Code im Toolkit zum Einbetten zwingen.</p>
+                        </div>
                         <a href="https://liquipedia.net/counterstrike/Main_Page" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-gray-700 bg-csdark-900 p-4 hover:border-csorange">
                             <div class="font-bold text-white">Liquipedia – Counter-Strike ↗</div>
                             <div class="text-xs text-gray-400 mt-1">Turnierseiten und Brackets, sofern für das Event verfügbar.</div>
