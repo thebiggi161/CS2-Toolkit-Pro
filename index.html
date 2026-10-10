@@ -537,10 +537,10 @@
             <!-- Navigation Tabs -->
             <nav class="flex flex-wrap gap-1 sm:gap-2">
 
-                <button @click="activeTab = 'suggestions'" :class="activeTab === 'suggestions' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-house"></i> Startseite
+                <button type="button" @click.stop="activeTab = 'suggestions'" :class="activeTab !== 'overwatch' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum CS2 Toolkit wechseln">
+                    <i class="fa-solid fa-gamepad"></i> CS2 Toolkit
                 </button>
-                <button @click="activeTab = 'overwatch'; owTab='overview'" :class="activeTab === 'overwatch' ? 'bg-orange-500 text-black font-semibold shadow-md shadow-orange-500/30' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
+                <button type="button" @click.stop="activeTab = 'overwatch'; owTab = 'overview'" :class="activeTab === 'overwatch' ? 'bg-orange-500 text-black font-semibold shadow-md shadow-orange-500/30' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2" title="Zum Overwatch Toolkit wechseln">
                     <i class="fa-solid fa-shield-halved"></i> Overwatch
                 </button>
                 <button @click="activeTab = 'esports'" :class="activeTab === 'esports' ? 'bg-csorange text-black font-semibold shadow-md shadow-csorange/20' : 'bg-csdark-700 text-gray-300 hover:bg-csdark-600'" class="px-3 py-1.5 rounded text-sm transition flex items-center gap-2">
