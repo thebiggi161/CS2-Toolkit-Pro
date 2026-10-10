@@ -2192,6 +2192,8 @@
                         <h3 class="text-lg font-bold mb-2"><i class="fa-solid fa-file-code text-csorange mr-2"></i>Config-Editor (.cfg)</h3>
                         <p class="text-xs text-gray-400 mb-3">Erstelle eine Config aus den ausgewählten Console- und HUD-Befehlen oder füge eigene Zeilen ein. Der Editorinhalt wird mit deinem Profil gespeichert.</p>
                         <textarea x-model="configEditor" rows="9" spellcheck="false" placeholder="// CS2 Toolkit Config&#10;fps_max 0&#10;cl_showfps 1" class="w-full rounded-lg border border-gray-700 bg-csdark-900 px-3 py-3 text-sm font-mono text-gray-100 focus:border-csorange focus:outline-none"></textarea>
+                        <label class="block text-xs text-gray-400 mt-3 mb-1">Vorhandene .cfg/.txt-Datei einfügen</label>
+                        <input type="file" accept=".cfg,.txt,text/plain" @change="importCfgFile($event)" class="w-full text-xs text-gray-300">
                         <div class="flex flex-wrap gap-2 mt-3">
                             <button type="button" @click="generateConfigEditor()" class="rounded-lg bg-csorange px-3 py-2 text-xs font-bold text-black">Aus Auswahl erstellen</button>
                             <button type="button" @click="copyConfigEditor()" class="rounded-lg border border-gray-700 px-3 py-2 text-xs hover:border-csorange"><i class="fa-regular fa-copy mr-1"></i>Config kopieren</button>
@@ -2465,6 +2467,17 @@
                 buildConsoleConfig() {
                     return this.selectedConsoleCommands.map(cmd => cmd.name + ' ' + String(cmd.value).trim()).join('\\n');
                 },
+                async importCfgFile(event) {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+                    try {
+                        if (file.size > 100000) throw new Error('Datei ist zu groß (max. 100 KB).');
+                        this.configEditor = await file.text();
+                        this.notice = 'Config-Datei in den Editor geladen. Prüfe den Inhalt und speichere dein Profil.';
+                    } catch (error) {
+                        this.notice = 'Config-Import fehlgeschlagen: ' + (error && error.message ? error.message : 'Datei konnte nicht gelesen werden.');
+                    } finally { event.target.value = ''; }
+                },
                 generateConfigEditor() {
                     const commands = this.buildConsoleConfig();
                     this.configEditor = '// CS2 Toolkit Pro V2 - Console / HUD Config\\n// Vor dem Einsatz jede Zeile im Spiel prüfen.\\n' + (commands ? commands + '\\n' : '');
@@ -2518,8 +2531,8 @@
                 },
                 exportAutoexec() {
                     const commands = this.buildConsoleConfig();
-                    if (!commands) { this.notice = 'Bitte mindestens einen Console-Befehl auswählen.'; return; }
                     const edited = String(this.configEditor || '').trim();
+                    if (!commands && !edited) { this.notice = 'Wähle Console-Befehle aus oder füge eine Config in den Editor ein.'; return; }
                     const content = '// CS2 Toolkit Pro V2 – exportierte Client-Settings\\n// Vor dem Ausführen prüfen; diese Datei wird nicht automatisch installiert.\\n' + (edited || commands) + '\\n';
                     const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
                     const url = URL.createObjectURL(blob);
